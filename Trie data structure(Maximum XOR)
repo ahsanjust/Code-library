@@ -1,73 +1,65 @@
-#include <bitset>   // For bit manipulation
+#include <bitset>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-// Node structure for Trie
 struct Node {
-  Node *nxt[2] = {nullptr, nullptr};  // Pointers to the next nodes (0 and 1)
-  bool contain(int bit) { return nxt[bit] != nullptr; }  // Check if the node contains the given bit
-  void put(int bit, Node *node) { nxt[bit] = node; } // Put the node at the given bit position
+  Node *nxt[2] = {nullptr, nullptr};
+  bool contain(int bit) { return nxt[bit] != nullptr; }
+  void put(int bit, Node *node) { nxt[bit] = node; }
 };
 
-// Trie class for storing binary strings
 class Trie {
 private:
-  Node *root; // Root node of the Trie
+  Node *root;
 
 public:
-  Trie() { root = new Node(); } // Constructor to initialize the root node
+  Trie() { root = new Node(); }
 
-  // Function to insert a binary string into the Trie
   void insert(const string &s) {
-    Node *node = root; // Start from the root node
+    Node *node = root;
     for (char ch : s) {
-      int bit = ch - '0'; // Convert character to integer
+      int bit = ch - '0';
       if (!node->contain(bit)) {
-        node->put(bit, new Node()); // Create a new node if the bit is not present
+        node->put(bit, new Node());
       }
-      node = node->nxt[bit]; // Move to the next node
+      node = node->nxt[bit];
     }
   }
 
-  // Function to get the maximum XOR value for a given binary string
   int getMaxXOR(const string &s) {
-    Node *node = root; // Start from the root node
-    int res = 0; // Initialize result
+    Node *node = root;
+    int res = 0;
     for (char ch : s) {
-      int bit = ch - '0'; // Convert character to integer
-      int oppositeBit = bit ^ 1; // Get the opposite bit
+      int bit = ch - '0';
+      int oppositeBit = bit ^ 1;
       if (node->contain(oppositeBit)) {
-        res = (res << 1) | 1; // Append '1' to the result
-        node = node->nxt[oppositeBit]; // Move to the next node with opposite bit
+        res = (res << 1) | 1;
+        node = node->nxt[oppositeBit];
       } else {
-        res = (res << 1); // Append '0' to the result
-        node = node->nxt[bit]; // Move to the next node with the same bit
+        res = (res << 1);
+        node = node->nxt[bit];
       }
     }
     return res;
   }
 };
 
-// Function to find the maximum XOR value between elements of two arrays
 int maxXOR(int n, int m, vector<int> &arr1, vector<int> &arr2) {
-  Trie trie; // Create a Trie object
-  // Insert binary representations of numbers from arr1 into the Trie
+  Trie trie;
   for (auto &num : arr1) {
-    string s = bitset<32>(num).to_string(); // Convert number to binary string
-    trie.insert(s); // Insert binary string into the Trie
+    string s = bitset<32>(num).to_string();
+    trie.insert(s);
   }
   int maxXORValue = 0;
-  // Find maximum XOR value for each number in arr2
   for (auto &num : arr2) {
-    string s = bitset<32>(num).to_string(); // Convert number to binary string
-    maxXORValue = max(maxXORValue, trie.getMaxXOR(s)); // Update maximum XOR value
+    string s = bitset<32>(num).to_string();
+    maxXORValue = max(maxXORValue, trie.getMaxXOR(s));
   }
   return maxXORValue;
 }
 
-// Main function
 int main() {
   vector<int> arr1 = {1, 2, 3};
   vector<int> arr2 = {4, 5, 6};
