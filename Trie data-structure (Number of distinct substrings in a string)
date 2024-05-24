@@ -4,55 +4,44 @@
 
 using namespace std;
 
-// Node structure for Trie
 struct Node {
-    Node *next[26]; // Array of pointers to next nodes
-    bool contain(char c) { return (next[c - 'a'] != nullptr); } // Check if the character is present in the next nodes
-    void put(char ch, Node *node) { next[ch - 'a'] = node; } // Put the character in the next nodes
+  Node *next[26];
+  bool contain(char c) { return (next[c - 'a'] != nullptr); }
+  void put(char ch, Node *node) { next[ch - 'a'] = node; }
 };
 
-// Trie class for storing strings
 class Trie {
 private:
-    Node *root; // Root node of the Trie
+  Node *root;
 
 public:
-    Trie() { root = new Node(); } // Constructor to initialize the root node
+  Trie() { root = new Node(); }
 
-    // Function to get the count of distinct substrings starting from a given index
-    int getDistinctSubstringsCount(int startIndex, string &s) {
-        int distinctCount = 0; // Initialize count of distinct substrings
-        Node *node = root; // Start from the root node
-
-        // Traverse the string starting from the given index
-        for (int i = startIndex; i < s.size(); i++) {
-            // If the character is not present in the current node's next nodes, add it to the Trie
-            if (!node->contain(s[i])) {
-                distinctCount += 1; // Increment distinct count
-                node->put(s[i], new Node()); // Put the character in the Trie
-            }
-            node = node->next[s[i] - 'a']; // Move to the next node
-        }
-        return distinctCount;
+  int getDistinctSubstringsCount(int startIndex, string &s) {
+    int distinctCount = 0;
+    Node *node = root;
+    for (int i = startIndex; i < s.size(); i++) {
+      if (!node->contain(s[i])) {
+        distinctCount += 1;
+        node->put(s[i], new Node());
+      }
+      node = node->next[s[i] - 'a'];
     }
+    return distinctCount;
+  }
 };
 
-// Function to count distinct substrings in a given string using Trie
 int countDistinctSubstrings(string s) {
-    int64_t result = 0; // Initialize the result count
-    Trie trie; // Create a Trie object
-
-    // Traverse the string and count distinct substrings starting from each index
-    for (int i = 0; i < s.size(); i++) {
-        result += trie.getDistinctSubstringsCount(i, s); // Add count of distinct substrings starting from index i
-    }
-
-    return result + 1; // Add one for the empty substring
+  int64_t result = 0;
+  Trie trie;
+  for (int i = 0; i < s.size(); i++) {
+    result += trie.getDistinctSubstringsCount(i, s);
+  }
+  return result + 1;
 }
 
-// Main function
 int main() {
-    string s = "ababc";
-    cout << "Number of distinct substrings: " << countDistinctSubstrings(s) << endl;
-    return 0;
+  string s = "ababc";
+  cout << "Number of distinct substrings: " << countDistinctSubstrings(s) << endl;
+  return 0;
 }
