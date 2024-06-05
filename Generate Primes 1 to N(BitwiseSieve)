@@ -1,0 +1,56 @@
+#include <cstring>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class PrimeSieve {
+public:
+  static vector<int> bitwiseSieve(int limit) {
+    int bitArraySize = (limit >> 6) + 1; // Using bit shifting instead of division by 64
+    int *bitArray = new int[bitArraySize];
+    memset(bitArray, 0, sizeof(int) * bitArraySize);
+    vector<int> primes = {2};
+
+    for (int number = 3; number * number <= limit; number += 2) {
+      if (!isComposite(bitArray, number)) {
+        for (int multiple = number * number, step = number << 1;
+             multiple <= limit; multiple += step) {
+          markComposite(bitArray, multiple);
+        }
+      }
+    }
+
+    for (int number = 3; number <= limit; number += 2) {
+      if (!isComposite(bitArray, number)) {
+        primes.push_back(number);
+      }
+    }
+
+    delete[] bitArray;
+    return primes;
+  }
+
+private:
+  static inline bool isComposite(const int bitArray[], int number) {
+    return (bitArray[number >> 6] &
+            (1 << ((number >> 1) & 31))); // number / 64 is now number >> 6
+  }
+  static inline void markComposite(int bitArray[], int number) {
+    bitArray[number >> 6] |=
+        (1 << ((number >> 1) & 31)); // number / 64 is now number >> 6
+  }
+};
+
+int main() {
+  int limit = 100;
+  vector<int> primes = PrimeSieve::bitwiseSieve(limit);
+
+  cout << "Prime numbers up to " << limit << " are: ";
+  for (int prime : primes) {
+    cout << prime << " ";
+  }
+  cout << endl;
+
+  return 0;
+}
