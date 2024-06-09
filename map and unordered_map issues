@@ -1,0 +1,65 @@
+problem Link : https://codeforces.com/contest/1701/problem/C
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void solve(int cs) {
+  int n, w;
+  cin >> n >> w;
+  vector<int> jobs(w);
+  for (int i = 0; i < w; i++) {
+    cin >> jobs[i];
+  }
+  auto can = [&](int t) -> bool {
+    int extra = 0;
+    //TLE in map but A/C in unordered_map
+    map<int, int> cnt;
+    for (auto &it : jobs) {
+      cnt[it] += 1;
+    }
+    for (auto &it : cnt) {
+      if (it.second > t) {
+        extra += it.second - t;
+        it.second = t;
+      }
+    }
+    for (int i = 1; i <= n; i++) {
+      int rem = t - cnt[i];
+      int c = rem / 2;
+      if (extra > 0) {
+        extra -= c;
+      }
+      cnt[i] = 0;
+    }
+    return extra <= 0;
+  };
+  int hi = w, lo = 1, res = hi;
+  while (hi >= lo) {
+    int mid = (hi + lo) >> 1;
+    if (can(mid)) {
+      res = mid;
+      hi = mid - 1;
+    } else {
+      lo = mid + 1;
+    }
+  }
+  cout << res << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  cin >> tc;
+  for (int cs = 1; cs <= tc; cs++) {
+    solve(cs);
+  }
+  return 0;
+}
