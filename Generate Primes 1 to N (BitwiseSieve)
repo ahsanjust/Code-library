@@ -1,52 +1,47 @@
-#include <cstring>
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-class PrimeSieve {
+class Sieve {
 public:
   static vector<int> bitwiseSieve(int limit) {
-    int bitArraySize = (limit >> 6) + 1; // Using bit shifting instead of division by 64
-    int *bitArray = new int[bitArraySize];
-    memset(bitArray, 0, sizeof(int) * bitArraySize);
+    int bitArrSize = (limit >> 6) + 1;
+    int *bitArr = new int[bitArrSize];
+    memset(bitArr, 0, sizeof(int) * bitArrSize);
     vector<int> primes = {2};
 
-    for (int number = 3; number * number <= limit; number += 2) {
-      if (!isComposite(bitArray, number)) {
-        for (int multiple = number * number, step = number << 1;
-             multiple <= limit; multiple += step) {
-          markComposite(bitArray, multiple);
+    for (int i = 3; i * i <= limit; i += 2) {
+      if (!isComposite(bitArr, i)) {
+        for (int j = i * i, step = i << 1; j <= limit; j += step) {
+          markComposite(bitArr, j);
         }
       }
     }
 
-    for (int number = 3; number <= limit; number += 2) {
-      if (!isComposite(bitArray, number)) {
-        primes.push_back(number);
+    for (int i = 3; i <= limit; i += 2) {
+      if (!isComposite(bitArr, i)) {
+        primes.push_back(i);
       }
     }
 
-    delete[] bitArray;
+    delete[] bitArr;
     return primes;
   }
 
 private:
-  static inline bool isComposite(const int bitArray[], int number) {
-    return (bitArray[number >> 6] &
-            (1 << ((number >> 1) & 31))); // number / 64 is now number >> 6
+  static inline bool isComposite(const int bitArr[], int i) {
+    return (bitArr[i >> 6] & (1 << ((i >> 1) & 31)));
   }
-  static inline void markComposite(int bitArray[], int number) {
-    bitArray[number >> 6] |=
-        (1 << ((number >> 1) & 31)); // number / 64 is now number >> 6
+  static inline void markComposite(int bitArr[], int i) {
+    bitArr[i >> 6] |= (1 << ((i >> 1) & 31));
   }
 };
 
 int main() {
   int limit = 100;
-  vector<int> primes = PrimeSieve::bitwiseSieve(limit);
+  vector<int> primes = Sieve::bitwiseSieve(limit);
 
-  cout << "Prime numbers up to " << limit << " are: ";
+  cout << "Prime is up to " << limit << " are: ";
   for (int prime : primes) {
     cout << prime << " ";
   }
