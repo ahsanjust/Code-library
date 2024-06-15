@@ -1,0 +1,98 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+class SA {
+public:
+  string s;
+  vector<int> Sa;
+  vector<int> Lcp;
+
+  SA(const string &s) : s(s) {
+    buildSA();
+    buildLCP();
+  }
+  vector<int> getSA() { return Sa; }
+  vector<int> getLCP() { return Lcp; }
+
+private:
+  void buildSA() {
+    int n = s.size();
+    Sa.resize(n);
+    vector<int> rank(n), tempRank(n);
+
+    for (int i = 0; i < n; i++) {
+      Sa[i] = i;
+      rank[i] = s[i];
+    }
+
+    for (int k = 1; k < n; k *= 2) {
+      auto compare = [&](int a, int b) {
+        if (rank[a] != rank[b])
+          return rank[a] < rank[b];
+        int ra = (a + k < n) ? rank[a + k] : -1;
+        int rb = (b + k < n) ? rank[b + k] : -1;
+        return ra < rb;
+      };
+      sort(Sa.begin(), Sa.end(), compare);
+      tempRank[Sa[0]] = 0;
+      for (int i = 1; i < n; i++) {
+        tempRank[Sa[i]] = tempRank[Sa[i - 1]];
+        if (compare(Sa[i - 1], Sa[i])) {
+          tempRank[Sa[i]]++;
+        }
+      }
+      rank = tempRank;
+    }
+  }
+
+  void buildLCP() {
+    int n = s.size();
+    Lcp.resize(n);
+    vector<int> rank(n);
+
+    for (int i = 0; i < n; i++) {
+      rank[Sa[i]] = i;
+    }
+    int h = 0;
+    for (int i = 0; i < n; i++) {
+      if (rank[i] > 0) {
+        int j = Sa[rank[i] - 1];
+        while (i + h < n && j + h < n && s[i + h] == s[j + h]) {
+          h++;
+        }
+        Lcp[rank[i]] = h;
+        if (h > 0) {
+          h--;
+        }
+      }
+    }
+  }
+};
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  string s;
+  cin >> s;
+  SA sa(s);
+  cout << *max_element(sa.Lcp.begin(), sa.Lcp.end()) << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  // cin >> tc;
+  for (int cs = 1; cs <= tc; cs++) {
+    solve(cs);
+  }
+  return 0;
+}
