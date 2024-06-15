@@ -2,10 +2,10 @@ template <typename T> class Mint {
 public:
   Mint(T mod) : mod(mod) {}
 
-  T add(T a, T b) const { return (a % mod + b % mod) % mod; }
-  T sub(T a, T b) const { return (a % mod - b % mod + mod) % mod; }
-  T mul(T a, T b) const { return (a % mod * b % mod) % mod; }
-  T div(T a, T b) const { return mul(a, inv(b)); }
+  T add(T a, T b) const { return (a + b) % mod; }
+  T sub(T a, T b) const { return (a - b + mod) % mod; }
+  T mul(T a, T b) const { return (a * b) % mod; }
+
   T power(T base, T exp) const {
     T res = 1;
     base = base % mod;
@@ -19,13 +19,22 @@ public:
   }
 
   T inverse(T a) const {
-    T u = 0, v = 1, m = mod, t, q;
-    while (a != 0)
-      q = m / a, t = a, a = m % a, m = t, t = u, u = v - q * u, v = t;
-    if (v < 0)
-      v += mod;
-    return v;
+    T u = 0, v = 1;
+    T m = mod;
+    while (a != 0) {
+      T t = m / a;
+      m -= t * a;
+      swap(a, m);
+      u -= t * v;
+      swap(u, v);
+    }
+    assert(m == 1);
+    if (u < 0)
+      u += mod;
+    return u;
   }
+
+  T div(T a, T b) const { return mul(a, inverse(b)); }
 
 private:
   T mod;
