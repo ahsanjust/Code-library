@@ -1,0 +1,32 @@
+template <typename T> class Mint {
+public:
+  Mint(T mod) : mod(mod) {}
+
+  T add(T a, T b) const { return (a % mod + b % mod) % mod; }
+  T sub(T a, T b) const { return (a % mod - b % mod + mod) % mod; }
+  T mul(T a, T b) const { return (a % mod * b % mod) % mod; }
+  T div(T a, T b) const { return mul(a, inv(b)); }
+  T power(T base, T exp) const {
+    T res = 1;
+    base = base % mod;
+    while (exp > 0) {
+      if (exp % 2 == 1)
+        res = (res * base) % mod;
+      exp = exp >> 1;
+      base = (base * base) % mod;
+    }
+    return res;
+  }
+
+  T inverse(T a) const {
+    T u = 0, v = 1, m = mod, t, q;
+    while (a != 0)
+      q = m / a, t = a, a = m % a, m = t, t = u, u = v - q * u, v = t;
+    if (v < 0)
+      v += mod;
+    return v;
+  }
+
+private:
+  T mod;
+};
