@@ -76,7 +76,19 @@ private:
     }
   }
 };
-
+int longestCommonSubstr(string S1, string S2) {
+    string s = S1 + '$' + S2;
+    SA sa(s);
+    int maxLcp = 0;
+    int t = S1.length() + 1;
+    for (int i = 1; i < s.length(); ++i) {
+        if ((sa.Sa[i] < t && sa.Sa[i-1] >= t) ||
+            (sa.Sa[i] >= t && sa.Sa[i-1] < t)) {
+            maxLcp = max(maxLcp, sa.Lcp[i]);
+        }
+    }
+    return maxLcp;
+}
 void solve(int cs) {
   int n;
   cin >> n;
