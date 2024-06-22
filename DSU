@@ -1,46 +1,45 @@
 class DSU {
 public:
-  DSU(int n) : parent(n), rank(n, 0), siz(n, 1) {
+  DSU(int n) : Par(n), rank(n, 0), siz(n, 1) {
     for (int i = 0; i < n; ++i) {
-      parent[i] = i;
+      Par[i] = i;
     }
   }
 
-  int findLeader(int x) {
-    if (parent[x] != x) {
-      parent[x] = findLeader(parent[x]);
+  int Leader(int x) {
+    if (Par[x] != x) {
+      Par[x] = Leader(Par[x]);
     }
-    return parent[x];
+    return Par[x];
   }
 
   bool unite(int x, int y) {
-    int rootX = findLeader(x);
-    int rootY = findLeader(y);
+    int X = Leader(x);
+    int Y = Leader(y);
 
-    if (rootX != rootY) {
-      if (rank[rootX] > rank[rootY]) {
-        parent[rootY] = rootX;
-        siz[rootX] += siz[rootY];
-      } else if (rank[rootX] < rank[rootY]) {
-        parent[rootX] = rootY;
-        siz[rootY] += siz[rootX];
+    if (X != Y) {
+      if (rank[X] > rank[Y]) {
+        Par[Y] = X;
+        siz[X] += siz[Y];
+      } else if (rank[X] < rank[Y]) {
+        Par[X] = Y;
+        siz[Y] += siz[X];
       } else {
-        parent[rootY] = rootX;
-        siz[rootX] += siz[rootY];
-        ++rank[rootX];
+        Par[Y] = X;
+        siz[X] += siz[Y];
+        ++rank[X];
       }
       return true;
     }
     return false;
   }
-
-  int getsize(int x) {
-    int leader = findLeader(x);
-    return siz[leader];
+  int size(int x) {
+    int root = Leader(x);
+    return siz[root];
   }
 
 private:
-  vector<int> parent;
+  vector<int> Par;
   vector<int> rank;
   vector<int> siz;
 };
