@@ -1,0 +1,60 @@
+https://codeforces.com/contest/1986/problem/F
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void solve(int cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v, --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  int64_t res = n * 1ll * (n - 1) / 2;
+  vector<int> vis(n, false);
+  vector<int> tin(n, 0), low(n, 0); //tin -> time of insertion
+  vector<int> size(n, 1);
+  int timer = 0;
+  auto Dfs = [&](auto &&self, int node, int par) -> void {
+    vis[node] = true;
+    tin[node] = low[node] = ++timer;
+    for (auto &nodes : g[node]) {
+      if (nodes != par) {
+        if (!vis[nodes]) {
+          self(self, nodes, node);
+          size[node] += size[nodes];
+          low[node] = min(low[node], low[nodes]);
+          if (tin[node] < low[nodes]) { // There is a bridge (node, nodes)
+            int64_t x = size[nodes], y = n - size[nodes];
+            res = min(res, x * (x - 1) / 2 + y * (y - 1) / 2);
+          }
+        } else {
+          low[node] = min(low[nodes], low[node]);
+        }
+      }
+    }
+  };
+  Dfs(Dfs, 0, -1);
+  cout << res << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  cin >> tc;
+  for (int cs = 1; cs <= tc; cs++) {
+    solve(cs);
+  }
+  return 0;
+}
