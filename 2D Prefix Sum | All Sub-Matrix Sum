@@ -1,0 +1,54 @@
+void compute(vector<vector<int>> &g, vector<vector<int>> &pf) {
+  int row = g.size();
+  int col = g[0].size();
+
+  for (int i = 0; i < row; ++i) {
+    for (int j = 0; j < col; ++j) {
+      pf[i][j] = g[i][j];
+      if (i > 0) {
+        pf[i][j] += pf[i - 1][j];
+      }
+      if (j > 0) {
+        pf[i][j] += pf[i][j - 1];
+      }
+      if (i > 0 && j > 0) {
+        pf[i][j] -= pf[i - 1][j - 1];
+      }
+    }
+  }
+}
+
+int SubSum(vector<vector<int>> &pf, int x1, int y1, int x2, int y2) {
+  int sum = pf[x2][y2];
+  if (x1 > 0) {
+    sum -= pf[x1 - 1][y2];
+  }
+  if (y1 > 0) {
+    sum -= pf[x2][y1 - 1];
+  }
+  if (x1 > 0 && y1 > 0) {
+    sum += pf[x1 - 1][y1 - 1];
+  }
+  return sum;
+}
+
+vector<vector<int>> FindAllSubMatrixSumOfLenK(vector<vector<int>> &g, int k) {
+  int row = g.size();
+  int col = g[0].size();
+
+  vector<vector<int>> pf(row, vector<int>(col, 0));
+  compute(g, pf);
+  vector<vector<int>> res(row - k + 1, vector<int>(col - k + 1, 0));
+
+  for (int i = 0; i <= row - k; ++i) {
+    for (int j = 0; j <= col - k; ++j) {
+      int x1 = i;
+      int y1 = j;
+      int x2 = i + k - 1;
+      int y2 = j + k - 1;
+      res[i][j] = SubSum(pf, x1, y1, x2, y2);
+    }
+  }
+
+  return res;
+}
