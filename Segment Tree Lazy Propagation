@@ -99,6 +99,24 @@ public:
     lazy.resize(4 * n, 0);
   }
 
+  SegmentTreeLazy(vector<int64_t>& arr) {
+    n = arr.size();
+    tree.resize(4 * n, 0);
+    lazy.resize(4 * n, 0);
+    build(arr, 1, 0, n - 1);
+  }
+
+  void build(vector<int64_t>& arr, int node, int start, int end) {
+    if (start == end) {
+      tree[node] = arr[start];
+    } else {
+      int mid = start + ((end - start) >> 1);
+      build(arr, node << 1, start, mid);
+      build(arr, node << 1 | 1, mid + 1, end);
+      tree[node] = tree[node << 1] + tree[node << 1 | 1];
+    }
+  }
+
   void updateRange(int l, int r, int64_t val) {
     UpdateRange(1, 0, n - 1, l, r, val);
   }
