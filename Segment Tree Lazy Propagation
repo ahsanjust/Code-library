@@ -1,3 +1,21 @@
+/*
+struct Node {
+  int64_t sum;
+  int64_t maxPrefix;
+  int64_t maxSuffix;
+  int64_t maxSubarray;
+  int64_t lazy;
+  Node() : sum(0), maxPrefix(0), maxSuffix(0), maxSubarray(0), lazy(0) {}
+};
+    
+void merge(int node) {
+  tree[node].sum = tree[node * 2].sum + tree[node * 2 + 1].sum;
+  tree[node].maxPrefix = max(tree[node * 2].maxPrefix, tree[node * 2].sum + tree[node * 2 + 1].maxPrefix);
+  tree[node].maxSuffix = max(tree[node * 2 + 1].maxSuffix, tree[node * 2 + 1].sum + tree[node * 2].maxSuffix);
+  tree[node].maxSubarray = max({tree[node * 2].maxSubarray, tree[node * 2 + 1].maxSubarray, tree[node * 2].maxSuffix + tree[node * 2 + 1].maxPrefix});
+}
+*/
+
 class SegmentTreeLazy {
 private:
   vector<int64_t> tree, lazy;
@@ -16,8 +34,9 @@ private:
 
   void UpdateRange(int node, int start, int end, int l, int r, int64_t val) {
     propagate(node, start, end);
-    if (start > end || start > r || end < l)
+    if (start > end || start > r || end < l) {
       return;
+    }
     if (start >= l && end <= r) {
       tree[node] += (end - start + 1) * val;
       if (start != end) {
@@ -33,11 +52,13 @@ private:
   }
 
   int64_t QueryRange(int node, int start, int end, int l, int r) {
-    if (start > end || start > r || end < l)
+    if (start > end || start > r || end < l) {
       return 0;
+    }
     propagate(node, start, end);
-    if (start >= l && end <= r)
+    if (start >= l && end <= r) {
       return tree[node];
+    }
     int mid = start + ((end - start) >> 1);
     int64_t leftQuery = QueryRange(node << 1, start, mid, l, r);
     int64_t rightQuery = QueryRange(node << 1 | 1, mid + 1, end, l, r);
@@ -51,22 +72,25 @@ private:
       return;
     }
     int mid = start + ((end - start) >> 1);
-    if (idx <= mid)
+    if (idx <= mid) {
       UpdatePoint(node << 1, start, mid, idx, val);
-    else
+    } else {
       UpdatePoint(node << 1 | 1, mid + 1, end, idx, val);
+    }
     tree[node] = tree[node << 1] + tree[node << 1 | 1];
   }
 
   int64_t QueryPoint(int node, int start, int end, int idx) {
     propagate(node, start, end);
-    if (start == end)
+    if (start == end) {
       return tree[node];
+    }
     int mid = start + ((end - start) >> 1);
-    if (idx <= mid)
+    if (idx <= mid) {
       return QueryPoint(node << 1, start, mid, idx);
-    else
+    } else {
       return QueryPoint(node << 1 | 1, mid + 1, end, idx);
+    }
   }
 
 public:
