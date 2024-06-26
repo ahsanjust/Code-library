@@ -1,0 +1,93 @@
+class SegmentTreeLazy {
+private:
+  vector<int64_t> tree, lazy;
+  int n;
+
+  void propagate(int node, int start, int end) {
+    if (lazy[node] != 0) {
+      tree[node] += (end - start + 1) * lazy[node];
+      if (start != end) {
+        lazy[node << 1] += lazy[node];
+        lazy[node << 1 | 1] += lazy[node];
+      }
+      lazy[node] = 0;
+    }
+  }
+
+  void UpdateRange(int node, int start, int end, int l, int r, int64_t val) {
+    propagate(node, start, end);
+    if (start > end || start > r || end < l)
+      return;
+    if (start >= l && end <= r) {
+      tree[node] += (end - start + 1) * val;
+      if (start != end) {
+        lazy[node << 1] += val;
+        lazy[node << 1 | 1] += val;
+      }
+      return;
+    }
+    int mid = start + ((end - start) >> 1);
+    UpdateRange(node << 1, start, mid, l, r, val);
+    UpdateRange(node << 1 | 1, mid + 1, end, l, r, val);
+    tree[node] = tree[node << 1] + tree[node << 1 | 1];
+  }
+
+  int64_t QueryRange(int node, int start, int end, int l, int r) {
+    if (start > end || start > r || end < l)
+      return 0;
+    propagate(node, start, end);
+    if (start >= l && end <= r)
+      return tree[node];
+    int mid = start + ((end - start) >> 1);
+    int64_t leftQuery = QueryRange(node << 1, start, mid, l, r);
+    int64_t rightQuery = QueryRange(node << 1 | 1, mid + 1, end, l, r);
+    return leftQuery + rightQuery;
+  }
+
+  void UpdatePoint(int node, int start, int end, int idx, int64_t val) {
+    propagate(node, start, end);
+    if (start == end) {
+      tree[node] += val;
+      return;
+    }
+    int mid = start + ((end - start) >> 1);
+    if (idx <= mid)
+      UpdatePoint(node << 1, start, mid, idx, val);
+    else
+      UpdatePoint(node << 1 | 1, mid + 1, end, idx, val);
+    tree[node] = tree[node << 1] + tree[node << 1 | 1];
+  }
+
+  int64_t QueryPoint(int node, int start, int end, int idx) {
+    propagate(node, start, end);
+    if (start == end)
+      return tree[node];
+    int mid = start + ((end - start) >> 1);
+    if (idx <= mid)
+      return QueryPoint(node << 1, start, mid, idx);
+    else
+      return QueryPoint(node << 1 | 1, mid + 1, end, idx);
+  }
+
+public:
+  SegmentTreeLazy(int size) : n(size) {
+    tree.resize(4 * n, 0);
+    lazy.resize(4 * n, 0);
+  }
+
+  void updateRange(int l, int r, int64_t val) {
+    UpdateRange(1, 0, n - 1, l, r, val);
+  }
+
+  int64_t queryRange(int l, int r) { 
+    return QueryRange(1, 0, n - 1, l, r); 
+  }
+
+  void updatePoint(int idx, int64_t val) { 
+    UpdatePoint(1, 0, n - 1, idx, val); 
+  }
+
+  int64_t queryPoint(int idx) { 
+    return QueryPoint(1, 0, n - 1, idx); 
+  }
+};
