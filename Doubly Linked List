@@ -1,0 +1,137 @@
+template <typename T> struct Node {
+  T key;
+  Node *prev;
+  Node *next;
+
+  Node(T k) : key(k), prev(nullptr), next(nullptr) {}
+};
+
+template <typename T> class DoublyLinkedList {
+private:
+  Node<T> *head;
+  Node<T> *tail;
+  unordered_map<T, Node<T> *> keyMap;
+  int length;
+
+public:
+  DoublyLinkedList() : head(nullptr), tail(nullptr), length(0) {}
+
+  void insertFront(T x) {
+    Node<T> *newNode = new Node<T>(x);
+    if (!head) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      newNode->next = head;
+      head->prev = newNode;
+      head = newNode;
+    }
+    keyMap[x] = newNode;
+    length++;
+  }
+
+  void insertBack(T x) {
+    Node<T> *newNode = new Node<T>(x);
+    if (!tail) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      tail->next = newNode;
+      newNode->prev = tail;
+      tail = newNode;
+    }
+    keyMap[x] = newNode;
+    length++;
+  }
+
+  void insertAt(T x, int k) {
+    if (k < 1 || k > length + 1) {
+      cout << "Invalid position!" << endl;
+      return;
+    }
+
+    if (k == 1) {
+      insertFront(x);
+    } else if (k == length + 1) {
+      insertBack(x);
+    } else {
+      Node<T> *newNode = new Node<T>(x);
+      Node<T> *current = head;
+      int count = 1;
+
+      while (count < k - 1) {
+        current = current->next;
+        count++;
+      }
+
+      newNode->next = current->next;
+      newNode->prev = current;
+      current->next->prev = newNode;
+      current->next = newNode;
+
+      keyMap[x] = newNode;
+      length++;
+    }
+  }
+
+  void deleteKey(T x) {
+    if (keyMap.find(x) != keyMap.end()) {
+      Node<T> *nodeToDelete = keyMap[x];
+
+      if (nodeToDelete == head && nodeToDelete == tail) {
+        head = nullptr;
+        tail = nullptr;
+      } else if (nodeToDelete == head) {
+        head = head->next;
+        head->prev = nullptr;
+      } else if (nodeToDelete == tail) {
+        tail = tail->prev;
+        tail->next = nullptr;
+      } else {
+        nodeToDelete->prev->next = nodeToDelete->next;
+        nodeToDelete->next->prev = nodeToDelete->prev;
+      }
+
+      keyMap.erase(x);  
+      delete nodeToDelete;
+      length--;
+    }
+  }
+
+  void deleteFront() {
+    if (head) {
+      Node<T> *nodeToDelete = head;
+      head = head->next;
+      if (head)
+        head->prev = nullptr;
+      keyMap.erase(nodeToDelete->key); 
+      delete nodeToDelete;             
+      length--;
+    }
+  }
+
+  void deleteBack() {
+    if (tail) {
+      Node<T> *nodeToDelete = tail;
+      tail = tail->prev;
+      if (tail)
+        tail->next = nullptr;
+      keyMap.erase(nodeToDelete->key); 
+      delete nodeToDelete;            
+      length--;
+    }
+  }
+
+  void printList() {
+    Node<T> *current = head;
+    while (current) {
+      cout << current->key;
+      current = current->next;
+      if (current)
+        cout << " ";
+    }
+    cout << endl;
+  }
+
+  int getLength() { return length; }
+};
