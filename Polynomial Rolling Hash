@@ -1,0 +1,66 @@
+
+const int MAX_SIZE = 1e6 + 10;
+
+int mod_pow(int64_t base, int64_t exp, const int mod) {
+    int result = 1 % mod;
+    base %= mod;
+    if (base < 0) base += mod;
+    while (exp) {
+        if (exp & 1) result = (int64_t)result * base % mod;
+        base = (int64_t)base * base % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+const int MOD1 = 1e9 + 7, MOD2 = 1e9 + 9;
+const int PRIME1 = 31, PRIME2 = 97;
+int inv_prime1, inv_prime2;
+pair<int, int> power_cache[MAX_SIZE], inv_power_cache[MAX_SIZE];
+
+void precompute() {
+    power_cache[0] = {1, 1};
+    for (int i = 1; i < MAX_SIZE; i++) {
+        power_cache[i].first = (int64_t)power_cache[i - 1].first * PRIME1 % MOD1;
+        power_cache[i].second = (int64_t)power_cache[i - 1].second * PRIME2 % MOD2;
+    }
+    inv_prime1 = mod_pow(PRIME1, MOD1 - 2, MOD1);
+    inv_prime2 = mod_pow(PRIME2, MOD2 - 2, MOD2);
+    inv_power_cache[0] = {1, 1};
+    for (int i = 1; i < MAX_SIZE; i++) {
+        inv_power_cache[i].first = (int64_t)inv_power_cache[i - 1].first * inv_prime1 % MOD1;
+        inv_power_cache[i].second = (int64_t)inv_power_cache[i - 1].second * inv_prime2 % MOD2;
+    }
+}
+
+struct Hasher {
+    int length;
+    string text;
+    vector<pair<int, int>> hashes;
+
+    Hasher() {}
+
+    Hasher(string _text) {
+        length = _text.size();
+        text = move(_text);
+        hashes.emplace_back(0, 0);
+        for (int i = 0; i < length; i++) {
+            pair<int, int> p;
+            p.first = (hashes[i].first + (int64_t)power_cache[i].first * text[i] % MOD1) % MOD1;
+            p.second = (hashes[i].second + (int64_t)power_cache[i].second * text[i] % MOD2) % MOD2;
+            hashes.push_back(p);
+        }
+    }
+
+    pair<int, int> get_hash(int left, int right) {
+        assert(1 <= left && left <= right && right <= length);
+        pair<int, int> result;
+        result.first = (hashes[right].first - hashes[left - 1].first + MOD1) * (int64_t)inv_power_cache[left - 1].first % MOD1;
+        result.second = (hashes[right].second - hashes[left - 1].second + MOD2) * (int64_t)inv_power_cache[left - 1].second % MOD2;
+        return result;
+    }
+
+    pair<int, int> get_hash() { return get_hash(1, length); }
+
+    void clear() { hashes.clear(); }
+};
