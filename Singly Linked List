@@ -1,0 +1,132 @@
+template <typename T> struct Node {
+  T key;
+  Node *next;
+
+  Node(T k) : key(k), next(nullptr) {}
+};
+
+template <typename T> class SinglyLinkedList {
+private:
+  Node<T> *head;
+  Node<T> *tail;
+  int length;
+
+public:
+  SinglyLinkedList() : head(nullptr), tail(nullptr), length(0) {}
+
+  void insertFront(T x) {
+    Node<T> *newNode = new Node<T>(x);
+    if (!head) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      newNode->next = head;
+      head = newNode;
+    }
+    length++;
+  }
+
+  void insertBack(T x) {
+    Node<T> *newNode = new Node<T>(x);
+    if (!head) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      tail->next = newNode;
+      tail = newNode;
+    }
+    length++;
+  }
+
+  void insertAt(T x, int k) {
+    if (k < 1 || k > length + 1) {
+      cout << "Invalid position!" << endl;
+      return;
+    }
+
+    if (k == 1) {
+      insertFront(x);
+    } else if (k == length + 1) {
+      insertBack(x);
+    } else {
+      Node<T> *newNode = new Node<T>(x);
+      Node<T> *current = head;
+      int count = 1;
+
+      while (count < k - 1) {
+        current = current->next;
+        count++;
+      }
+
+      newNode->next = current->next;
+      current->next = newNode;
+
+      length++;
+    }
+  }
+
+  void deleteKey(T x) {
+    Node<T> *current = head;
+    Node<T> *prev = nullptr;
+
+    while (current) {
+      if (current->key == x) {
+        if (current == head) {
+          head = head->next;
+        } else {
+          prev->next = current->next;
+          if (current == tail) {
+            tail = prev;
+          }
+        }
+        delete current;
+        length--;
+        return;
+      }
+      prev = current;
+      current = current->next;
+    }
+  }
+
+  void deleteFront() {
+    if (head) {
+      Node<T> *nodeToDelete = head;
+      head = head->next;
+      delete nodeToDelete;
+      length--;
+      if (!head) {
+        tail = nullptr;
+      }
+    }
+  }
+
+  void deleteBack() {
+    if (!head || !head->next) {
+      deleteFront();
+      return;
+    }
+
+    Node<T> *current = head;
+    while (current->next != tail) {
+      current = current->next;
+    }
+
+    delete tail;
+    tail = current;
+    tail->next = nullptr;
+    length--;
+  }
+
+  void printList() {
+    Node<T> *current = head;
+    while (current) {
+      cout << current->key;
+      current = current->next;
+      if (current)
+        cout << " ";
+    }
+    cout << endl;
+  }
+
+  int getLength() { return length; }
+};
