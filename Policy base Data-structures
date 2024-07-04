@@ -1,0 +1,154 @@
+#include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+
+using namespace std;
+using namespace __gnu_pbds;
+
+// Ordered Set
+template<typename T>
+using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+/*
+Description:
+    Policy-based data structure (PBDS) that maintains a set of elements sorted in increasing order.
+    Provides efficient operations like insertions, deletions, and finding order statistics (k-th smallest/largest element).
+    Suitable for scenarios requiring sorted elements with quick access to their positions.
+    Less efficient for large datasets compared to unordered_map due to tree structure overhead.
+*/
+
+// Ordered Multiset
+template<typename T>
+using ordered_multiset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+/*
+Description:
+    Policy-based data structure (PBDS) that maintains a multiset of elements sorted in increasing order.
+    Allows duplicate elements and supports efficient insertions, deletions,
+    and finding order statistics (k-th smallest/largest element).
+    Useful for scenarios where sorted duplicate elements and efficient order statistic queries are required.
+*/
+
+// Ordered Map
+template<typename Key, typename Value>
+using ordered_map = tree<Key, Value, less<Key>, rb_tree_tag, tree_order_statistics_node_update>;
+/*
+Description:
+    Policy-based data structure (PBDS) that maintains a map of keys to values, sorted by keys in increasing order.
+    Offers efficient operations for insertions, deletions, and finding elements by key.
+    Suitable for scenarios needing a map with keys sorted in a specific order.
+    Less efficient than unordered_map for very large datasets due to tree structure overhead.
+*/
+
+// Ordered Set with Custom Comparator
+struct custom_compare {
+    bool operator()(const int& lhs, const int& rhs) const {
+        return lhs > rhs; // Custom comparator for descending order
+    }
+};
+template<typename T>
+using ordered_set_custom = tree<T, null_type, custom_compare, rb_tree_tag, tree_order_statistics_node_update>;
+/*
+Description:
+    Policy-based data structure (PBDS) that maintains a set of elements sorted in custom order defined by `custom_compare`.
+    Supports efficient insertions, deletions, and finding order statistics (k-th smallest/largest element).
+    Useful when elements need to be stored and accessed in a specific order, such as descending order.
+    Less efficient for very large datasets compared to unordered_map due to tree structure overhead.
+*/
+
+// Ordered Multiset with Custom Comparator
+template<typename T>
+using ordered_multiset_custom = tree<T, null_type, custom_compare, rb_tree_tag, tree_order_statistics_node_update>;
+
+// GP Hash Table
+template<typename Key, typename Value>
+using gp_hash_table = cc_hash_table<Key, Value>;
+/*
+Description:
+    A high-performance hash table provided by the GNU C++ library.
+    Offers faster average-case time complexity for insertions, deletions, and lookups compared to standard unordered_map.
+    Suitable for scenarios requiring fast hash-based operations with low collision rates.
+    Ideal for handling very large datasets efficiently where quick insertion, deletion, and lookup times are crucial.
+    Less memory efficient compared to unordered_map in some cases due to its internal data structures.
+    Example Usage:
+    - Storing frequency counts of elements in an array with fast insertions and lookups.
+    - Implementing a hash map for a large-scale database application with frequent data updates.
+*/
+
+// Trie
+template<typename Key, typename Value>
+using trie = trie<Key, Value, null_type, trie_prefix_search_node_update>;
+/*
+Description:
+    A trie (prefix tree) data structure for efficient string operations.
+    Supports quick insertions, deletions, and prefix searches.
+    Ideal for applications such as dictionary lookups, autocomplete systems, and prefix-based queries.
+    Efficient for scenarios involving string processing and pattern matching operations.
+    Example Usage:
+    - Implementing a spell checker or autocomplete feature in a text editor or search engine.
+    - Storing and querying a large dictionary of words efficiently.
+*/
+
+int main() {
+    // Example usage of each data structure
+
+    // Ordered Set
+    ordered_set<int> os;
+    os.insert(1);
+    os.insert(3);
+    os.insert(2);
+    cout << "Ordered Set Example:" << endl;
+    cout << *os.find_by_order(1) << endl; // Output: 2
+    cout << os.order_of_key(2) << endl;   // Output: 1
+    cout << endl;
+
+    // Ordered Multiset
+    ordered_multiset<int> oms;
+    oms.insert(1);
+    oms.insert(3);
+    oms.insert(2);
+    oms.insert(2); // Allows duplicates
+    cout << "Ordered Multiset Example:" << endl;
+    cout << *oms.find_by_order(2) << endl; // Output: 2
+    cout << oms.order_of_key(2) << endl;   // Output: 1
+    cout << endl;
+
+    // Ordered Map
+    ordered_map<int, int> om;
+    om[1] = 10;
+    om[3] = 30;
+    om[2] = 20;
+    cout << "Ordered Map Example:" << endl;
+    auto it = om.find_by_order(1);
+    cout << it->first << " " << it->second << endl; // Output: 2 20
+    cout << om.order_of_key(2) << endl;            // Output: 1
+    cout << endl;
+
+    // Ordered Set with Custom Comparator
+    ordered_set_custom<int> osc;
+    osc.insert(1);
+    osc.insert(3);
+    osc.insert(2);
+    cout << "Ordered Set with Custom Comparator Example:" << endl;
+    cout << *osc.find_by_order(1) << endl; // Output: 2 (because of descending order)
+    cout << osc.order_of_key(2) << endl;   // Output: 1
+    cout << endl;
+
+    // GP Hash Table
+    gp_hash_table<int, int> gph;
+    gph[1] = 10;
+    gph[2] = 20;
+    gph[3] = 30;
+    cout << "GP Hash Table Example:" << endl;
+    cout << "Value at key 2: " << gph[2] << endl; // Output: 20
+    cout << endl;
+
+    // Trie
+    trie<string, int> tr;
+    tr.insert({"apple", 5});
+    tr.insert({"banana", 10});
+    tr.insert({"app", 3});
+    cout << "Trie Example:" << endl;
+    cout << "Value for key 'apple': " << tr["apple"] << endl; // Output: 5
+    cout << endl;
+
+    return 0;
+}
