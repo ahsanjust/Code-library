@@ -2,6 +2,19 @@
 
 using namespace std;
 
+const int N = 1e6 + 10;
+vector<bool> yo(N, true);
+void sieve() {
+  yo[0] = yo[1] = false;
+  for (int i = 2; i * i < N; i++) {
+    if (yo[i]) {
+      for (int j = i * i; j < N; j += i) {
+        yo[j] = false;
+      }
+    }
+  }
+}
+
 class Sieve {
 public:
   static vector<int> bitwiseSieve(int limit) {
