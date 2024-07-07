@@ -6,6 +6,9 @@ using namespace std;
 
 struct Node {
   Node *next[26];
+  Node() : {
+    fill(begin(nxt), end(nxt), nullptr);
+  }
   bool contain(char c) { return (next[c - 'a'] != nullptr); }
   void put(char ch, Node *node) { next[ch - 'a'] = node; }
 };
