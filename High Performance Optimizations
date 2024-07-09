@@ -1,0 +1,90 @@
+// Explanation: The Ofast optimization level is more aggressive than O3.
+// It includes all optimizations from O3 and also enables optimizations that
+// are not strictly compliant with the standard, meaning it can break some
+// standard-compliant code. This can lead to faster execution times by making
+// certain assumptions about the code.
+// Impact: It can significantly improve performance by allowing more aggressive
+// optimizations, but it may result in unexpected behavior if the code relies on
+// strict standard compliance.
+#pragma GCC optimize("Ofast")
+
+// Explanation: This directive tells the compiler to unroll loops where
+// possible. Loop unrolling is an optimization that replicates the loop body
+// multiple times, reducing the overhead of loop control (such as incrementing
+// the loop counter and checking the loop condition) by decreasing the number of
+// iterations. Impact: Loop unrolling can improve performance for loops with a
+// small and known iteration count, but it can also increase the code size,
+// which might be counterproductive if the loop body is large or the loop
+// iterates many times.
+#pragma GCC optimize("unroll-loops")
+
+// Explanation: This directive enables the use of specific CPU instruction sets,
+// in this case, AVX (Advanced Vector Extensions), AVX2, and FMA (Fused
+// Multiply-Add). These instruction sets provide advanced vector operations and
+// efficient floating-point calculations. Impact: Enabling these instruction
+// sets can significantly speed up computations, especially those involving
+// large arrays or matrices, by taking advantage of modern CPU features.
+// However, it may cause the compiled code to be incompatible with older CPUs
+// that do not support these instruction sets.
+#pragma GCC target("avx,avx2,fma")
+
+// Explanation: The O3 optimization level enables a high level of optimization
+// that balances performance improvements with maintaining standard compliance.
+// It includes all optimizations from lower levels (O1 and O2) and adds more
+// aggressive code transformations. Impact: It can greatly enhance performance
+// by enabling a wide range of optimizations, such as inlining functions, loop
+// unrolling, vectorization, and more. However, it may also increase the
+// compilation time and code size.
+#pragma GCC optimize("O3")
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  // Disables synchronization between C++ and C standard streams.
+  // Explanation: By default, C++ standard streams (cin, cout, etc.) are
+  // synchronized with C standard streams (scanf, printf, etc.). This allows you
+  // to mix C and C++ style I/O in a single program without unexpected behavior.
+  // However, this synchronization incurs a performance penalty. Impact:
+  // Disabling synchronization between C++ and C standard streams improves the
+  // performance of C++ I/O operations.
+  ios_base::sync_with_stdio(false);
+
+  // Unties cin from cout to prevent automatic flushing of cout before cin
+  // operations. Explanation: By default, cin is tied to cout, meaning cout is
+  // flushed (any buffered output is written to the console) before any cin
+  // operation. This ensures the correct order of input and output, but it
+  // introduces a performance overhead. Impact: Untying cin from cout can
+  // improve performance by preventing unnecessary flushing, but it requires
+  // careful management of output to maintain the correct order.
+  cin.tie(nullptr);
+
+  int n;
+  cin >> n;
+  vector<int> arr(n);
+  for (int i = 0; i < n; ++i) {
+    cin >> arr[i];
+  }
+
+  // Example of loop unrolling
+  // Instead of a simple loop, we unroll it for better performance
+  int sum = 0;
+  for (int i = 0; i < n; i += 4) {
+    sum += arr[i];
+    if (i + 1 < n)
+      sum += arr[i + 1];
+    if (i + 2 < n)
+      sum += arr[i + 2];
+    if (i + 3 < n)
+      sum += arr[i + 3];
+  }
+
+  // Example of using AVX/AVX2/FMA instructions
+  // This requires specialized functions or intrinsics that utilize these
+  // instruction sets Note: AVX/AVX2/FMA code is highly platform-specific and
+  // may need additional setup
+
+  cout << "Sum: " << sum << endl;
+
+  return 0;
+}
