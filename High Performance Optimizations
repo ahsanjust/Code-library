@@ -37,6 +37,59 @@
 // compilation time and code size.
 #pragma GCC optimize("O3")
 
+// Explanation: This directive enables the use of specific CPU instruction sets
+// including SSE, SSE2, SSE3, SSSE3, SSE4, POPCNT, ABM, and MMX. These sets provide
+// advanced vector processing capabilities and multimedia instructions.
+// Impact: Enabling these instruction sets can improve the performance of operations
+// involving vectors, arrays, and multimedia processing. However, it may cause the
+// compiled code to be incompatible with older CPUs that do not support these instruction sets.
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx")
+
+// Explanation: This directive enables the use of specific CPU instruction sets
+// including SSE, SSE2, and MMX. These sets provide advanced vector processing
+// capabilities and multimedia instructions. Impact: Enabling these instruction
+// sets can improve the performance of operations involving vectors, arrays, and
+// multimedia processing. However, it may cause the compiled code to be incompatible
+// with older CPUs that do not support these instruction sets.
+#pragma GCC target("sse,sse2,mmx")
+
+// Explanation: This option prevents the compiler from using registers for 
+// floating-point variables, forcing them to be stored in memory instead.
+// This can be useful for avoiding precision issues caused by extended precision
+// floating-point registers on some architectures. Impact: While this option can
+// help ensure consistency and avoid precision issues in floating-point calculations,
+// it can also reduce performance because storing and loading floating-point variables
+// from memory is slower than keeping them in registers.
+#pragma GCC optimize("-ffloat-store")
+
+// Explanation: This directive tells the compiler to aggressively inline functions
+// where possible. Function inlining replaces a function call with the actual code
+// of the function, eliminating the overhead of the call. Impact: Inlining can
+// significantly improve performance by reducing function call overhead, especially
+// for small and frequently called functions. However, it may increase the code size.
+#pragma GCC optimize("inline")
+
+// Explanation: This directive tells the compiler to omit the frame pointer for
+// functions. The frame pointer is a register used to manage the call stack.
+// Impact: Omitting the frame pointer can improve performance by freeing up a register
+// for general use and reducing the instructions needed to manage the call stack.
+// However, it can make debugging more difficult.
+#pragma GCC optimize("omit-frame-pointer")
+
+// Explanation: This directive enables a set of optimizations that assume that
+// floating-point math follows the standard IEEE 754. It allows the compiler to make
+// aggressive optimizations that may break strict IEEE compliance. Impact: fast-math
+// can improve performance by allowing more aggressive optimizations in floating-point
+// calculations. However, it may result in different results compared to strict IEEE 754
+// compliance.
+#pragma GCC optimize("fast-math")
+
+// Explanation: This directive enables the use of specific CPU features, targeting the
+// architecture that supports AVX2 instructions. Impact: Targeting a specific architecture
+// like AVX2 can improve performance by leveraging the full capabilities of the CPU.
+// However, it may cause the compiled code to be incompatible with older or different CPUs.
+#pragma GCC target("arch=core-avx2")
+
 #include <bits/stdc++.h>
 using namespace std;
 
