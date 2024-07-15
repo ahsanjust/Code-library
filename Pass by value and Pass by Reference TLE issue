@@ -1,0 +1,76 @@
+https://atcoder.jp/contests/abc324/tasks/abc324_c
+/*
+For this problem if you pass the string into the f(check) function by value , it's gives TLE
+On the other hand, If we pass by reference (&) it's work!!
+*/
+
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+bool f(string &t, string &k) {
+  int m = t.size();
+  int n = k.size();
+  if (abs(n - m) > 1) {
+    return false;
+  }
+  int miss = 0;
+  for (int i = 0, j = 0; i < n; i++) {
+    if (k[i] == t[j]) {
+      j += 1;
+      if (j == m) {
+        return true;
+      }
+    } else {
+      miss += 1;
+      if (miss > 1) {
+        return false;
+      }
+      if (m > n) {
+        i -= 1, j += 1;
+      } else if (n == m) {
+        j += 1;
+      }
+    }
+  }
+  return true;
+}
+
+void solve(int cs) {
+  int q;
+  cin >> q;
+  string base;
+  cin >> base;
+  vector<int> ans;
+
+  for (int i = 0; i < q; i++) {
+    string s;
+    cin >> s;
+    if (f(s, base)) {
+      ans.push_back(i + 1);
+    }
+  }
+  cout << ans.size() << "\n";
+  for (int i = 0; i < (int)ans.size(); i++) {
+    cout << ans[i] << " \n"[i == int(ans.size()) - 1];
+  }
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  // cin >> tc;
+  for (int cs = 1; cs <= tc; cs++) {
+    solve(cs);
+  }
+  return 0;
+}
