@@ -1,0 +1,40 @@
+const int N = 1e6 + 9, mod = 1e9 + 7;
+
+int f[N], invf[N];
+
+int power(int x, int n) {
+  int ans = 1;
+  while (n > 0) {
+    if (n & 1) {
+      ans = 1LL * ans * x % mod;
+    }
+    x = 1LL * x * x % mod;
+    n >>= 1;
+  }
+  return ans;
+}
+
+int inverse(int a) { return power(a, mod - 2); }
+
+void prec() {
+  f[0] = 1;
+  for (int i = 1; i < N; i++) {
+    f[i] = 1LL * f[i - 1] * i % mod;
+  }
+  invf[N - 1] = inverse(f[N - 1]);
+  for (int i = N - 2; i >= 0; i--) {
+    invf[i] = 1LL * invf[i + 1] * (i + 1) % mod;
+  }
+}
+
+int nPr(int n, int r) {
+  if (n < r)
+    return 0;
+  return 1LL * f[n] * invf[n - r] % mod;
+}
+
+int nCr(int n, int r) {
+  if (n < r)
+    return 0;
+  return 1LL * f[n] * invf[r] % mod * invf[n - r] % mod;
+}
