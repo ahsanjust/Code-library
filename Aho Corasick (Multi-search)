@@ -1,0 +1,66 @@
+struct AC {
+  const int A = 26;
+  vector<vector<int>> nxt, id;
+  vector<int> lnk, out_lnk, ans;
+  AC() { newNode(); }
+  int newNode() {
+    nxt.emplace_back(A, 0), id.emplace_back(0);
+    lnk.emplace_back(0), out_lnk.emplace_back(0), ans.emplace_back(0);
+    return nxt.size() - 1;
+  }
+
+  void clear() {
+    nxt.clear(), id.clear();
+    lnk.clear(), out_lnk.clear(), ans.clear();
+    newNode();
+  }
+
+  void add(string p, int i) {
+    int u = 0;
+    for (auto c : p) {
+      int idx = c - 'a';
+      if (!nxt[u][idx]) {
+        nxt[u][idx] = newNode();
+      }
+      u = nxt[u][idx];
+    }
+    id[u].emplace_back(i);
+  }
+
+  void build() {
+    queue<int> q;
+    q.push(0);
+    while (q.size()) {
+      int u = q.front();
+      q.pop();
+      for (int i = 0; i < A; i++) {
+        int v = nxt[u][i];
+        if (!v) {
+          nxt[u][i] = nxt[lnk[u]][i];
+        } else {
+          lnk[v] = u ? nxt[lnk[u]][i] : 0;
+          out_lnk[v] = id[lnk[v]].empty() ? out_lnk[lnk[v]] : lnk[v];
+          q.push(v);
+        }
+      }
+    }
+  }
+
+  void trav(string T) {
+    int u = 0;
+    for (auto c : T) {
+      int idx = c - 'a';
+      while (u && !nxt[u][idx]) {
+        u = lnk[u];
+      }
+      u = nxt[u][idx];
+      int x = u;
+      while (x) {
+        for (auto i : id[x]) {
+          ans[i] += 1;
+        }
+        x = out_lnk[x];
+      }
+    }
+  }
+};
