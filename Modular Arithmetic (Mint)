@@ -1,41 +1,76 @@
-template <typename T> class Mint {
-public:
-  Mint(T mod) : mod(mod) {}
+#include <bits/stdc++.h>
+#include <string>
 
-  T add(T a, T b) const { return (a + b) % mod; }
-  T sub(T a, T b) const { return (a - b + mod) % mod; }
-  T mul(T a, T b) const { return (a * b) % mod; }
+using namespace std;
 
-  T power(T base, T exp) const {
-    T res = 1;
-    base = base % mod;
-    while (exp > 0) {
-      if (exp % 2 == 1)
-        res = (res * base) % mod;
-      exp = exp >> 1;
-      base = (base * base) % mod;
+const int64_t MOD = 1e9 + 7;
+
+template <int64_t M>
+struct modint {
+  static int64_t _pow(int64_t n, int64_t k) {
+    int64_t result = 1;
+    for (; k > 0; k >>= 1, n = (n * n) % M) {
+      if (k & 1) result = (result * n) % M;
     }
-    return res;
+    return result;
   }
 
-  T inverse(T a) const {
-    T u = 0, v = 1;
-    T m = mod;
-    while (a != 0) {
-      T t = m / a;
-      m -= t * a;
-      swap(a, m);
-      u -= t * v;
-      swap(u, v);
-    }
-    assert(m == 1);
-    if (u < 0)
-      u += mod;
-    return u;
-  }
+  int64_t v;
 
-  T div(T a, T b) const { return mul(a, inverse(b)); }
+  modint(int64_t n = 0) : v(n % M) { if (v < 0) v += M; }
 
-private:
-  T mod;
+  friend string to_string(const modint &n) { return std::to_string(n.v); }
+  friend istream &operator>>(istream &i, modint &n) { return i >> n.v; }
+  friend ostream &operator<<(ostream &o, const modint &n) { return o << n.v; }
+
+  template <typename T>
+  explicit operator T() const { return static_cast<T>(v); }
+
+  friend bool operator==(const modint &n, const modint &m) { return n.v == m.v; }
+  friend bool operator!=(const modint &n, const modint &m) { return n.v != m.v; }
+  friend bool operator<(const modint &n, const modint &m) { return n.v < m.v; }
+  friend bool operator<=(const modint &n, const modint &m) { return n.v <= m.v; }
+  friend bool operator>(const modint &n, const modint &m) { return n.v > m.v; }
+  friend bool operator>=(const modint &n, const modint &m) { return n.v >= m.v; }
+
+  modint &operator+=(const modint &n) { v += n.v; if (v >= M) v -= M; return *this; }
+  modint &operator-=(const modint &n) { v -= n.v; if (v < 0) v += M; return *this; }
+  modint &operator*=(const modint &n) { v = (v * n.v) % M; return *this; }
+  modint &operator/=(const modint &n) { v = (v * _pow(n.v, M - 2)) % M; return *this; }
+
+  friend modint operator+(const modint &n, const modint &m) { return modint(n) += m; }
+  friend modint operator-(const modint &n, const modint &m) { return modint(n) -= m; }
+  friend modint operator*(const modint &n, const modint &m) { return modint(n) *= m; }
+  friend modint operator/(const modint &n, const modint &m) { return modint(n) /= m; }
+
+  modint &operator++() { return *this += 1; }
+  modint &operator--() { return *this -= 1; }
+  modint operator++(int) { modint temp = *this; *this += 1; return temp; }
+  modint operator--(int) { modint temp = *this; *this -= 1; return temp; }
+
+  modint operator+() const { return *this; }
+  modint operator-() const { return modint(0) -= *this; }
+
+  modint pow(int64_t k) const { return k < 0 ? _pow(v, M - 1 - (-k % (M - 1))) : _pow(v, k); }
+  modint inv() const { return _pow(v, M - 2); }
 };
+
+using mint = modint<MOD>;
+
+int main() {
+  mint a(10);  
+  mint b(20);
+  
+  cout << "a = " << a << endl;
+  cout << "b = " << b << endl;
+  
+  cout << "a + b = " << (a + b) << endl;
+  cout << "a - b = " << (a - b) << endl;
+  cout << "a * b = " << (a * b) << endl;
+  cout << "a / b = " << (a / b) << endl;
+  
+  cout << "a^3 = " << a.pow(3) << endl;
+  cout << "a^(-1) = " << a.inv() << endl;
+  
+  return 0;
+}
