@@ -54,7 +54,7 @@ struct modint {
 };
 
 const int64_t MOD = 1e9 + 7;
-using mint = modint<MOD>;
+using Z = modint<MOD>;
 
 int main() {
   mint a(10);  
