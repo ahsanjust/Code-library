@@ -1,8 +1,3 @@
-#include <bits/stdc++.h>
-#include <string>
-
-using namespace std;
-
 template <int64_t M>
 struct Mint {
   static int64_t _pow(int64_t n, int64_t k) {
@@ -55,21 +50,3 @@ struct Mint {
 
 const int64_t MOD = 1e9 + 7;
 using Z = Mint<MOD>;
-
-int main() {
-  mint a(10);  
-  mint b(20);
-  
-  cout << "a = " << a << endl;
-  cout << "b = " << b << endl;
-  
-  cout << "a + b = " << (a + b) << endl;
-  cout << "a - b = " << (a - b) << endl;
-  cout << "a * b = " << (a * b) << endl;
-  cout << "a / b = " << (a / b) << endl;
-  
-  cout << "a^3 = " << a.pow(3) << endl;
-  cout << "a^(-1) = " << a.inv() << endl;
-  
-  return 0;
-}
