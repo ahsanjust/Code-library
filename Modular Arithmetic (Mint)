@@ -3,8 +3,6 @@
 
 using namespace std;
 
-const int64_t MOD = 1e9 + 7;
-
 template <int64_t M>
 struct modint {
   static int64_t _pow(int64_t n, int64_t k) {
@@ -55,6 +53,7 @@ struct modint {
   modint inv() const { return _pow(v, M - 2); }
 };
 
+const int64_t MOD = 1e9 + 7;
 using mint = modint<MOD>;
 
 int main() {
