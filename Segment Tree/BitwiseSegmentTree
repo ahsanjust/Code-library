@@ -1,0 +1,89 @@
+const int BITS = 20;
+
+class BitwiseSegmentTree {
+private:
+  vector<array<int, BITS>> tree;
+  vector<array<int, BITS>> lazy;
+  int size;
+
+  void propagate(int node, int start, int end) {
+    for (int i = 0; i < BITS; ++i) {
+      if (lazy[node][i] & 1) {
+        tree[node][i] = (end - start + 1) - tree[node][i];
+        if (start != end) {
+          lazy[node << 1][i] ^= 1;
+          lazy[node << 1 | 1][i] ^= 1;
+        }
+        lazy[node][i] = 0;
+      }
+    }
+  }
+
+  array<int, BITS> merge(const array<int, BITS> &leftChild, const array<int, BITS> &rightChild) {
+    array<int, BITS> parent;
+    for (int i = 0; i < BITS; ++i) {
+      parent[i] = leftChild[i] + rightChild[i];
+    }
+    return parent;
+  }
+
+  void buildTree(int node, int start, int end, const vector<int> &values) {
+    if (start == end) {
+      for (int i = 0; i < BITS; ++i) {
+        if (values[start] & (1 << i)) {
+          tree[node][i] = 1;
+        }
+      }
+    } else {
+      int mid = (start + end) >> 1;
+      buildTree(node << 1, start, mid, values);
+      buildTree(node << 1 | 1, mid + 1, end, values);
+      tree[node] = merge(tree[node << 1], tree[node << 1 | 1]);
+    }
+  }
+
+  array<int, BITS> QryTree(int node, int start, int end, int left, int right) {
+    propagate(node, start, end);
+    if (start > right || end < left) return {};
+    if (start >= left && end <= right) return tree[node];
+    int mid = (start + end) >> 1;
+    array<int, BITS> leftResult = QryTree(node << 1, start, mid, left, right);
+    array<int, BITS> rightResult = QryTree(node << 1 | 1, mid + 1, end, left, right);
+    return merge(leftResult, rightResult);
+  }
+
+  void updateTree(int node, int start, int end, int left, int right, int value) {
+    propagate(node, start, end);
+    if (start > right || end < left) return;
+    if (start >= left && end <= right) {
+      for (int i = 0; i < BITS; ++i) {
+        if (value & (1 << i)) {
+          tree[node][i] = (end - start + 1) - tree[node][i];
+          if (start != end) {
+            lazy[node << 1][i] ^= 1;
+            lazy[node << 1 | 1][i] ^= 1;
+          }
+        }
+      }
+    } else {
+      int mid = (start + end) >> 1;
+      updateTree(node << 1, start, mid, left, right, value);
+      updateTree(node << 1 | 1, mid + 1, end, left, right, value);
+      tree[node] = merge(tree[node << 1], tree[node << 1 | 1]);
+    }
+  }
+
+public:
+  BitwiseSegmentTree(int n) : size(n) {
+    tree.resize(4 * n);
+    lazy.resize(4 * n);
+  }
+  void build(const vector<int> &values) { buildTree(1, 0, size - 1, values); }
+  array<int, BITS> Qry(int left, int right) {
+    array<int, BITS> result = QryTree(1, 0, size - 1, left, right);
+    return result;
+  }
+  void update(int left, int right, int value) {
+    updateTree(1, 0, size - 1, left, right, value);
+  }
+};
