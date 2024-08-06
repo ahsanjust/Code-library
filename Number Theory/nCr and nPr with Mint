@@ -1,0 +1,76 @@
+template <int64_t M>
+struct Mint {
+  static int64_t _pow(int64_t n, int64_t k) {
+    int64_t result = 1;
+    for (; k > 0; k >>= 1, n = (n * n) % M) {
+      if (k & 1) result = (result * n) % M;
+    }
+    return result;
+  }
+
+  int64_t v;
+
+  Mint(int64_t n = 0) : v(n % M) { if (v < 0) v += M; }
+
+  friend string to_string(const Mint &n) { return std::to_string(n.v); }
+  friend istream &operator>>(istream &i, Mint &n) { return i >> n.v; }
+  friend ostream &operator<<(ostream &o, const Mint &n) { return o << n.v; }
+
+  template <typename T>
+  explicit operator T() const { return static_cast<T>(v); }
+
+  friend bool operator==(const Mint &n, const Mint &m) { return n.v == m.v; }
+  friend bool operator!=(const Mint &n, const Mint &m) { return n.v != m.v; }
+  friend bool operator<(const Mint &n, const Mint &m) { return n.v < m.v; }
+  friend bool operator<=(const Mint &n, const Mint &m) { return n.v <= m.v; }
+  friend bool operator>(const Mint &n, const Mint &m) { return n.v > m.v; }
+  friend bool operator>=(const Mint &n, const Mint &m) { return n.v >= m.v; }
+
+  Mint &operator+=(const Mint &n) { v += n.v; if (v >= M) v -= M; return *this; }
+  Mint &operator-=(const Mint &n) { v -= n.v; if (v < 0) v += M; return *this; }
+  Mint &operator*=(const Mint &n) { v = (v * n.v) % M; return *this; }
+  Mint &operator/=(const Mint &n) { v = (v * _pow(n.v, M - 2)) % M; return *this; }
+
+  friend Mint operator+(const Mint &n, const Mint &m) { return Mint(n) += m; }
+  friend Mint operator-(const Mint &n, const Mint &m) { return Mint(n) -= m; }
+  friend Mint operator*(const Mint &n, const Mint &m) { return Mint(n) *= m; }
+  friend Mint operator/(const Mint &n, const Mint &m) { return Mint(n) /= m; }
+
+  Mint &operator++() { return *this += 1; }
+  Mint &operator--() { return *this -= 1; }
+  Mint operator++(int) { Mint temp = *this; *this += 1; return temp; }
+  Mint operator--(int) { Mint temp = *this; *this -= 1; return temp; }
+
+  Mint operator+() const { return *this; }
+  Mint operator-() const { return Mint(0) -= *this; }
+
+  Mint pow(int64_t k) const { return k < 0 ? _pow(v, M - 1 - (-k % (M - 1))) : _pow(v, k); }
+  Mint inv() const { return _pow(v, M - 2); }
+};
+
+const int64_t MOD = 1e9 + 7;
+const int N = 2e5 + 9;
+using Z = Mint<MOD>;
+
+Z f[N], invf[N];
+
+void prec() {
+  f[0] = 1;
+  for (int i = 1; i < N; i++) {
+    f[i] = f[i - 1] * i;
+  }
+  invf[N - 1] = f[N - 1].inv();
+  for (int i = N - 2; i >= 0; i--) {
+    invf[i] = invf[i + 1] * (i + 1);
+  }
+}
+
+Z nCr(int n, int r) {
+  if (n < r || r < 0) return 0;
+  return f[n] * invf[r] * invf[n - r];
+}
+
+Z nPr(int n, int r) {
+  if (n < r || r < 0) return 0;
+  return f[n] * invf[n - r];
+}
