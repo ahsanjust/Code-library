@@ -3,7 +3,7 @@
 #include <vector>
 
 using namespace std;
-
+//This is O(n ^ 2) approach, Rather we can solve it in O(n) using suffix array and LCP array, ans : total substring - sum of (LPC);
 struct Node {
   Node *next[26];
   Node() : {
