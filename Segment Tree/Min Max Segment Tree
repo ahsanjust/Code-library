@@ -1,25 +1,22 @@
 struct MinMaxSegTree {
   int n;
-  vector<int> minTree, maxTree;
+  vector<array<int, 2>> tree;
 
   MinMaxSegTree(int size) {
     n = size;
-    minTree.resize(n << 2, INT_MAX);
-    maxTree.resize(n << 2, INT_MIN);
+    tree.resize(n << 2, {INT_MAX, INT_MIN});
   }
 
   void build(const vector<int> &arr, int node, int start, int end) {
     if (start == end) {
-      minTree[node] = arr[start];
-      maxTree[node] = arr[start];
+      tree[node][0] = arr[start];
+      tree[node][1] = arr[start];
     } else {
       int mid = (start + end) >> 1;
-      int left = node << 1;
-      int right = left | 1;
-      build(arr, left, start, mid);
-      build(arr, right, mid + 1, end);
-      minTree[node] = min(minTree[left], minTree[right]);
-      maxTree[node] = max(maxTree[left], maxTree[right]);
+      build(arr, node << 1, start, mid);
+      build(arr, (node << 1) | 1, mid + 1, end);
+      tree[node][0] = min(tree[node << 1][0], tree[(node << 1) | 1][0]);
+      tree[node][1] = max(tree[node << 1][1], tree[(node << 1) | 1][1]);
     }
   }
 
@@ -28,37 +25,33 @@ struct MinMaxSegTree {
       return {INT_MAX, INT_MIN};
     }
     if (l <= start && r >= end) {
-      return {minTree[node], maxTree[node]};
+      return {tree[node][0], tree[node][1]};
     }
     int mid = (start + end) >> 1;
-    int left = node << 1;
-    int right = left | 1;
-    auto leftRes = query(left, start, mid, l, r);
-    auto rightRes = query(right, mid + 1, end, l, r);
+    auto leftRes = query(node << 1, start, mid, l, r);
+    auto rightRes = query((node << 1) | 1, mid + 1, end, l, r);
     return {min(leftRes.first, rightRes.first), max(leftRes.second, rightRes.second)};
   }
 
   void update(int node, int start, int end, int idx, int val) {
     if (start == end) {
-      minTree[node] = val;
-      maxTree[node] = val;
+      tree[node][0] = val;
+      tree[node][1] = val;
     } else {
       int mid = (start + end) >> 1;
-      int left = node << 1;
-      int right = left | 1;
       if (idx <= mid) {
-        update(left, start, mid, idx, val);
+        update(node << 1, start, mid, idx, val);
       } else {
-        update(right, mid + 1, end, idx, val);
+        update((node << 1) | 1, mid + 1, end, idx, val);
       }
-      minTree[node] = min(minTree[left], minTree[right]);
-      maxTree[node] = max(maxTree[left], maxTree[right]);
+      tree[node][0] = min(tree[node << 1][0], tree[(node << 1) | 1][0]);
+      tree[node][1] = max(tree[node << 1][1], tree[(node << 1) | 1][1]);
     }
   }
 
   void build(const vector<int> &arr) { build(arr, 1, 0, n - 1); }
   int maxQry(int l, int r) { return query(1, 0, n - 1, l, r).second; }
-  int MinQry(int l, int r) { return query(1, 0, n - 1, l, r).first; }
-  pair<int, int> Query(int l, int r) { return query(1, 0, n - 1, l, r); }
+  int minQry(int l, int r) { return query(1, 0, n - 1, l, r).first; }
+  pair<int, int> bothQry(int l, int r) { return query(1, 0, n - 1, l, r); }
   void pointUpdate(int idx, int val) { update(1, 0, n - 1, idx, val); }
 };
