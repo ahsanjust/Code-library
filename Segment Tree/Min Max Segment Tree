@@ -1,0 +1,64 @@
+struct MinMaxSegTree {
+  int n;
+  vector<int> minTree, maxTree;
+
+  MinMaxSegTree(int size) {
+    n = size;
+    minTree.resize(n << 2, INT_MAX);
+    maxTree.resize(n << 2, INT_MIN);
+  }
+
+  void build(const vector<int> &arr, int node, int start, int end) {
+    if (start == end) {
+      minTree[node] = arr[start];
+      maxTree[node] = arr[start];
+    } else {
+      int mid = (start + end) >> 1;
+      int left = node << 1;
+      int right = left | 1;
+      build(arr, left, start, mid);
+      build(arr, right, mid + 1, end);
+      minTree[node] = min(minTree[left], minTree[right]);
+      maxTree[node] = max(maxTree[left], maxTree[right]);
+    }
+  }
+
+  pair<int, int> query(int node, int start, int end, int l, int r) {
+    if (l > end || r < start) {
+      return {INT_MAX, INT_MIN};
+    }
+    if (l <= start && r >= end) {
+      return {minTree[node], maxTree[node]};
+    }
+    int mid = (start + end) >> 1;
+    int left = node << 1;
+    int right = left | 1;
+    auto leftRes = query(left, start, mid, l, r);
+    auto rightRes = query(right, mid + 1, end, l, r);
+    return {min(leftRes.first, rightRes.first), max(leftRes.second, rightRes.second)};
+  }
+
+  void update(int node, int start, int end, int idx, int val) {
+    if (start == end) {
+      minTree[node] = val;
+      maxTree[node] = val;
+    } else {
+      int mid = (start + end) >> 1;
+      int left = node << 1;
+      int right = left | 1;
+      if (idx <= mid) {
+        update(left, start, mid, idx, val);
+      } else {
+        update(right, mid + 1, end, idx, val);
+      }
+      minTree[node] = min(minTree[left], minTree[right]);
+      maxTree[node] = max(maxTree[left], maxTree[right]);
+    }
+  }
+
+  void build(const vector<int> &arr) { build(arr, 1, 0, n - 1); }
+  int maxQry(int l, int r) { return query(1, 0, n - 1, l, r).second; }
+  int MinQry(int l, int r) { return query(1, 0, n - 1, l, r).first; }
+  pair<int, int> Query(int l, int r) { return query(1, 0, n - 1, l, r); }
+  void pointUpdate(int idx, int val) { update(1, 0, n - 1, idx, val); }
+};
