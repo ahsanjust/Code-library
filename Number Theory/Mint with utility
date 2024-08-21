@@ -1,72 +1,66 @@
-template <int64_t M> struct Mint {
-  int64_t v;
-  Mint(int64_t n = 0) : v(n % M) { if (v < 0) v += M; }
-  static int64_t _pow(int64_t base, int64_t exp) {
-    int64_t result = 1;
-    while (exp > 0) {
-      if (exp % 2 == 1) result = (result * base) % M;
-      base = (base * base) % M;
-      exp /= 2;
+template <int64_t M>
+struct Mint {
+    int64_t v;
+    Mint(int64_t n = 0) : v(n % M) { if (v < 0) v += M; }
+    static int64_t _pow(int64_t base, int64_t exp) {
+        int64_t res = 1;
+        for (; exp; exp >>= 1, base = (base * base) % M)
+            if (exp & 2) res = (res * base) % M;
+        return res;
     }
-    return result;
-  }
-  Mint pow(int64_t exp) const { return Mint(_pow(v, exp)); }
-  Mint inv() const { return Mint(_pow(v, M - 2)); }
-  Mint& operator+=(const Mint& other) { v += other.v; if (v >= M) v -= M; return *this; }
-  Mint& operator-=(const Mint& other) { v -= other.v; if (v < 0) v += M; return *this; }
-  Mint& operator*=(const Mint& other) { v = (v * other.v) % M; return *this; }
-  Mint& operator/=(const Mint& other) { return *this *= other.inv(); }
-  Mint operator+(const Mint& other) const { return Mint(*this) += other; }
-  Mint operator-(const Mint& other) const { return Mint(*this) -= other; }
-  Mint operator*(const Mint& other) const { return Mint(*this) *= other; }
-  Mint operator/(const Mint& other) const { return Mint(*this) /= other; }
-  Mint& operator++() { return *this += 1; }
-  Mint& operator--() { return *this -= 1; }
-  Mint operator++(int) { Mint temp = *this; *this += 1; return temp; }
-  Mint operator--(int) { Mint temp = *this; *this -= 1; return temp; }
-  Mint operator+() const { return *this; }
-  Mint operator-() const { return Mint(-v); }
-  friend bool operator==(const Mint& a, const Mint& b) { return a.v == b.v; }
-  friend bool operator!=(const Mint& a, const Mint& b) { return a.v != b.v; }
-  friend ostream& operator<<(ostream& os, const Mint& n) { return os << n.v; }
-  friend istream& operator>>(istream& is, Mint& n) { return is >> n.v; }
-  static vector<Mint> fact, ifact;
-  static void Prec(int64_t max_n) {
-    fact.resize(max_n + 1); ifact.resize(max_n + 1);
-    fact[0] = ifact[0] = 1;
-    for (int64_t i = 1; i <= max_n; i++) fact[i] = fact[i - 1] * i;
-    ifact[max_n] = fact[max_n].inv();
-    for (int64_t i = max_n - 1; i >= 1; i--) ifact[i] = ifact[i + 1] * (i + 1);
-  }
-  static Mint Fact(int64_t n) { return fact[n]; }
-  static Mint invFact(int64_t n) { return ifact[n]; }
-  static Mint nCr(int64_t n, int64_t r) {
-    if (r > n || r < 0) return Mint(0);
-    return fact[n] * ifact[r] * ifact[n - r];
-  }
-  static Mint nPr(int64_t n, int64_t r) {
-    if (r > n || r < 0) return Mint(0);
-    return fact[n] * ifact[n - r];
-  }
-  static Mint gcd_extended(int64_t a, int64_t b, int64_t& x, int64_t& y) {
-    if (b == 0) { x = 1; y = 0; return a; }
-    int64_t x1, y1; Mint g = gcd_extended(b, a % b, x1, y1);
-    x = y1; y = x1 - (a / b) * y1; return g;
-  }
-  static Mint mod_inv(int64_t a) {
-    int64_t x, y; gcd_extended(a, M, x, y);
-    return Mint((x % M + M) % M);
-  }
-  int64_t operator()() const { return v; }
-  string to_string() const { return std::to_string(v); }
+    Mint pow(int64_t exp) const { return _pow(v, exp); }
+    Mint inv() const { return _pow(v, M - 2); }
+    Mint& operator+=(const Mint& o) { if ((v += o.v) >= M) v -= M; return *this; }
+    Mint& operator-=(const Mint& o) { if ((v -= o.v) < 0) v += M; return *this; }
+    Mint& operator*=(const Mint& o) { v = (v * o.v) % M; return *this; }
+    Mint& operator/=(const Mint& o) { return *this *= o.inv(); }
+    Mint& operator%=(const Mint& o) { v %= o.v; return *this; }
+    Mint& operator&=(const Mint& o) { v &= o.v; return *this; }
+    Mint& operator|=(const Mint& o) { v |= o.v; return *this; }
+    Mint& operator^=(const Mint& o) { v ^= o.v; return *this; }
+    Mint& operator<<=(int s) { v = (v << s) % M; return *this; }
+    Mint& operator>>=(int s) { v >>= s; return *this; }
+    Mint operator+(const Mint& o) const { return Mint(*this) += o; }
+    Mint operator-(const Mint& o) const { return Mint(*this) -= o; }
+    Mint operator*(const Mint& o) const { return Mint(*this) *= o; }
+    Mint operator/(const Mint& o) const { return Mint(*this) /= o; }
+    Mint operator%(const Mint& o) const { return Mint(*this) %= o; }
+    Mint operator&(const Mint& o) const { return Mint(*this) &= o; }
+    Mint operator|(const Mint& o) const { return Mint(*this) |= o; }
+    Mint operator^(const Mint& o) const { return Mint(*this) ^= o; }
+    Mint operator<<(int s) const { return Mint(*this) <<= s; }
+    Mint operator>>(int s) const { return Mint(*this) >>= s; }
+    Mint operator~() const { return Mint(~v); }
+    Mint operator+() const { return *this; }
+    Mint operator-() const { return Mint(-v); }
+    Mint& operator++() { return *this += 1; }
+    Mint& operator--() { return *this -= 1; }
+    Mint operator++(int) { Mint tmp = *this; *this += 1; return tmp; }
+    Mint operator--(int) { Mint tmp = *this; *this -= 1; return tmp; }
+    friend bool operator==(const Mint& a, const Mint& b) { return a.v == b.v; }
+    friend bool operator!=(const Mint& a, const Mint& b) { return a.v != b.v; }
+    friend bool operator<(const Mint& a, const Mint& b) { return a.v < b.v; }
+    friend bool operator>(const Mint& a, const Mint& b) { return a.v > b.v; }
+    friend bool operator<=(const Mint& a, const Mint& b) { return a.v <= b.v; }
+    friend bool operator>=(const Mint& a, const Mint& b) { return a.v >= b.v; }
+    friend ostream& operator<<(ostream& os, const Mint& n) { return os << n.v; }
+    friend istream& operator>>(istream& is, Mint& n) { int64_t x; is >> x; n = Mint(x); return is; }
+    static vector<Mint> fact, ifact;
+    static void Prec(int64_t max_n) {
+        fact.resize(max_n + 1), ifact.resize(max_n + 1);
+        fact[0] = ifact[0] = 1;
+        for (int64_t i = 1; i <= max_n; i++) fact[i] = fact[i - 1] * i;
+        ifact[max_n] = fact[max_n].inv();
+        for (int64_t i = max_n - 1; i >= 1; i--) ifact[i] = ifact[i + 1] * (i + 1);
+    }
+    static Mint Fact(int64_t n) { return fact[n]; }
+    static Mint invFact(int64_t n) { return ifact[n]; }
+    static Mint nCr(int64_t n, int64_t r) { return r > n || r < 0 ? 0 : fact[n] * ifact[r] * ifact[n - r]; }
+    static Mint nPr(int64_t n, int64_t r) { return r > n || r < 0 ? 0 : fact[n] * ifact[n - r]; }
+    int64_t operator()() const { return v; }
 };
 
 template <int64_t M> vector<Mint<M>> Mint<M>::fact;
 template <int64_t M> vector<Mint<M>> Mint<M>::ifact;
-template <int64_t M> string to_string(const Mint<M>& number) { return std::to_string(number()); }
-template <int64_t M> Mint<M> abs(const Mint<M>& number) { return number.v < 0 ? -number : number; }
-template <int64_t M> Mint<M> max(const Mint<M>& a, const Mint<M>& b) { return (a.v > b.v) ? a : b; }
-template <int64_t M> Mint<M> min(const Mint<M>& a, const Mint<M>& b) { return (a.v < b.v) ? a : b; }
-
 const int64_t MOD = 100000007;
 using Z = Mint<MOD>;
