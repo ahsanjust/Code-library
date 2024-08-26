@@ -1,45 +1,16 @@
 class DSU {
 public:
-  DSU(int n) : Par(n), rank(n, 0), siz(n, 1) {
-    for (int i = 0; i < n; ++i) {
-      Par[i] = i;
-    }
-  }
-
-  int Leader(int x) {
-    if (Par[x] != x) {
-      Par[x] = Leader(Par[x]);
-    }
-    return Par[x];
-  }
-
+  DSU(int n) : Par(n), rank(n, 0), siz(n, 1), cnt(n) { iota(Par.begin(), Par.end(), 0); }
+  int find(int x) { return x == Par[x] ? x : Par[x] = find(Par[x]); }
   bool unite(int x, int y) {
-    int X = Leader(x);
-    int Y = Leader(y);
-
-    if (X != Y) {
-      if (rank[X] > rank[Y]) {
-        Par[Y] = X;
-        siz[X] += siz[Y];
-      } else if (rank[X] < rank[Y]) {
-        Par[X] = Y;
-        siz[Y] += siz[X];
-      } else {
-        Par[Y] = X;
-        siz[X] += siz[Y];
-        ++rank[X];
-      }
-      return true;
-    }
-    return false;
+    if ((x = find(x)) == (y = find(y))) return false;
+    if (rank[x] < rank[y]) swap(x, y);
+    Par[y] = x, siz[x] += siz[y], rank[x] += (rank[x] == rank[y]), cnt -= 1;
+    return true;
   }
-  int size(int x) {
-    int root = Leader(x);
-    return siz[root];
-  }
-
+  int size(int x) { return siz[find(x)]; }
+  int numSets() const { return cnt; }
 private:
-  vector<int> Par;
-  vector<int> rank;
-  vector<int> siz;
+  vector<int> Par, rank, siz;
+  int cnt;
 };
