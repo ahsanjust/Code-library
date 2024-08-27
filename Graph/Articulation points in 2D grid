@@ -1,0 +1,84 @@
+https://codeforces.com/problemset/problem/193/A
+
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 27-08-2024  14:07:18
+ **/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void Sol(int Cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<string> g(n);
+  for (int i = 0; i < n; i++)
+    cin >> g[i];
+
+  vector<vector<int>> vis(n, vector<int>(m, false));
+  auto isvalid = [&](int i, int j) -> bool {
+    return i >= 0 && j >= 0 && i < n && j < m && g[i][j] == '#';
+  };
+  vector<pair<int, int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+  int timer = 0;
+  vector<vector<int>> tin(n, vector<int>(m, 0)), low(n, vector<int>(m, 0));
+  bool got = false;
+  auto dfs = [&](auto &&self, int x, int y, int px = -1, int py = -1) -> void {
+    vis[x][y] = true;
+    tin[x][y] = low[x][y] = ++timer;
+    int child = 0;
+    for (auto &[dx, dy] : dir) {
+      int nx = x + dx, ny = y + dy;
+      if (!isvalid(nx, ny)) continue;
+      if (nx == px && ny == py) continue;
+
+      if (!vis[nx][ny]) {
+        self(self, nx, ny, x, y);
+        low[x][y] = min(low[x][y], low[nx][ny]);
+        child += 1;
+        if (low[nx][ny] >= tin[x][y]) {
+          if (px != -1 && py != -1) {
+            got = true;
+          }
+        }
+      } else {
+        low[x][y] = min(low[x][y], tin[nx][ny]);
+      }
+    }
+    if (px == -1 && py == -1) {
+      if (child > 1) {
+        got = true;
+      }
+    }
+  };
+  for (int i = 0, f = 1; f && i < n; i++) {
+    for (int j = 0; f && j < m; j++) {
+      if (g[i][j] == '#') {
+        dfs(dfs, i, j);
+        f = 0;
+        break;
+      }
+    }
+  }
+  cout << (got ? "1\n" : "2\n");
+  
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  // cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
