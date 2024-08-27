@@ -1,3 +1,66 @@
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void Sol(int Cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n);
+  for (int i = 0, v, u; i < m; i++) {
+    cin >> u >> v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  
+  int timer = 0;
+  vector<bool> vis(n, false);
+  vector<int> tin(n, -1), low(n, -1);
+  vector<pair<int,int>> bridges;
+  auto dfs = [&](auto &&self, int node, int father = -1) -> void {
+    vis[node] = true;
+    low[node] = tin[node] = timer++;
+    for (auto &son : g[node]) {
+      if (son == father) continue;
+      if (!vis[son]) {
+        self(self, son, node);
+        low[node] = min(low[node], low[son]);
+        if (low[son] > tin[node]) {
+          bridges.emplace_back(node, son);
+        }
+      } else {
+        low[node] = min(low[node], tin[son]);
+      }
+    }
+  };
+
+  for (int i = 0; i < n; i++) if (!vis[i]) dfs(dfs, i);
+
+  cout << bridges.size() << "\n";
+  for (auto [x, y] : bridges) {
+    cout << x << " - " << y << "\n";
+  }
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
+
+
 https://codeforces.com/contest/1986/problem/F
 #include <bits/stdc++.h>
 
