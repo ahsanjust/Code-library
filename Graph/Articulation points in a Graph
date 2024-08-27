@@ -1,0 +1,69 @@
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 27-08-2024  12:44:07
+**/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void Sol(int Cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  
+  int timer = 0;
+  vector<bool> vis(n, false);
+  vector<int> tin(n, 0), low(n, 0);
+  set<int> st;
+  
+  auto dfs = [&](auto &&self, int node, int par = -1) -> void {
+    vis[node] = true;
+    tin[node] = low[node] = ++timer;
+    int child = 0;
+    for (auto &son : g[node]) {
+      if (son == par) continue;
+      if (!vis[son]) {
+        self(self, son, node);
+        child += 1;
+        low[node] = min(low[node], low[son]);
+        if (low[son] >= tin[node] && par != -1) {
+          st.insert(node);
+        }
+      } else {
+        low[node] = min(low[node], tin[son]);
+      }
+    }
+    if (par == -1 && child > 1) {
+      st.insert(node);
+    }
+  };
+
+  for (int i = 0; i < n; i++) if (!vis[i]) dfs(dfs, i);
+  cout << "Case " << Cs << ": " << int(st.size()) << "\n";
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
