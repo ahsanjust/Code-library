@@ -1,0 +1,116 @@
+https://lightoj.com/problem/real-life-traffic
+
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 27-08-2024  15:20:14
+**/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+const int N = 1e5 + 5;
+vector<int> g[N];
+int vis[N], tin[N], low[N], timer;
+set<pair<int,int>> bridges;
+
+void findBridges(int u, int parent) {
+  vis[u] = true;
+  tin[u] = low[u] = timer++;
+  for (int v : g[u]) {
+    if (v == parent) {
+      continue;
+    } else if (vis[v]) {
+      low[u] = min(low[u], tin[v]);
+    } else {
+      findBridges(v, u);
+      low[u] = min(low[u], low[v]);
+      if (low[v] > tin[u]) {
+        bridges.insert({min(u, v), max(u, v)});
+      }
+    }
+  }
+}
+
+void buildBCCGraph(int n, vector<vector<int>> &bccGraph) {
+  vector<int> compId(n, -1);
+  vector<bool> vis2(n, false);
+  int components = 0;
+  function<void(int, int)> dfsBCC = [&](int u, int id) {
+    vis2[u] = true;
+    compId[u] = id;
+    for (int v : g[u]) {
+      if (vis2[v]) {
+        continue;
+      } else if (bridges.find({min(u, v), max(u, v)}) == bridges.end()) {
+        dfsBCC(v, id);
+      }
+    }
+  };
+
+  for (int i = 0; i < n; i++) {
+    if (!vis2[i]) {
+      dfsBCC(i, components++);
+    }
+  }
+
+  bccGraph.resize(components);
+  for (auto &[u, v] : bridges) {
+    int cu = compId[u], cv = compId[v];
+    bccGraph[cu].push_back(cv);
+    bccGraph[cv].push_back(cu);
+  }
+}
+
+void Sol(int Cs) {
+  int n, m;
+  cin >> n >> m;
+  
+  bridges.clear(), timer = 0;
+  for (int i = 0; i < n; i++) {
+    tin[i] = low[i] = -1;
+    vis[i] = 0;
+    g[i].clear();
+  }
+
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  
+  for (int i = 0; i < n; i++) {
+    if (!vis[i]) {
+      findBridges(i, -1);
+    }
+  }
+  
+  vector<vector<int>> BccGraph;
+  buildBCCGraph(n, BccGraph);
+  
+  int leafs = 0;
+  for (auto &it: BccGraph) {
+    if (it.size() == 1) leafs += 1;
+  }
+  
+  cout << "Case " << Cs << ": " << (leafs + 1) / 2 << "\n";
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
