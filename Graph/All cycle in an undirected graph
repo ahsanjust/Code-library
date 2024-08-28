@@ -1,0 +1,72 @@
+https://www.spoj.com/problems/CAC/
+
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 28-08-2024  16:05:16
+ **/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+void Sol(int Cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+
+  vector<int> vis(n, false), inStack(n, false);
+  vector<vector<int>> cycle;
+  vector<int> par(n, -1);
+
+  auto dfs = [&](auto &&self, int node) -> void {
+    vis[node] = true;
+    inStack[node] = true;
+    for (auto &son : g[node]) {
+      if (!vis[son]) {
+        par[son] = node;
+        self(self, son);
+      } else if (inStack[son] && son != par[node]) {
+        vector<int> p;
+        int cur = node;
+        while (cur != son) {
+          p.push_back(cur);
+          cur = par[cur];
+        }
+        p.push_back(cur);
+        cycle.push_back(p);
+      }
+    }
+    inStack[node] = false;
+  };
+
+  dfs(dfs, 0);
+  for (auto &it : cycle) {
+    cout << it.size() << "\n";
+    for (auto &i : it) cout << i + 1 << " ";cout << "\n";
+  }
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
