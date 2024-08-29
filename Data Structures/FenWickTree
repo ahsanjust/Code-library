@@ -1,24 +1,21 @@
-class Fen {
-  vector<int64_t> tree;
+template <class T> class BIT {
+  int size; 
+  vector<T> bit, arr;
 
 public:
-  Fen(int n) : tree(n + 1, 0) {}
+  BIT(int n) : size(n), bit(n + 1), arr(n) {}
+  void set(int id, T val) { add(id, val - arr[id]); }
 
-  void add(int pos, int64_t val) {
-    for (int i = pos + 1; i < (int)tree.size(); i += i & -i) {
-      tree[i] += val;
-    }
+  void add(int id, T val) {
+    arr[id] += val;
+    for (++id; id <= size; id += id & -id) bit[id] += val;
   }
 
-  int64_t get(int pos) const {
-    int64_t sum = 0;
-    for (int i = pos + 1; i > 0; i -= i & -i) {
-      sum += tree[i];
-    }
-    return sum;
+  T pref_sum(int id) const {
+    T total = 0;
+    for (++id; id > 0; id -= id & -id) total += bit[id];
+    return total;
   }
 
-  int64_t range(int l, int r) const {
-    return get(r) - get(l - 1);
-  }
+  T range_sum(int L, int R) const { return pref_sum(R) - pref_sum(L - 1); }
 };
