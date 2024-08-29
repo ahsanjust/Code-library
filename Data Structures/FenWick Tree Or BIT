@@ -1,21 +1,18 @@
 template <class T> class BIT {
-  int size; 
+  int size;
   vector<T> bit, arr;
-
+ 
 public:
-  BIT(int n) : size(n), bit(n + 1), arr(n) {}
+  BIT(int n) : size(n), bit(n + 5), arr(n + 5) {}
   void set(int id, T val) { add(id, val - arr[id]); }
-
   void add(int id, T val) {
     arr[id] += val;
     for (++id; id <= size; id += id & -id) bit[id] += val;
   }
-
   T pref_sum(int id) const {
     T total = 0;
     for (++id; id > 0; id -= id & -id) total += bit[id];
     return total;
   }
-
   T range_sum(int L, int R) const { return pref_sum(R) - pref_sum(L - 1); }
 };
