@@ -1,16 +1,12 @@
-struct MinMaxSegTree {
+template <typename T> struct MinMaxSegTree {
   int n;
-  vector<array<int, 2>> tree;
-
-  MinMaxSegTree(int size) {
-    n = size;
-    tree.resize(n << 2, {INT_MAX, INT_MIN});
+  vector<array<T, 2>> tree;
+  MinMaxSegTree(int size) : n(size) {
+    tree.resize(4 * n, {numeric_limits<T>::max(), numeric_limits<T>::lowest()});
   }
-
-  void build(const vector<int> &arr, int node, int start, int end) {
+  void build(const vector<T> &arr, int node, int start, int end) {
     if (start == end) {
-      tree[node][0] = arr[start];
-      tree[node][1] = arr[start];
+      tree[node] = {arr[start], arr[start]};
     } else {
       int mid = (start + end) >> 1;
       build(arr, node << 1, start, mid);
@@ -19,24 +15,21 @@ struct MinMaxSegTree {
       tree[node][1] = max(tree[node << 1][1], tree[(node << 1) | 1][1]);
     }
   }
-
-  pair<int, int> query(int node, int start, int end, int l, int r) {
+  array<T, 2> query(int node, int start, int end, int l, int r) {
     if (l > end || r < start) {
-      return {INT_MAX, INT_MIN};
+      return {numeric_limits<T>::max(), numeric_limits<T>::lowest()};
     }
     if (l <= start && r >= end) {
-      return {tree[node][0], tree[node][1]};
+      return tree[node];
     }
     int mid = (start + end) >> 1;
     auto leftRes = query(node << 1, start, mid, l, r);
     auto rightRes = query((node << 1) | 1, mid + 1, end, l, r);
-    return {min(leftRes.first, rightRes.first), max(leftRes.second, rightRes.second)};
+    return {min(leftRes[0], rightRes[0]), max(leftRes[1], rightRes[1])};
   }
-
-  void update(int node, int start, int end, int idx, int val) {
+  void update(int node, int start, int end, int idx, T val) {
     if (start == end) {
-      tree[node][0] = val;
-      tree[node][1] = val;
+      tree[node] = {val, val};
     } else {
       int mid = (start + end) >> 1;
       if (idx <= mid) {
@@ -48,10 +41,9 @@ struct MinMaxSegTree {
       tree[node][1] = max(tree[node << 1][1], tree[(node << 1) | 1][1]);
     }
   }
-
-  void build(const vector<int> &arr) { build(arr, 1, 0, n - 1); }
-  int maxQry(int l, int r) { return query(1, 0, n - 1, l, r).second; }
-  int minQry(int l, int r) { return query(1, 0, n - 1, l, r).first; }
-  pair<int, int> bothQry(int l, int r) { return query(1, 0, n - 1, l, r); }
-  void pointUpdate(int idx, int val) { update(1, 0, n - 1, idx, val); }
+  void build(const vector<T> &arr) { build(arr, 1, 0, n - 1); }
+  T maxQry(int l, int r) { return query(1, 0, n - 1, l, r)[1]; }
+  T minQry(int l, int r) { return query(1, 0, n - 1, l, r)[0]; }
+  array<T, 2> bothQry(int l, int r) { return query(1, 0, n - 1, l, r); }
+  void pointUpdate(int idx, T val) { update(1, 0, n - 1, idx, val); }
 };
