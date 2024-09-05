@@ -1,0 +1,53 @@
+struct ST {
+  int n;
+  vector<array<int, 26>> tree;
+  ST(int size) : n(size) {
+    tree.resize(4 * n);
+  }
+  
+  void merge(int node) {
+    for (int i = 0; i < 26; i++) {
+      tree[node][i] = tree[node << 1][i] + tree[node << 1 | 1][i];
+    }
+  }
+
+  void build(string &s, int node, int start, int end) {
+    if (start == end) {
+      tree[node].fill(0);
+      tree[node][s[end] - 'a'] += 1;
+    } else {
+      int mid = (start + end) >> 1;
+      build(s, node << 1, start, mid);
+      build(s, node << 1 | 1, mid + 1, end);
+      merge(node);
+    }
+  }
+  void update (int node, int start, int end, int id, int old, int newchar) {
+    if (start == end) {
+      tree[node][old - 'a'] -= 1;
+      tree[node][newchar - 'a'] += 1;
+    } else {
+      int mid = (start + end) >> 1;
+      if (id <= mid) update(node << 1, start, mid, id, old, newchar);
+      else update(node << 1 | 1, mid + 1, end, id, old, newchar);
+      merge(node);
+    }
+  }
+  array<int, 26> Qry(int node, int start, int end, int l, int r) {
+    if (l > r) return array<int, 26>{};
+    if (start == l && end == r) {
+      return tree[node];
+    }
+    int mid = (start + end) >> 1;
+    auto left = Qry(node << 1, start, mid, l, min(r, mid));
+    auto right = Qry(node << 1 | 1, mid + 1, end, max(l, mid + 1), r);
+    array<int, 26> res {};
+    for (int i = 0; i < 26; i++) res[i] = left[i] + right[i];
+    return res;
+  }
+  char get(int l, int r) {
+    auto f = Qry(1, 0, n - 1, l, r);
+    int id = max_element(f.begin(), f.end()) - f.begin();
+    return char('a' + id);
+  }
+};
