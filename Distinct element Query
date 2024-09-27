@@ -1,0 +1,83 @@
+https://www.spoj.com/problems/DQUERY/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+using ll = long long int;
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+ 
+const int N = 1e6 + 5;
+vector<int> a(N), ans(N), cnt(N);
+int block_size;
+struct Qry {
+  int l, r, idx;
+  bool operator<(const Qry &other) const {
+    return (l / block_size < other.l / block_size) ||
+           (l / block_size == other.l / block_size && r < other.r);
+  }
+} Q[N];
+ 
+void solve(int cs) {
+  int n;
+  cin >> n;
+  for (int i = 0; i < n; i++) {
+    cin >> a[i];
+  }
+  block_size = sqrt(n);
+  int q;
+  cin >> q;
+  for (int i = 0; i < q; i++) {
+    cin >> Q[i].l >> Q[i].r, Q[i].l--, Q[i].r--;
+    Q[i].idx = i;
+  }
+  sort(Q, Q + q);
+  int distinct = 0;
+  auto del = [&](int i) -> void {
+    cnt[a[i]] -= 1;
+    if (cnt[a[i]] == 0) {
+      distinct -= 1;
+    }
+  };
+  auto add = [&](int i) -> void {
+    cnt[a[i]] += 1;
+    if (cnt[a[i]] == 1) {
+      distinct += 1;
+    }
+  };
+  int L = 0, R = -1;
+  for (int i = 0; i < q; i++) {
+    while (L < Q[i].l) {
+      del(L++);
+    }
+    while (L > Q[i].l) {
+      add(--L);
+    }
+    while (R < Q[i].r) {
+      add(++R);
+    }
+    while (R > Q[i].r) {
+      del(R--);
+    }
+    ans[Q[i].idx] = distinct;
+  }
+  for (int i = 0; i < q; i++) {
+    cout << ans[i] << "\n";
+  }
+}
+ 
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  // cin >> tc;
+  for (int cs = 1; cs <= tc; cs++) {
+    solve(cs);
+  }
+  return 0;
+} 
