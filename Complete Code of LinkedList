@@ -1,0 +1,238 @@
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 30-09-2024  21:15:58
+**/
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct Node {
+  Node *nxt;
+  int data;
+  Node(int value) {
+    nxt = nullptr;
+    data = value;
+  }
+};
+
+Node *Build(vector<int> &a) {
+  Node *head = new Node(a[0]);
+  Node *go = head;
+  for (int i = 1; i < a.size(); i++) {
+    go -> nxt = new Node(a[i]);
+    go = go -> nxt;
+  }
+  return head;
+}
+
+int GetLength(Node *head) {
+  Node *mover = head;
+  int len = 0;
+  while (mover) ++len, mover = mover -> nxt;
+  return len;
+}
+
+void Print(Node *head) {
+  if (head == nullptr) {
+    cout << "\nYour list is Empty now!\n";
+    return;
+  }
+  Node *mover = head;
+  cout << "\nlength of the your linkedlist : " << GetLength(head) << "\n";
+  cout << "Your current List : ";
+  while (mover) {
+    cout << mover -> data;
+    mover = mover -> nxt;
+    if (mover) cout << " -> ";
+    else cout << "\n";
+  }
+}
+
+Node *DeleteTail(Node *head, bool &success) {
+  if (head == nullptr) {
+    cout << "\nUnderflow!!\n";
+    return head;
+  } else if (head -> nxt == nullptr) {
+    success = true;
+    return head -> nxt;
+  } else {
+    Node *go = head;
+    while (go -> nxt -> nxt) go = go -> nxt;
+    go -> nxt = go -> nxt -> nxt, success = true;
+    return head;
+  }
+}
+
+Node *DeleteHead(Node *head, bool &success) {
+  if (head == nullptr) {
+    cout << "\nUnderflow!!\n";
+    return head;
+  }
+  success = true;
+  return head -> nxt;
+}
+
+Node *InsertAtHead(Node *head, int value, bool &success) {
+  Node *tmp = new Node(value);
+  tmp -> nxt = head, success = true;
+  return tmp;
+}
+
+Node *InsertAtTail(Node *head, int value, bool &success) {
+  if (head == nullptr) return InsertAtHead(head, value, success);
+  Node *mover = head;
+  while (mover -> nxt) mover = mover -> nxt;
+  Node *tmp = new Node(value);
+  mover -> nxt = tmp, success = true;
+  return head;
+}
+
+Node *InsertAtk(Node *head, int k, int value, bool &success) {
+  Node *mover = head; 
+  if (k == 1) return InsertAtHead(head, value, success);
+  if (k == GetLength(head) + 1) return InsertAtTail(head, value, success);
+  if (k > GetLength(head) + 1) {
+    cout << "\nInvalid position!\n";
+    return head;
+  } 
+  while (k-- > 2) mover = mover -> nxt;
+  Node *tmp = new Node(value);
+  tmp -> nxt = mover -> nxt;
+  mover -> nxt = tmp, success = true;
+  return head;
+}
+
+Node *DeleteAtk(Node *head, int k, bool &success) {
+  if (head == nullptr) {
+    cout << "\nUnderflow!!\n";
+    return head;
+  }
+  if (k > GetLength(head) || k <= 0) {
+    cout << "\nInvalid position!\n";
+    return head;
+  }
+  if (k == 1) return DeleteHead(head, success);
+  if (k == GetLength(head)) return DeleteTail(head, success);
+  Node *mover = head;
+  while (k-- > 2) mover = mover -> nxt;
+  mover -> nxt = mover -> nxt -> nxt, success = true;
+  return head;
+}
+
+bool find (Node *head, int value) {
+  Node *go = head;
+  while (go) {
+    if (go -> data == value) return true;
+    go = go -> nxt;
+  }
+  return false;
+}
+
+Node *DeleteData(Node *head, int value, bool &success) {
+  if (find(head, value) == false) {
+    cout << "\nThe data you chose doesn't belong to the list!\n";
+    return head;
+  }
+  if (head -> data == value) return DeleteHead(head, success);
+  Node *mover = head;
+  while (mover -> nxt -> data != value) mover = mover -> nxt;
+  mover -> nxt = mover -> nxt -> nxt, success = true;
+  return head;
+}
+
+int32_t main() {
+  int n;
+  cout << "Enter the number of data to initialize your Linked List: ";
+  cin >> n;
+  Node *head = nullptr;
+  if (n > 0) {
+    vector<int> a(n);
+    cout << "Enter all your data here : ";
+    for (auto &i : a) cin >> i;
+    head = Build(a);
+  }
+  while (true) {
+    cout << "\nPlease choose an option:\n";
+    cout << "1. View your current list.\n";
+    cout << "2. Insert a new data.\n";
+    cout << "3. Delete an data.\n";
+    cout << "4. Exit the program.\n";
+    cout << "Enter your option: ";
+    int type;
+    cin >> type;
+    if (type == 1) {
+      Print(head);
+    } else if (type == 2) {
+      cout << "\nWhere would you like to insert the data? Please choose an option:\n";
+      cout << "1. At the head\n";
+      cout << "2. At the tail\n";
+      cout << "3. At the kth position\n";
+      cout << "Enter your option: ";
+      int where;
+      cin >> where;
+      bool success = false;
+      if (where == 1) {
+        int data;
+        cout << "Enter the data you want to insert: ";
+        cin >> data;
+        head = InsertAtHead(head, data, success);
+      } else if (where == 2) {
+        int data;
+        cout << "Enter the data you want to insert: ";
+        cin >> data;
+        head = InsertAtTail(head, data, success);
+      } else if (where == 3) {
+        int position, data;
+        cout << "Enter the position and the data respectively:\n";
+        cout << "Enter the position: ";
+        cin >> position;
+        cout << "Enter the data: ";
+        cin >> data;
+        head = InsertAtk(head, position, data, success);
+      } else {
+        cout << "Invalid key! Try again!\n";
+      }
+      if (success) {
+        cout << "\nAfter insertion:";
+        Print(head);
+      }
+    } else if (type == 3) {
+      cout << "\nWhat would you like to delete? Please choose an option:\n";
+      cout << "1. Head\n";
+      cout << "2. Tail\n";
+      cout << "3. At the kth position\n";
+      cout << "4. A particular data\n";
+      cout << "Enter your option : ";
+      int where;
+      cin >> where;
+      bool success = false;
+      if (where == 1) {
+        head = DeleteHead(head, success);
+      } else if (where == 2) {
+        head = DeleteTail(head, success);
+      } else if (where == 3) {
+        int position;
+        cout << "Enter the kth position you want to delete : ";
+        cin >> position;
+        head = DeleteAtk(head, position, success);
+      } else if (where == 4) {
+        int data;
+        cout << "Enter the data you want to delete: ";
+        cin >> data;
+        head = DeleteData(head, data, success);
+      } else {
+        cout << "Invalid key! Try again!\n";
+        continue;
+      }
+      if (success) {
+        cout << "\nAfter Deletion:";
+        Print(head);
+      }
+    } else if (type == 4) {
+      cout << "Ok, Thank you!\n";
+      break;
+    } else {
+      cout << "Invalid key! Try again!\n";
+    }
+  }
+}
