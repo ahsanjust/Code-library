@@ -1,1 +1,100 @@
 https://codeforces.com/blog/entry/98629
+https://www.codechef.com/problems/TRICOUNT2?tab=statement
+
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 03-10-2024  12:53:39
+ **/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+template <typename T> class IntervalUnion {
+  multiset<T> points;
+  map<T, T> intervals;
+  T totalLength;
+
+public:
+  IntervalUnion() : points(), intervals(), totalLength(0) {}
+
+  void insert(T l, T r) {
+    if (intervals.empty()) {
+      intervals[l] = r;
+      totalLength += r - l;
+      return;
+    }
+    auto it = intervals.lower_bound(l);
+    if (it != intervals.begin() && prev(it)->second >= l) --it;
+    while (it != intervals.end() && it->first <= r) {
+      l = min(l, it->first); 
+      r = max(r, it->second); 
+      totalLength -= it->second - it->first;
+      it = intervals.erase(it);
+    }
+
+    intervals[l] = r;
+    totalLength += r - l;
+  }
+
+  void insert(T x) {
+    if (!points.empty()) {
+      auto it = points.upper_bound(x);
+
+      if (it != points.end()) {
+        T left = *it - x;
+        T right = *it + x - 1;
+        insert(left, right);
+      }
+      if (it != points.begin()) {
+        --it;
+        T left = x - *it;
+        T right = x + *it - 1;
+        insert(left, right);
+      }
+    }
+    points.insert(x);
+  }
+
+  T query() const { return totalLength; }
+  void print() const {
+    cout << "Total Length: " << totalLength << "\n";
+    cout << "Points: ";
+    for (auto p : points) cout << p << " ";
+    cout << "\n";
+    cout << "Intervals: ";
+    for (const auto &interval : intervals) cout << "[" << interval.first << ", " << interval.second << "] ";
+    cout << "\n";
+  }
+};
+
+void Sol(int Cs) {
+  int n;
+  cin >> n;
+  vector<int> a(n);
+  for (int i = 0; i < n; ++i) cin >> a[i];
+  IntervalUnion<int64_t> S;
+  S.insert(a[0]);
+  for (int i = 1; i < n; ++i) {
+    S.insert(a[i]);
+    cout << S.query() << " \n"[i == n - 1];
+  }
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
