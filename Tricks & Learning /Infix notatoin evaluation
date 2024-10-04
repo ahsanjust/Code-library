@@ -1,0 +1,56 @@
+https://www.hackerrank.com/contests/spc-round-66/challenges/calculate-from-valid-expression
+
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 04-10-2024  23:12:33
+**/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+const int mod = 1e9;
+int64_t norm(int64_t x) {return (x % mod + mod) % mod; }
+void Sol(string s) {
+  stack<int64_t> st;
+  int64_t val = 0, sign = 1, now = 0;
+  for (int i = 0; i < (int)s.size(); i++) {
+    if (isdigit(s[i])) now = norm(now * 10 + (s[i] - '0'));
+    else if (s[i] == '+' || s[i] == '-') {
+      val = norm (val + now * sign), now = 0;
+      sign = (s[i] == '+') ? 1 : -1;
+    } else if (s[i] == '(') {
+      st.push(val), st.push(sign);
+      val = 0, sign = 1;
+    } else if (s[i] == ')') {
+      val = norm(val + now * sign);
+      val = norm(val * st.top()); st.pop();
+      val = norm(val + st.top()); st.pop();
+      now = 0;
+    }
+  }
+  val = norm(val + now * sign);
+  cout << val << "\n";
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int tc = 1;
+  cin >> tc; cin.ignore();
+  vector<string> tt(tc);
+  for (int i = 0; i < tc; i++) {
+    getline(cin, tt[i]);
+  }
+  for (int i = 0; i < tc; i++) {
+    Sol(tt[i]);
+  }
+  return 0;
+}
