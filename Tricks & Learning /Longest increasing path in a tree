@@ -1,0 +1,31 @@
+https://practice.geeksforgeeks.org/contest/gfg-weekly-175-rated-contest-1447/problems
+
+int longestIncreasingPath(int n, vector<vector<int>> &edges, vector<int> &values) {
+  vector<vector<int>> g(n);
+  for (auto &a : edges) {
+    --a[0], --a[1];
+    g[a[0]].push_back(a[1]);
+    g[a[1]].push_back(a[0]);
+  }
+  int ans = 1;
+  vector<int> memo(n, -1);
+  auto dfs = [&](auto &&self, int node, int par = -1) -> int {
+    if (memo[node] != -1)
+      return memo[node];
+    int len = 1;
+    for (auto &son : g[node]) {
+      if (son != par) {
+        if (values[son] > values[node]) {
+          len = max(len, 1 + self(self, son, node));
+        }
+      }
+    }
+    ans = max(ans, len);
+    memo[node] = len;
+    return len;
+  };
+  for (int i = 0; i < n; i++) {
+    dfs(dfs, i);
+  }
+  return ans;
+}
