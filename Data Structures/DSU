@@ -14,3 +14,29 @@ private:
   vector<int> Par, rank, siz;
   int cnt;
 };
+
+// Min Max
+class dsu {
+public:
+  dsu(int n) : Par(n), rank(n, 0), siz(n, 1), Cnt(n), minele(n), maxele(n) {
+    for (int i = 0; i < n; i++) {
+      Par[i] = i, minele[i] = i, maxele[i] = i;
+    }
+  }
+  int find(int x) { return x == Par[x] ? x : Par[x] = find(Par[x]); }
+  bool unite(int x, int y) {
+    if ((x = find(x)) == (y = find(y))) return false;
+    if (rank[x] < rank[y]) swap(x, y);
+    Par[y] = x, siz[x] += siz[y], rank[x] += (rank[x] == rank[y]), Cnt -= 1;
+    minele[x] = min(minele[x], minele[y]);
+    maxele[x] = max(maxele[x], maxele[y]);
+    return true;
+  }
+  int size(int x) { return siz[find(x)]; }
+  int cnt() const { return Cnt; }
+  int getmin(int x) { return minele[find(x)]; }
+  int getmax(int x) { return maxele[find(x)]; }
+private:
+  vector<int> Par, rank, siz, minele, maxele;
+  int Cnt;
+};
