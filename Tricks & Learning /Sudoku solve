@@ -1,0 +1,76 @@
+https://vjudge.net/problem/HDU-3111
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 14-10-2024  16:42:08
+**/
+#include <iostream>
+#include <vector>
+#include <set>
+#include <functional>
+using namespace std;
+
+void Sol(int Cs) {
+  int Q;
+  cin >> Q;
+  while (Q--) {
+    const int n = 9;
+    vector<string> g(n);
+    for (auto &i : g) cin >> i;
+    vector<string> out;
+    bool found = false;
+    function<void(int, int)> F = [&](int x, int y) -> void {
+      if (x == n) out = g, found = true;
+      else {
+        if (found) return;
+        if (g[x][y] != '?') {
+          if (y + 1 == n) F(x + 1, 0);
+          else F(x, y + 1);
+        } else {
+          set<int> putter;
+          for (int i = 1; i < 10; i++) putter.insert(i);
+          set<int> dels;
+          // checking for the correspons row & col
+          for (int i = 0; i < n; i++) {
+            if (g[x][i] != '?') dels.insert(g[x][i] - '0');
+            if (g[i][y] != '?') dels.insert(g[i][y] - '0');
+          }
+          // checking for 3 * 3 subgrid
+          int rowstart = x - x % 3, colstart = y - y % 3;
+          for (int i = rowstart; i < rowstart + 3; i++) {
+            for (int j = colstart; j < colstart + 3; j++) {
+              if (g[i][j] != '?') dels.insert(g[i][j] - '0');
+            }
+          }
+          for (auto &del : dels) putter.erase(del);
+          for (auto &put : putter) {
+            g[x][y] = put + '0';
+            if (y + 1 == n) F(x + 1, 0);
+            else F(x, y + 1);
+            g[x][y] = '?';
+          }
+        }
+      }
+    };
+    F(0, 0);
+    if (found) {
+      for (auto &it : out) cout << it << "\n";
+    } else cout << "impossible\n";
+    if (Q) {
+      cout << "---\n";
+      string trash;
+      cin >> trash;
+    }
+  }
+  
+}
+
+signed main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+  int Tc = 1;
+  // cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
