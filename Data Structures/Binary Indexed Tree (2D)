@@ -1,0 +1,71 @@
+struct BIT2D {
+  int size;
+  vector<vector<int>> maxTree;
+  vector<vector<int>> minTree;
+  vector<vector<int64_t>> sumTree;
+
+  BIT2D(int n) : size(n), maxTree(n + 1, vector<int>(n + 1, 0)),
+  minTree(n + 1, vector<int>(n + 1, numeric_limits<int>::max())),
+  sumTree(n + 1, vector<int64_t>(n + 1, 0)) {}
+
+  void update(int x, int y, int val) {
+    int orig_x = x;
+    int orig_y = y;
+
+    while (x <= size) {
+      while (y <= size) {
+        maxTree[x][y] = max(maxTree[x][y], val);
+        minTree[x][y] = min(minTree[x][y], val);
+        sumTree[x][y] += val;
+        y += y & (-y);
+      }
+      x += x & (-x);
+      y = orig_y;
+    }
+  }
+
+  // Query function: Get the maximum value in the rectangle (1,1) to (x, y)
+  int maxQry(int x, int y) const {
+    int res = 0;
+    while (x > 0) {
+      int orig_y = y;
+      while (y > 0) {
+        res = max(res, maxTree[x][y]);
+        y -= y & (-y);
+      }
+      x -= x & (-x);
+      y = orig_y;
+    }
+    return res;
+  }
+
+  // Query function: Get the minimum value in the rectangle (1,1) to (x, y)
+  int minQry(int x, int y) const {
+    int res = numeric_limits<int>::max();
+    while (x > 0) {
+      int orig_y = y;
+      while (y > 0) {
+        res = min(res, minTree[x][y]);
+        y -= y & (-y);
+      }
+      x -= x & (-x);
+      y = orig_y;
+    }
+    return res == numeric_limits<int>::max() ? -1 : res;
+  }
+
+  // Query function: Get the sum of values in the rectangle (1,1) to (x, y)
+  int64_t sumQry(int x, int y) const {
+    int64_t res = 0;
+    while (x > 0) {
+      int orig_y = y;
+      while (y > 0) {
+        res += sumTree[x][y];
+        y -= y & (-y);
+      }
+      x -= x & (-x);
+      y = orig_y;
+    }
+    return res;
+  }
+};
