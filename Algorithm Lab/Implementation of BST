@@ -1,0 +1,101 @@
+Class date : 21 october 2024
+/**
+ *  Author: AhSaN (JUST-22)
+ *  Created: 21-10-2024  14:12:33
+**/
+#include <bits/stdc++.h>
+
+#pragma GCC optimize("Ofast")
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#define dbgA(...)
+#endif
+
+struct node {
+  int data;
+  node *left;
+  node *right;
+  node (int val) {
+    left = nullptr;
+    right = nullptr;
+    data = val;
+  }
+};
+
+void Sol(int Cs) {
+  node *root = nullptr;
+  int n;
+  cout << "Enter the size : ";
+  cin >> n;
+  vector<int> a(n);
+  cout << "Enter the values : ";
+  for (auto &i : a) cin >> i;
+
+  auto Insert = [&](int val) -> void {
+    if (root == nullptr) {
+      root = new node(val);
+      return;
+    }
+    node *mover = root;
+    while (mover) {
+      if (mover -> data > val) {
+        if (mover -> left == nullptr) {
+          mover -> left = new node(val);
+          break;
+        } else {
+          mover = mover -> left;
+        }
+      } else {
+        if (mover -> right == nullptr) {
+          mover -> right = new node(val);
+          break;
+        } else {
+          mover = mover -> right;
+        }
+      }
+    }
+  };
+
+  for (int i = 0; i < n; i++) {
+    Insert(a[i]);
+  }
+  
+  auto check = [&](int target) -> bool {
+    node *mover = root;
+    while (mover) {
+      if (mover -> data == target) return true;
+      else if (mover -> data > target) mover = mover -> left;
+      else mover = mover -> right;
+    }
+    return false;
+  };
+  
+//   auto print = [&](auto &&self, node *mover) -> void {
+//     if (mover == nullptr) return;
+//     cout << mover -> data << " ";
+//     if (mover -> left)self(self, mover -> left);
+//     if (mover -> right)self(self, mover -> right);
+//   };
+//   print(print, root);
+
+  int t;
+  cout << "Enter the data you want to search : ";
+  cin >> t;
+  cout << (check(t) ? "YES! Found" : "NOT FOUND!") << "\n";
+}
+
+
+signed main() {
+  // ios_base::sync_with_stdio(false);
+  // cin.tie(NULL);
+  int Tc = 1;
+  // cin >> Tc;
+  for (int Cs = 1; Cs <= Tc; Cs++) {
+    Sol(Cs);
+  }
+  return 0;
+}
