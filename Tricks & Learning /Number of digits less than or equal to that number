@@ -1,0 +1,11 @@
+int64_t get(int64_t n) {
+  int64_t base = 1, digits = 1, now = 0;
+  while (base * 10 <= n) {
+    base *= 10;
+    now += (base - (base / 10 == 0 ? 1 : base / 10)) * digits;
+    digits += 1;
+  }
+  n -= (base - 1);
+  now += n * digits;
+  return now;
+}
