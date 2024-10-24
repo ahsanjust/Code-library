@@ -1,0 +1,74 @@
+// Only applied when the sum of elements in the array is less than or equal to N
+// TC : O(N * sqrt(N))
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main() {
+  int N;
+  cin >> N;
+
+  // Sum of elements <= N implies that every element is <= N
+  vector<int> freq(N + 1, 0);
+  for (int i = 0; i < N; i++) {
+    int x;
+    cin >> x;
+    freq[x]++;
+  }
+
+  vector<pair<int, int>> compressed;
+  for (int i = 1; i <= N; i++) {
+    if (freq[i] > 0) compressed.emplace_back(i, freq[i]);
+  }
+
+  vector<int> dp(N + 1, 0);
+  dp[0] = 1;
+
+  for (const auto &[w, k] : compressed) {
+    vector<int> ndp = dp;
+    for (int p = 0; p < w; p++) {
+      int sum = 0;
+      for (int multiple = p, count = 0; multiple <= N; multiple += w, count++) {
+        if (count > k) {
+          sum -= dp[multiple - w * count];
+          count--;
+        }
+        if (sum > 0) ndp[multiple] = 1;
+        sum += dp[multiple];
+      }
+    }
+    swap(dp, ndp);
+  }
+
+  cout << "Possible subset sums are:\n";
+  for (int i = 0; i <= N; i++) {
+    if (dp[i] > 0)
+      cout << i << " ";
+  }
+}
+
+// another variation : minimum number of elements need to make sum x
+  const int inf = n * 5;
+  vector<int> dp(n + 1, inf);
+  dp[0] = 0;
+
+  for (auto &[w, k] : comp) {
+    vector<int> ndp = dp;
+
+    for (int p = 0; p < w; ++p) {
+      deque<pair<int, int>> Q; // window
+
+      for (int mul = p, cnt = 0; mul <= n; mul += w, ++cnt) {
+        
+        while (!Q.empty() && Q.front().second < cnt - k) Q.pop_front();
+
+        if (!Q.empty()) ndp[mul] = min(ndp[mul], Q.front().first + cnt);
+
+        while (!Q.empty() && Q.back().first >= dp[mul] - cnt) Q.pop_back();
+
+        Q.emplace_back(dp[mul] - cnt, cnt);
+      }
+    }
+    dp = ndp;
+  }
