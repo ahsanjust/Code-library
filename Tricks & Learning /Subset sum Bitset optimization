@@ -1,0 +1,17 @@
+https://codeforces.com/blog/entry/49812
+// Only works when the sum of values is not greater then N;
+// TC : O(N / 32 * sqrt(N));
+
+const int N = 1e6 + 6;
+bitset<N> dp;
+
+dp.set(0);
+for (auto &[w, c] : comp) { // w is the value and c is the count of it's
+  for (int i = 0; 1 << i <= c; ++i) {
+    dp |= dp << (w * (1 << i));
+    c -= 1 << i;
+  }
+  dp |= dp << (w * c);
+}
+
+dp.test(k) // if it's possible to make sum equal to k
