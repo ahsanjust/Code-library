@@ -1,0 +1,7 @@
+int64_t geometric_sum(int64_t base, int64_t start, int64_t count) {
+  if (count == 0) return 0;
+  int64_t factor = p(base, count) - 1;
+  if (factor < 0) factor += mod;
+  int64_t multiplier = p(base - 1, mod - 2);
+  return factor * multiplier % mod * p(base, start) % mod;
+}
