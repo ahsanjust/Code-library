@@ -1,0 +1,54 @@
+import java.util.Scanner;
+
+class Calculator {
+  int add(int a, int b) { return a + b; }
+  int sub(int a, int b) { return a - b; }
+  int mul(int a, int b) { return a * b; }
+  double div(int a, int b) {
+    if (b == 0) {
+      System.out.println("Error : Division by zero isn't allowed");
+      return Double.NaN;
+    } else {
+      return (double) a / b;
+    }
+  }
+}
+
+public class lab {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+
+    System.out.print("Enter two number : ");
+    int a = in.nextInt();
+    int b = in.nextInt();
+
+    System.out.println("1.Addition");
+    System.out.println("2.Subtraction");
+    System.out.println("3.Multiplication");
+    System.out.println("4.Division");
+    System.out.print("Enter which operation you want to do : ");
+    int op = in.nextInt();
+
+    Calculator cal = new Calculator();
+    switch (op) {
+      case 1:
+        System.out.println("Resutl : " + cal.add(a, b));
+        break;
+      case 2:
+        System.out.println("Result : " + cal.sub(a, b));
+        break;
+      case 3:
+        System.out.println("Result : " + cal.mul(a, b));
+        break;
+      case 4:
+        double res = cal.div(a, b);
+        if (res != Double.NaN) {
+          System.out.println("Result : " + res);
+        }
+        break;
+      default:
+        System.out.println("Invalid Input!");
+    }
+    in.close();
+  }
+}
