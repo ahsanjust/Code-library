@@ -1,0 +1,55 @@
+struct Trie {
+  static const int B = 31;
+  struct Node {
+    Node *nxt[2];
+    int cnt;
+    Node () {
+      fill(begin(nxt), end(nxt), nullptr);
+      cnt = 0;
+    }
+  } *who;
+  Trie () { who = new Node(); }
+  void insert(int val) {
+    Node *mover = who;
+    mover -> cnt += 1;
+    for (int i = B - 1; ~i; --i) {
+      int b = val >> i & 1;
+      if (mover -> nxt[b] == nullptr) mover -> nxt[b] = new Node();
+      mover = mover -> nxt[b], mover -> cnt += 1;
+    }
+  }
+  int Qry (int x, int k) { // Number of values (val ^ x) < k;
+    Node *mover = who;
+    int ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (k >> i & 1) {
+        if (mover -> nxt[d]) ans += mover -> nxt[d] -> cnt;
+        if (mover -> nxt[!d]) mover = mover -> nxt[!d];
+        else break;
+      } else if (mover -> nxt[d]) mover = mover -> nxt[d];
+      else break;
+    }
+    return ans;
+  }
+  int get_max (int x) {
+    Node *mover = who;
+    int ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (mover -> nxt[!d]) mover = mover -> nxt[!d], ans |= 1 << i;
+      else mover = mover -> nxt[d];
+    }
+    return ans;
+  }
+  int get_min (int x) {
+    Node *mover = who;
+    int ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (mover -> nxt[d]) mover = mover -> nxt[d];
+      else mover = mover -> nxt[!d], ans |= 1 << i;
+    }
+    return ans;
+  }
+};
