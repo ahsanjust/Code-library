@@ -1,0 +1,50 @@
+import java.util.Scanner;
+class overload {
+  int add (int a, int b) {
+    System.out.println("We are in integer add method!");
+    return a + b;
+  }  
+  float add (float a, float b) {
+    System.out.println("We are in float add method!");
+    return a + b;
+  }
+  double add (double a, double b) {
+    System.out.println("We are in double add method!");
+    return a + b;
+  }
+  String add (String a, String b) {
+    System.out.println("We are in string add method!");
+    return a + b;
+  }
+}
+
+public class array {
+  public static void main(String args[]) {
+    java.util.Scanner in = new Scanner(System.in);
+    overload test = new overload();
+
+    System.out.print("Enter two integers: ");
+    int a, b;
+    a = in.nextInt();
+    b = in.nextInt();
+    System.out.println("Result : " + test.add(a, b)); System.out.println();
+
+    float x , y;
+    System.out.print("Enter two floats: ");
+    x = in.nextFloat();
+    y = in.nextFloat();
+    System.out.println("Result : " + test.add(x, y)); System.out.println();
+
+    double p, q;
+    System.out.print("Enter two doubles: ");
+    p = in.nextDouble();
+    q = in.nextDouble();
+    System.out.println("Result : " + test.add(p, q)); System.out.println();
+
+    String s, t;
+    System.out.print("Enter two strings: ");
+    s = in.nextLine();
+    t = in.nextLine();
+    System.out.println("Result : " + test.add(s, t));
+  }
+}
