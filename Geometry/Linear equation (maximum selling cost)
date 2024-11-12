@@ -1,0 +1,34 @@
+https://practice.geeksforgeeks.org/contest/innovate-x-coding-challenge/problems
+
+vector<long long> solve(int N, vector<int> &A, vector<int> &B, int q, vector<int> &Q) {
+  vector<array<long long, 2>> buyers;
+  for (int i = 0; i < N; i++) buyers.push_back({A[i], B[i]});
+  sort(buyers.begin(), buyers.end());
+  int days = *max_element(Q.begin(), Q.end());
+  deque<array<long long, 2>> que;
+  auto check = [&](int id) -> bool {
+    int64_t m1 = que[que.size() - 2][0], c1 = que[que.size() - 2][1];
+    int64_t m2 = que.back()[0], c2 = que.back()[1];
+    int64_t m3 = buyers[id][0], c3 = buyers[id][1];
+    // here m1 < m2 < m3
+    if ((c1 - c2) * (m3 - m2) >= (c2 - c3) * (m2 - m1)) return true;
+    return false;
+  };
+  for (int i = 0; i < N; i++) {
+    while (que.size() > 1 && check(i)) que.pop_back();
+    que.push_back(buyers[i]);
+  }
+  auto cal = [&](array<long long, 2> &x, int day) -> long long {
+    return x[0] * day + x[1];
+  };
+  vector<long long> ans(days + 1);
+  for (int i = 1; i <= days; i++) {
+    while (que.size() > 1 && cal(que[0], i) <= cal(que[1], i)) que.pop_front();
+    ans[i] = cal(que[0], i);
+  }
+  vector<long long> ret(q);
+  for (int i = 0; i < q; i++) {
+    ret[i] = ans[Q[i]];
+  }
+  return ret;
+}
