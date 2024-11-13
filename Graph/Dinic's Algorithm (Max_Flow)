@@ -1,0 +1,102 @@
+//https://codeforces.com/gym/105498/problem/F
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+const int64_t inf = 1LL << 61;
+struct Dinic {
+  struct edge {
+    int to, rev;
+    int64_t flow, w;
+  };
+  int n, s, t;
+  vector<int> d;
+  vector<int> done;
+  vector<vector<edge>> g;
+  Dinic() {};
+  Dinic(int _n) {
+    n = _n + 10, g.resize(n);
+  }
+  void add_edge(int u, int v, int64_t w) {
+    edge a = {v, (int)g[v].size(), 0, w};
+    edge b = {u, (int)g[u].size(), 0, 0};
+    g[u].push_back(a), g[v].push_back(b);
+  }
+  bool bfs() {
+    d.assign(n, -1), d[s] = 0;
+    queue<int> Q;
+    Q.push(s);
+    while (Q.size()) {
+      int u = Q.front(); Q.pop();
+      for (auto &e : g[u]) {
+        int v = e.to;
+        if (!~d[v] && e.flow < e.w) d[v] = d[u] + 1, Q.push(v);
+      }
+    }
+    return d[t] != -1;
+  }
+  int64_t dfs(int u, int64_t flow) {
+    if (u == t) return flow;
+    for (int &i = done[u]; i < (int)g[u].size(); i++) {
+      edge &e = g[u][i];
+      if (e.w <= e.flow) continue;
+      int v = e.to;
+      if (d[v] == d[u] + 1) {
+        int64_t nw = dfs(v, min(flow, e.w - e.flow));
+        if (nw > 0) {
+          e.flow += nw;
+          g[v][e.rev].flow -= nw;
+          return nw;
+        }
+      }
+    }
+    return 0;
+  }
+  int64_t max_flow(int _s, int _t) {
+    s = _s, t = _t;
+    int64_t flow = 0;
+    while (bfs()) {
+      done.assign(n, 0);
+      while (int64_t nw = dfs(s, inf)) flow += nw;
+    }
+    return flow;
+  }
+};
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  int source = 2 * n + 1, sink = source + 1;
+  Dinic F(sink + 1);
+  for (int i = 1; i <= n; i++) {
+    F.add_edge(source, i, 1);
+    F.add_edge(i + n, sink, 1);
+    int x;
+    cin >> x;
+    if (x <= n) F.add_edge(i, x + n, 1);
+    for (int j = 0; j < 20; j++) if (x >> j & 1) {
+      int y = x ^ (1 << j);
+      if (y > 0 && y <= n) {
+        F.add_edge(i, y + n, 1);
+      }
+    }
+  }
+  cout << (F.max_flow(source, sink) == n ? "Yes\n" : "No\n");
+}
+
+int main() {
+  ios::sync_with_stdio(0), cin.tie(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
