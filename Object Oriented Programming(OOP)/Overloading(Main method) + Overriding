@@ -1,0 +1,37 @@
+class classA {
+    void print(String s) {
+        System.out.println("We are in classA and the string is-> " + s);
+    }
+}
+class classB {
+    void print(String s) {
+        System.out.println("We are in classB and the string is-> " + s);
+    }
+}
+
+public class Lab {
+    void main(String s) {
+        System.out.println("The string is-> " + s);
+    }
+    void main(int n) {
+        System.out.println("The integer is-> " + n);
+    }
+    void main(double d) {
+        System.out.println("The double is-> " + d);
+    }
+    public static void main(String[] args) {
+        Lab L = new Lab();
+
+        // Method Overloading
+        L.main("AhSaN");
+        L.main(19);
+        L.main(42.6);
+
+        classA A = new classA();
+        classB B = new classB();
+
+        // Method Overriding
+        A.print("Ahsanul Haque");
+        B.print("ID : 220119");
+    }
+}
