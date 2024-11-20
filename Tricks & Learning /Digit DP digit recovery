@@ -1,0 +1,55 @@
+https://codeforces.com/gym/100886/problem/G
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+string a, b;
+int64_t dp[19][2][2][11];
+int nxt[19][2][2][11];
+int64_t magic(int p, int t1, int t2, int l) {
+  if (p == b.size()) return 1;
+  if (~dp[p][t1][t2][l]) return dp[p][t1][t2][l];
+  int lo = t1 ? a[p] - '0' : 0;
+  int hi = t2 ? b[p] - '0' : 9;
+  int64_t ret = -1;
+  for (int d = lo; d <= hi; ++d) {
+    int64_t now = d * magic(p + 1, t1 & d == lo, t2 & d == hi, d);
+    if (now > ret) {
+      nxt[p][t1][t2][l] = d;
+      ret = now;
+    }
+  }
+  return dp[p][t1][t2][l] = ret;
+}
+
+void solve(int cs) {
+  cin >> a >> b;
+  while (a.size() < b.size()) a = '0' + a;
+  memset(dp, -1, sizeof(dp));
+  magic(0, 1, 1, 10);
+  string who;
+  for (int p = 0, t1 = 1, t2 = 1, l = 10; p < int(a.size()); ++p) {
+    l = nxt[p][t1][t2][l];
+    if ((l == 0 && who.size()) || l > 0) who += l + '0';
+    int lo = a[p] - '0', hi = b[p] - '0';
+    t1 = t1 & l == lo;
+    t2 = t2 & l == hi;
+  }
+  cout << who;
+}
+
+int32_t main() {
+  ios::sync_with_stdio(0), cin.tie(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
