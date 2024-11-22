@@ -1,0 +1,18 @@
+https://www.geeksforgeeks.org/problems/longest-valid-parentheses5657/1?page=1&category=Dynamic%20Programming&difficulty=Hard&sortBy=submissions
+
+int maxLength(string& str) {
+  unordered_map<int, int> who;
+  int e = 0, n = str.size();
+  vector<int> dp(n, 0);
+  who[0] = -1;
+  for (int i = 0; i < n; i++) {
+    if (str[i] == ')') e += 1;
+    else e -= 1;
+    if (who.count(e) & str[i] == ')') {
+      int &x = who[e];
+      dp[i] = dp[x] + (i - x);
+      x = i;
+    } else who[e] = i;
+  }
+  return *max_element(dp.begin(), dp.end());
+}
