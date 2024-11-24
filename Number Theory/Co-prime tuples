@@ -1,0 +1,58 @@
+/*
+There is only difference to calculate f[i] for different problems, 
+for ordered pair means (a, b) and (b, a) are not same then f[i] = d[i] * d[i];
+for unordered pair means (a, b) and (b, a) are same then 
+    -for repeative -> f[i] = (d[i] + 1)C2 -> d[i] * (d[i] + 1) / 2;
+    -for non-repeative -> f[i] = d[i]C2 -> d[i] * (d[i] - 1) / 2;
+for k-tuples :
+    -for ordered tuples : f[i] = (d[i]) ^ k;
+    -for unordered tuples :
+        -for non-repeative ->  f[i] = d[i]Ck
+        -for repeative -> f[i] = (d[i] + k - 1)Ck
+here d[i] = number of elements divisible by i.
+and C denotes combination
+*/
+
+https://cses.fi/problemset/task/2417
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  vector<int> a(n);
+  for (auto &i : a) cin >> i;
+  int N = *max_element(a.begin(), a.end()) + 5;
+  vector<long long> f(N, 0), dp(N, 0);
+  for (auto x : a) {
+    for (int i = 1; i * i <= x; i++) {
+      if (x % i == 0) {
+        f[i] += 1;
+        if (i * i != x) {
+          f[x / i] += 1;
+        }
+      }
+    }
+  }
+  for (int i = 1; i < N; i++) {
+    f[i] = (f[i] * (f[i] - 1)) / 2;
+  }
+  for (int i = N - 1; i >= 1; --i) {
+    dp[i] = f[i];
+    for (int j = i * 2; j < N; j += i) {
+      dp[i] -= dp[j];
+    }
+  }
+  cout << dp[1] << "\n";
+}
+
+int32_t main() {
+  ios::sync_with_stdio(0), cin.tie(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
