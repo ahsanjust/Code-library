@@ -1,0 +1,14 @@
+Given an array of numbers, find out sum of all pair lcm.
+
+f[i] = sum over product (a * b) of tuples with gcd as multiple of i.
+g[i] = sum over product (a * b) of tuples with gcd as i.
+for (int i = N; i >= 1; --i) {
+  g[i] = f[i];
+  for (int j = i * 2; j <= N; j += i) {
+    g[i] -= g[j];
+  }
+}
+
+s[i] = sum of all numbers which are divisible by i.
+then f[i] = s[i] * s[i];
+then the answer is nothing but summation of g[i] / i for all i 1 to N;
