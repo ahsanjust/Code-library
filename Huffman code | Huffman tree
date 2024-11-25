@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct Node {
+  int freq;
+  char who;
+  int left, right;
+};
+
+string s;
+vector<Node> g;
+int build() {
+  array<int, 26> cnt = {};
+  for (auto &c : s) cnt[c - 'a'] += 1;
+  using aii = pair<int, int>;
+  priority_queue<aii, vector<aii>, greater<aii>> Q;
+  for (int i = 0; i < 26; i++) {
+    if (cnt[i] > 0) {
+      g.push_back({cnt[i], char(i + 'a'), -1, -1});
+      Q.push({cnt[i], g.size() - 1});
+    }
+  } 
+  while (Q.size() > 1) {
+    aii left = Q.top(); Q.pop();
+    aii right = Q.top(); Q.pop();
+    int combine = left.first + right.first;
+    g.push_back({combine, '\0', left.second, right.second});
+    Q.push({combine, g.size() - 1});
+  }
+  return Q.top().second;
+}
+
+void work(int root) {
+  queue<pair<int, string>> Q;
+  Q.push({root, ""});
+  while (Q.size()) {
+    auto [idx, code] = Q.front(); Q.pop();
+    char ch = g[idx].who;
+    int left = g[idx].left, right = g[idx].right;
+    if (ch != '\0') {
+      cout << ch << " " << code << "\n";
+    }
+    if (left != -1) Q.push({left, code + '0'});
+    if (right != -1) Q.push({right, code + '1'});
+  }
+}
+
+int32_t main() {
+  ios::sync_with_stdio(0), cin.tie(0);
+  cin >> s;
+  int root = build();
+  work(root);
+  return 0;
+}
