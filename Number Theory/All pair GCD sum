@@ -1,1 +1,41 @@
+for any sum use f[i] * phi(i), f[i] should be adjust accordingly
+
 https://www.spoj.com/problems/GCDEX/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+const int N = 1000005;
+int phi[N];
+long long f[N];
+void solve(int cs) {
+  for (int i = 1; i < N; i++) phi[i] = i;
+  for (int i = 2; i < N; i++) {
+    if (phi[i] == i) {
+      for (int j = i; j < N; j += i) {
+        phi[j] -= phi[j] / i;
+      }
+    }
+  }
+  for (int i = 1; i < N; i++) {
+    for (int j = i * 2; j < N; j += i) {
+      f[j] += int64_t(i) * phi[j / i];
+    }
+    f[i] += f[i - 1];
+  }
+  int n;  
+  while (cin >> n && n) {
+    cout << f[n] << "\n"; 
+  }
+}
+ 
+int32_t main() {
+  ios::sync_with_stdio(0), cin.tie(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+} 
