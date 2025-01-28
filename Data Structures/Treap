@@ -1,0 +1,86 @@
+mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
+struct Node {
+  int64_t prior, data, sum, toProp;
+  int size; bool rev; Node *l, *r;
+  Node(int64_t val) {
+    prior = rnd(), data = sum = val;
+    size = rev = toProp = 0;
+    l = r = nullptr;
+  }
+};
+
+struct Treap {
+  Node *root;
+  Treap() : root(nullptr) {}
+  int size(Node *&t) { return t ? t -> size : 0; }
+  int64_t sum(Node *&t) { return t ? t -> sum : 0; }
+  void update(Node *&t) {
+    if (!t) return;
+    t -> size = size(t -> l) + size(t -> r) + 1;
+    t -> sum = t -> data + t -> size * t -> toProp;
+    if (t -> l) t -> sum += t -> l -> sum + t -> l -> size * t -> l -> toProp;
+    if (t -> r) t -> sum += t -> r -> sum + t -> r -> size * t -> r -> toProp;
+  }
+  void push(Node *&t) {
+    if (!t) return;
+    if (t -> rev) {
+      t -> rev = false; swap(t -> l, t -> r);
+      if (t -> l) t -> l -> rev ^= true;
+      if (t -> r) t -> r -> rev ^= true;
+    }
+    if (t -> toProp) {
+      t -> data += t -> toProp;
+      if (t -> l) t -> l -> toProp += t -> toProp;
+      if (t -> r) t -> r -> toProp += t -> toProp;
+      t -> toProp = 0;
+    }
+  }
+  void split(Node *t, Node *&l, Node *&r, int key, int add = 0) {
+    if (!t) l = r = nullptr;
+    else {
+      push(t);
+      if (key <= add + size(t -> l)) split(t -> l, l, t -> l, key, add), r = t;
+      else split(t -> r, t -> r, r, key, add + 1 + size(t -> l)), l = t;
+      update(t);
+    }
+  }
+  void merge(Node *&t, Node *l, Node *r) {
+    push(l), push(r);
+    if (!l || !r) t = l ? l : r;
+    else if (l -> prior > r -> prior) merge(l -> r, l -> r, r), t = l;
+    else merge(r -> l, l, r -> l), t = r;
+    update(t);
+  }
+  void insert(Node *&t, int key, int64_t val) {
+    Node *left, *right; split(t, left, right, key);
+    merge(left, left, new Node(val)), merge(t, left, right);
+  }
+  void reverse(Node *&t, int l, int r) {
+    Node *left, *mid, *right;
+    split(t, left, right, l), split(right, mid, right, r - l + 1);
+    assert(mid); mid -> rev ^= true;
+    merge(t, left, mid), merge(t, t, right);
+  }
+  int erase(Node *&t, int key) {
+    assert(size(t) > key); Node *left, *mid, *right;
+    split(t, left, right, key), split(right, mid, right, 1);
+    merge(t, left, right); int ret = mid -> data;
+    delete mid; return ret;
+  }
+  int64_t query_sum(Node *&t, int l, int r) {
+    Node *left, *mid, *right;
+    split(t, left, right, l), split(right, mid, right, r - l + 1);
+    int64_t ret = mid -> sum; merge(t, left, mid), merge(t, t, right);
+    return ret;
+  }
+  void rangeAdd(Node *&t, int l, int r, int64_t val) {
+    Node *left, *mid, *right;
+    split(t, left, right, l), split(right, mid, right, r - l + 1);
+    mid -> toProp += val; merge(t, left, mid), merge(t, t, right);
+  }
+  void set(Node *&t, int p, int64_t val) {
+    Node *left, *mid, *right;
+    split(t, left, right, p), split(right, mid, right, 1);
+    merge(t, left, new Node(val)), merge(t, t, right);
+  }
+};
