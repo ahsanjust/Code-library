@@ -3,8 +3,7 @@
 using namespace std;
 
 struct Node {
-  int freq;
-  char who;
+  int freq; char who;
   int left, right;
 };
 
@@ -20,7 +19,7 @@ int build() {
       g.push_back({cnt[i], char(i + 'a'), -1, -1});
       Q.push({cnt[i], g.size() - 1});
     }
-  } 
+  }
   while (Q.size() > 1) {
     aii left = Q.top(); Q.pop();
     aii right = Q.top(); Q.pop();
@@ -35,19 +34,15 @@ void work(int root) {
   queue<pair<int, string>> Q;
   Q.push({root, ""});
   while (Q.size()) {
-    auto [idx, code] = Q.front(); Q.pop();
-    char ch = g[idx].who;
-    int left = g[idx].left, right = g[idx].right;
-    if (ch != '\0') {
-      cout << ch << " " << code << "\n";
-    }
-    if (left != -1) Q.push({left, code + '0'});
-    if (right != -1) Q.push({right, code + '1'});
+    auto &[idx, code] = Q.front(); Q.pop();
+    if (g[idx].who != '\0') cout << g[idx].who << " " << code << "\n";
+    if (g[idx].left != -1) Q.push({g[idx].left, code + '0'});
+    if (g[idx].right != -1) Q.push({g[idx].right, code + '1'});
   }
 }
 
 int32_t main() {
-  ios::sync_with_stdio(0), cin.tie(0);
+  ios::sync_with_stdio(!cin.tie(0));
   cin >> s;
   int root = build();
   work(root);
