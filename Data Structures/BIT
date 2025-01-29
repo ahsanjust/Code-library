@@ -1,0 +1,26 @@
+template <class T> class Fenwick {
+  int size;
+  vector<T> bit, arr;
+
+  void _upd(vector<T> &bit, int i, T val) {
+    for (++i; i <= size; i += i & -i) bit[i] += val;
+  }
+
+  T _pref_sum(const vector<T> &bit, int i) const {
+    T total = 0;
+    for (++i; i > 0; i -= i & -i) total += bit[i];
+    return total;
+  }
+
+public:
+  Fenwick() : size(0) {}
+  Fenwick(int n) : size(n), bit(n + 1, 0), arr(n, 0) {}
+
+  void set(int i, T val) { upd(i, i, val - exchange(arr[i], val)); }
+
+  void upd(int i, T val) { _upd(bit, i, val); }
+
+  T pref_sum(int i) const { return _pref_sum(bit, i); }
+
+  T range_sum(int l, int r) const { return pref_sum(r) - (l ? pref_sum(l - 1) : 0); }
+};
