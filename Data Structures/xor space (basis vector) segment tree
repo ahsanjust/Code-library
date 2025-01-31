@@ -1,5 +1,6 @@
 //https://codeforces.com/blog/entry/68953
 
+const int LG = 31;
 struct Node {
   int basis[LG], sz;
   Node() {
@@ -19,51 +20,54 @@ struct Node {
       mask ^= basis[i];
     }
   }
+  bool operator==(const Node& other) const {
+    return sz == other.sz && basis == other.basis;
+  }
+  void merge(const Node &other) {
+    for (int i = LG - 1; i >= 0; --i) {
+      if (other.basis[i]) insertVector(other.basis[i]);
+    }
+  }
 };
 
 struct ST {
-  vector<Node*> t; int N;
-  Node *null = new Node();
-  ST(int n) : N(n), t(4 * n, null) {}
-  Node* merge(Node* A, Node *B) {
-    if (A == null) return B;
-    if (B == null) return A;
-    Node* ret = new Node(*B);
-    for (int i = LG - 1; i >= 0; --i) {
-      if (A -> basis[i]) ret -> insertVector(A -> basis[i]);
-    }
-    return ret;
-  }
+  vector<Node> t; int N;
+  ST(int n) : N(n), t(4 * n) {}
   void build(int n, int s, int e, vector<int> &a) {
-    if (s == e) t[n] = new Node(a[s]);
+    if (s == e) t[n] = Node(a[s]);
     else {
       int m = s + e >> 1;
       build(n << 1, s, m, a), build(n << 1 | 1, m + 1, e, a);
-      t[n] = merge(t[n << 1], t[n << 1 | 1]);
+      t[n] = t[n << 1];
+      t[n].merge(t[n << 1 | 1]);
     }
   }
   void update(int n, int s, int e, int p, int x) {
     if (p < s || p > e) return;
-    else if (s == e) t[n] = new Node(x);
+    else if (s == e) t[n] = Node(x);
     else {
       int m = s + e >> 1;
       update(n << 1, s, m, p, x), update(n << 1 | 1, m + 1, e, p, x);
-      t[n] = merge(t[n << 1], t[n << 1 | 1]);
+      t[n] = t[n << 1];
+      t[n].merge(t[n << 1 | 1]);
     }
   }
-  Node* query(int n, int s, int e, int l, int r) {
-    if (s > r || l > e || l > r) return null;
+  Node query(int n, int s, int e, int l, int r) {
+    if (s > r || l > e || l > r) return Node();
     if (s >= l && e <= r) return t[n];
     int m = s + e >> 1;
-    return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
+    Node left = query(n * 2, s, m, l, r);
+    Node right = query(n * 2 + 1, m + 1, e, l, r);
+    left.merge(right);
+    return left;
   }
-  Node* query(int l, int r) {
+  Node query(int l, int r) {
     return query(1, 0, N - 1, l, r);
   }
   void update(int p, int x) {
     update(1, 0, N - 1, p, x);
   }
-  void build(vector<int> a) {
+  void build(vector<int> &a) {
     build(1, 0, N - 1, a);
   }
 };
