@@ -1,0 +1,34 @@
+template<typename T = int, int LG = 31>
+struct Basis {
+  T basis[LG]; int sz;
+  Basis() {
+    fill(basis, basis + LG, 0), sz = 0;
+  }
+  void insertVector(T mask) {
+    for (int i = LG - 1; i >= 0; --i) {
+      if (mask >> i & 1) {
+        if (basis[i]) mask ^= basis[i];
+        else {
+          basis[i] = mask, ++sz;
+          break;
+        }
+      }
+    }
+  }
+  T maxXor() {
+    T ans = 0;
+    for (int i = LG - 1; i >= 0; --i) {
+      ans = max(ans, ans ^ basis[i]);
+    }
+    return ans;
+  }
+  bool can(T x) {
+    for (int i = LG - 1; i >= 0; --i) {
+      if (x >> i & 1) {
+        if (!basis[i]) return false;
+        x ^= basis[i];
+      }
+    }
+    return true;
+  }
+};
