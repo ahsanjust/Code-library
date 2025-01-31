@@ -31,4 +31,23 @@ struct Basis {
     }
     return true;
   }
+  T kth(T k) {
+    T mask = 0;
+    int64_t tot = 1LL << sz;
+    for (int i = LG - 1; i >= 0; --i) {
+      if (basis[i]) {
+        int64_t low = tot / 2;
+        if ((low < k && (~mask >> i & 1)) || 
+          (low >= k && (mask >> i & 1))) {
+          mask ^= basis[i];
+        } 
+        if (low < k) k -= low;
+        tot /= 2;
+      }
+    }
+    return mask;
+  }
+  int size() {
+    return sz;
+  }
 };
