@@ -20,9 +20,6 @@ struct Node {
       mask ^= basis[i];
     }
   }
-  bool operator==(const Node& other) const {
-    return sz == other.sz && basis == other.basis;
-  }
   void merge(const Node &other) {
     for (int i = LG - 1; i >= 0; --i) {
       if (other.basis[i]) insertVector(other.basis[i]);
