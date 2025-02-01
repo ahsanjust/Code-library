@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  int a[n];
+  for (int i = 0; i < n; i++) cin >> a[i];
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      if (a[i] > a[j]) {
+        a[i] ^= a[j];
+        a[j] ^= a[i];
+        a[i] ^= a[j];
+      }
+    }
+  }
+  for (int i = 0; i < n; i++) cout << a[i] << " \n"[i == n - 1];
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
