@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+void solve(int cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<vector<pair<int, int>>> g(n);
+  for (int i = 0; i < m; i++) {
+    int u, v, wt; cin >> u >> v >> wt, --u, --v;
+    g[u].push_back({v, wt});
+  }
+  const int64_t inf = 1LL << 60;
+  vector<int64_t> dist(n, inf);
+  dist[0] = 0;
+  priority_queue<pair<int64_t, int>, vector<pair<int64_t, int>>, greater<pair<int64_t, int>>> Q;
+  Q.push({0, 0});
+  while (Q.size()) {
+    auto [wt, node] = Q.top(); Q.pop();
+    if (dist[node] != wt) continue;
+    for (auto &[son, w] : g[node]) {
+      if (w + wt < dist[son]) {
+        dist[son] = w + wt;
+        Q.push({dist[son], son});
+      }
+    }
+  }
+  for (int i = 0; i < n; i++) cout << dist[i] << " \n"[i == n - 1];
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
