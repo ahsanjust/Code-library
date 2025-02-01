@@ -18,28 +18,44 @@ void solve(int cs) {
   vector<Node> e(m);
   for (int i = 0; i < m; i++) {
     cin >> e[i].u >> e[i].v >> e[i].w;
-    --e[i].v, --e[i].u;
+    --e[i].u, --e[i].v;
   }
   const int64_t INF = 1e18;
   vector<int64_t> dist(n, INF);
-  dist[0] = 0;
-
+  vector<int> par(n, -1);
+  dist[0] = par[0] = 0;
   for (int i = 0; i < n - 1; i++) {
     for (auto &[a, b, wt] : e) {
-      if (dist[a] != INF && dist[b] > dist[a] + wt) {
+      if (dist[a] + wt < dist[b]) {
         dist[b] = dist[a] + wt;
+        par[b] = a;
       }
     }
   }
-  
+  int to = -1;
   for (auto &[a, b, wt] : e) {
-    if (dist[a] != INF && dist[b] > dist[a] + wt) {
-      cout << "YES, there is a negative cycle in the graph!\n";
-      return;
+    if (dist[a] != INF && dist[a] + wt < dist[b]) {
+      dist[b] = dist[a] + wt;
+      to = b, par[b] = a;
     }
   }
 
-  cout << "There is no negative cycle!\n";
+  if (to == -1) cout << "NO\n";
+  else {
+    cout << "YES\n";
+    for (int i = 0; i < n; i++) to = par[to];
+    vector<int> path;
+    int from = to;
+    do {
+      path.push_back(from);
+      from = par[from];
+    } while (from ^ to);
+    path.push_back(from);
+    reverse(path.begin(), path.end());
+    for (int i = 0; i < (int)path.size(); i++) {
+      cout << path[i] + 1 << " \n"[i == int(path.size()) - 1];
+    }
+  }
 }
 
 int32_t main() {
