@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+struct Node {
+  int u, v; int64_t w;
+};
+
+void solve(int cs) {
+  int n, m;
+  cin >> n >> m;
+  vector<Node> e(m);
+  for (int i = 0; i < m; i++) {
+    cin >> e[i].u >> e[i].v >> e[i].w;
+    --e[i].v, --e[i].u;
+  }
+  const int64_t INF = 1e18;
+  vector<int64_t> dist(n, INF);
+  dist[0] = 0;
+
+  for (int i = 0; i < n - 1; i++) {
+    for (auto &[a, b, wt] : e) {
+      if (dist[a] != INF && dist[b] > dist[a] + wt) {
+        dist[b] = dist[a] + wt;
+      }
+    }
+  }
+  
+  for (auto &[a, b, wt] : e) {
+    if (dist[a] != INF && dist[b] > dist[a] + wt) {
+      cout << "YES, there is a negative cycle in the graph!\n";
+      return;
+    }
+  }
+
+  cout << "There is no negative cycle!\n";
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
