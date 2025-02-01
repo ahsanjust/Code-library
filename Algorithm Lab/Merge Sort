@@ -1,0 +1,44 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+int n, a[100];
+
+void Merge(int lo, int hi) {
+  if (hi == lo) return;
+  int mid = hi + lo >> 1;
+  Merge(lo, mid), Merge(mid + 1, hi);
+  int Sorted[hi - lo + 1];
+  for (int i = lo, j = mid + 1, k = 0; k < hi - lo + 1; ++k) {
+    if (i > mid) Sorted[k] = a[j++];
+    else if (j > hi) Sorted[k] = a[i++];
+    else if (a[i] <= a[j]) Sorted[k] = a[i++];
+    else Sorted[k] = a[j++];
+  }
+  for (int i = lo, k = 0; i <= hi; ++i, ++k) {
+    a[i] = Sorted[k];
+  }
+}
+
+void solve(int cs) {
+  cin >> n;
+  for (int i = 0; i < n; i++) cin >> a[i];
+  Merge(0, n - 1);
+  for (int i = 0; i < n; i++) cout << a[i] << " \n"[i == n - 1];
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
