@@ -53,3 +53,83 @@ struct Trie {
     return ans;
   }
 };
+
+
+//Memory Efficient
+struct Trie {
+  static const int B = 31;
+  struct Node {
+    int nxt[2], cnt;
+    Node() { nxt[0] = nxt[1] = -1; cnt = 0; }
+  };
+
+  vector<Node> pool;
+  int ptr;
+
+  Trie() : ptr(1) { pool.resize(31 * 100000 + 5); }
+
+  void insert(int val) {
+    int mover = 0;
+    pool[mover].cnt += 1;
+    for (int i = B - 1; ~i; --i) {
+      int b = val >> i & 1;
+      if (pool[mover].nxt[b] == -1) pool[mover].nxt[b] = ptr++;
+      mover = pool[mover].nxt[b];
+      pool[mover].cnt += 1;
+    }
+  }
+
+  void remove(int val) {
+    int mover = 0;
+    if (pool[mover].cnt == 0) return;
+    pool[mover].cnt -= 1;
+    for (int i = B - 1; ~i; --i) {
+      int b = val >> i & 1;
+      int nxt_mover = pool[mover].nxt[b];
+      if (nxt_mover == -1) return;
+      pool[nxt_mover].cnt -= 1;
+      if (pool[nxt_mover].cnt == 0) {
+        pool[mover].nxt[b] = -1;
+        return;
+      }
+      mover = nxt_mover;
+    }
+  }
+
+  int get_max(int x) {
+    int mover = 0, ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (pool[mover].nxt[!d] != -1) mover = pool[mover].nxt[!d], ans |= 1 << i;
+      else mover = pool[mover].nxt[d];
+    }
+    return ans;
+  }
+
+  int get_min(int x) {
+    int mover = 0, ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (pool[mover].nxt[d] != -1) mover = pool[mover].nxt[d];
+      else mover = pool[mover].nxt[!d], ans |= 1 << i;
+    }
+    return ans;
+  }
+
+  int Qry(int x, int k) { // Number of values (val ^ x) < k
+    int mover = 0, ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      int kb = k >> i & 1;
+      if (kb) {
+        if (pool[mover].nxt[d] != -1) ans += pool[pool[mover].nxt[d]].cnt;
+        if (pool[mover].nxt[!d] != -1) mover = pool[mover].nxt[!d];
+        else break;
+      } else {
+        if (pool[mover].nxt[d] != -1) mover = pool[mover].nxt[d];
+        else break;
+      }
+    }
+    return ans;
+  }
+};
