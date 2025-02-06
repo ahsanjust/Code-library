@@ -1,4 +1,4 @@
-class DSU {
+class dsu {
 public:
   DSU(int n) : Par(n), rank(n, 0), siz(n, 1), cnt(n) { iota(Par.begin(), Par.end(), 0); }
   int find(int x) { return x == Par[x] ? x : Par[x] = find(Par[x]); }
