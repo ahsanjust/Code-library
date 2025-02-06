@@ -1,18 +1,32 @@
-class dsu {
-public:
-  DSU(int n) : Par(n), rank(n, 0), siz(n, 1), cnt(n) { iota(Par.begin(), Par.end(), 0); }
-  int find(int x) { return x == Par[x] ? x : Par[x] = find(Par[x]); }
-  bool unite(int x, int y) {
-    if ((x = find(x)) == (y = find(y))) return false;
-    if (rank[x] < rank[y]) swap(x, y);
-    Par[y] = x, siz[x] += siz[y], rank[x] += (rank[x] == rank[y]), cnt -= 1;
-    return true;
-  }
-  int size(int x) { return siz[find(x)]; }
-  int numSets() const { return cnt; }
-private:
-  vector<int> Par, rank, siz;
+struct dsu {
+  vector<int> par, rank, sz;
   int cnt;
+  dsu(int n) {
+    par.resize(n);
+    iota(par.begin(), par.end(), 0);
+    rank.resize(n, 0);
+    sz.resize(n, 1);
+  }
+  int find(int x) {
+    return x == par[x] ? x : par[x] = find(par[x]);
+  }
+  bool unite(int x, int y) {
+    x = find(x), y = find(y);
+    if (x == y) return false;
+    if (rank[x] < rank[y]) swap(x, y);
+    par[y] = x, sz[x] += sz[y];
+    if (rank[x] == rank[y]) rank[x] += 1;
+    --cnt; return true;
+  }
+  int size(int x) {
+    return sz[find(x)];
+  }
+  int sets() {
+    return cnt;
+  }
+  bool isSame(int x, int y) {
+    return find(x) == find(y);
+  }
 };
 
 // Min Max
