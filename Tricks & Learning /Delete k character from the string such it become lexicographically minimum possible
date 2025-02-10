@@ -1,0 +1,6 @@
+// del = k;
+string t;
+for (auto &c : s) {
+  while (del > 0 && t.size() && t.back() > c) t.pop_back(), --del;
+  t += c;
+}
