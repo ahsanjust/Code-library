@@ -6,6 +6,7 @@ struct dsu {
     iota(par.begin(), par.end(), 0);
     rank.resize(n, 0);
     sz.resize(n, 1);
+    cnt = n;
   }
   int find(int x) {
     return x == par[x] ? x : par[x] = find(par[x]);
