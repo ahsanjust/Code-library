@@ -1,0 +1,74 @@
+struct Manacher {
+  vector<int> max_len[2]; // [0] for even-length, [1] for odd-length palindromes
+  /**
+   * For odd-length palindromes (max_len[1]):
+   *   max_len[1][i] = maximum radius (half-length) of palindrome centered at i
+   *   Actual length = 2 * max_len[1][i] + 1
+   *
+   * For even-length palindromes (max_len[0]):
+   *   max_len[0][i] = maximum radius (half-length) of palindrome between i-1
+   * and i Actual length = 2 * max_len[0][i]
+   *
+   * Example: "abbabba" (indices 0-6)
+   *   max_len[1][3] = 3 → palindrome "abbabba" (length 7)
+   *   max_len[0][3] = 2 → palindrome "abba" centered between 2-3 (length 4)
+   */
+  Manacher(const string &s) {
+    int n = s.size();
+    max_len[0].resize(n + 1);
+    max_len[1].resize(n);
+
+    for (int parity = 0; parity < 2; parity++) {
+      vector<int> &curr = max_len[parity];
+      int l = 0, r = -1; 
+      for (int i = 0; i < (parity ? n : n + 1); i++) {
+        int expand = 0;
+        if (i <= r) {
+          int mirror = l + (r - i);
+          expand = min(curr[mirror], r - i + parity);
+        }
+        int left = i - expand - (!parity);
+        int right = i + expand;
+        while (left >= 0 && right < n && s[left] == s[right]) {
+          expand++;
+          left--;
+          right++;
+        }
+        curr[i] = expand;
+        if (i + expand > r) {
+          l = i - expand - (!parity);
+          r = i + expand;
+        }
+      }
+    }
+  }
+
+  bool is_palindrome(int l, int r) const {
+    if (l > r) return false;
+    int len = r - l + 1;
+    int parity = len % 2;
+    int center = l + (len + 1) / 2 - (1 - parity);
+    return 2 * max_len[parity][center] + parity >= len;
+  }
+  int count_palindromic_substrings() const {
+    int count = 0;
+    for (int x : max_len[0]) count += x;
+    for (int x : max_len[1]) count += x + 1;
+    return count;
+  }
+  pair<int, int> longest_palindrome_indices() const {
+    int maxlen = -1, pl = 0, pr = 0;
+    for (int p = 0; p < 2; p++) {
+      for (int i = 0; i < max_len[p].size(); i++) {
+        int len = 2 * max_len[p][i] + p;
+        if (len > maxlen) {
+          maxlen = len;
+          int radius = max_len[p][i];
+          pl = p ? i - radius : i - radius - 1;
+          pr = p ? i + radius : i + radius;
+        }
+      }
+    }
+    return {pl, pr - 1};
+  }
+};
