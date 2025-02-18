@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int32_t main() {
+  int n;
+  vector<double> x = {6, 5, 11, 7, 5, 4, 4};
+  vector<double> y = {2, 3, 9, 1, 8, 7, 5};
+
+  if (x.size() != y.size() || x.empty()) {
+    cout << "Vectors must be equal and non-zero length\n";
+    return 0;
+  }
+  
+  n = x.size();
+
+  double sumx = 0, sumy = 0, sum_xy = 0, sum_xx = 0;
+  for (int i = 0; i < n; i++) {
+    sumx += x[i];
+    sumy += y[i];
+
+    sum_xy += x[i] * y[i];
+    sum_xx += x[i] * x[i];
+  }
+
+  double d = n * sum_xx - sumx * sumx;
+  if (d == 0) {
+    cout << "Denominator is zero, can't compute slope!\n";
+    return 0;
+  }
+
+  double slope = (n * sum_xy - sumx * sumy) / d;
+  double intercept = (sumy - slope * sumx) / n;
+
+  cout << "slope : " << slope << "\n";
+  cout << "Intercept : " << intercept << "\n";
+  cout << "Best fit line: y = " << slope << " * x + " << intercept << "\n";
+}
