@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const double INF = INT_MAX;
+
+double linearInterpolation(vector<double> &x, vector<double> &y, double X) {
+  if (x.size() != y.size() || x.empty()) {
+    cout << "There should be same number of x and y and at least one\n";
+    return INF;
+  }
+
+  int n = x.size();
+  vector<pair<double, double>> xy;
+  for (int i = 0; i < n; i++) xy.emplace_back(x[i], y[i]);
+  sort(xy.begin(), xy.end());
+  for (int i = 0; i < n; i++) {
+    x[i] = xy[i].first;
+    y[i] = xy[i].second;
+  }
+
+  if (X <= x.front()) return y.front();
+  if (X >= x.back()) return y.back();
+
+  int i = 0;
+  while (X > x[i + 1]) ++i;
+
+  return y[i] + ((y[i + 1] - y[i]) / (x[i + 1] - x[i])) * (X - x[i]);
+}
+
+int32_t main() {
+  vector<double> x = {3.0, 1.0, 4.0, 2.0};
+  vector<double> y = {6.0, 2.0, 8.0, 4.0};
+  double X = 2.5;
+  
+  double Y = linearInterpolation(x, y, X);
+  if (Y != INF) cout << "Interpolated value: " << Y << endl;
+  return 0;
+}
