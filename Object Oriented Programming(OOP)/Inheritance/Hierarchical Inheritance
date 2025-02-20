@@ -1,0 +1,41 @@
+/*
+ * Hierarchical Inheritance is a type of inheritance where multiple child classes 
+ * inherit from a single parent class. Each subclass gets the properties and methods 
+ * of the parent class but does not inherit from other subclasses.
+ *
+ * In this example:
+ * - The Dog class and Cat class both inherit from Animal.
+ * - The eat() method is defined in Animal and inherited by both subclasses.
+ * - Each subclass has its own unique behavior (bark() for Dog and meow() for Cat).
+ */
+class Animal {
+  void eat() {
+    System.out.println("This animal eats.");
+  }
+}
+
+class Dog extends Animal {
+  void bark() {
+    System.out.println("Dog barks.");
+  }
+}
+
+class Cat extends Animal {
+  void meow() {
+    System.out.println("Cat meows.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Dog dog = new Dog();
+    Cat cat = new Cat();
+
+    // Both Dog and Cat can eat (inherited from Animal)
+    dog.eat();
+    dog.bark(); // Specific to Dog
+
+    cat.eat();
+    cat.meow(); // Specific to Cat
+  }
+}
