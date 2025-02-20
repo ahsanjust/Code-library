@@ -1,0 +1,50 @@
+/*
+ * Abstraction allows us to hide the complexity and show only the essential details.
+ * An abstract class in Java is used to achieve abstraction by declaring methods 
+ * that the derived class must implement, but also can provide implementation 
+ * for some methods.
+ */
+
+abstract class Animal {
+  
+  // Abstract method (doesn't have a body)
+  abstract void sound();
+  
+  // Concrete method
+  void eat() {
+    System.out.println("This animal eats food.");
+  }
+}
+
+class Dog extends Animal {
+  
+  // Implementing the abstract method
+  void sound() {
+    System.out.println("Dog barks.");
+  }
+}
+
+class Cat extends Animal {
+  
+  // Implementing the abstract method
+  void sound() {
+    System.out.println("Cat meows.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    // We can't instantiate the abstract class directly
+    // Animal animal = new Animal(); // Error!
+
+    // Using concrete subclasses
+    Animal myDog = new Dog();
+    Animal myCat = new Cat();
+    
+    myDog.sound();
+    myDog.eat(); 
+    
+    myCat.sound();
+    myCat.eat();
+  }
+}
