@@ -1,0 +1,45 @@
+/*
+ * An interface defines a contract that any class implementing it must adhere to.
+ * Interfaces allow us to achieve abstraction by defining method signatures
+ * without implementing the method's behavior.
+ */
+
+ interface Animal {
+  // Abstract method (no body)
+  void sound();
+  void eat();  // Abstract method (no body)
+}
+
+class Dog implements Animal {
+  // Providing implementation of methods in the interface
+  public void sound() {
+    System.out.println("Dog barks.");
+  }
+  
+  public void eat() {
+    System.out.println("Dog eats.");
+  }
+}
+
+class Cat implements Animal {
+  // Providing implementation of methods in the interface
+  public void sound() {
+    System.out.println("Cat meows.");
+  }
+  public void eat() {
+    System.out.println("Cat eats.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Animal myDog = new Dog();
+    Animal myCat = new Cat();
+    
+    myDog.sound();
+    myDog.eat();
+    
+    myCat.sound();
+    myCat.eat();
+  }
+}
