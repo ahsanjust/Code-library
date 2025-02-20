@@ -1,0 +1,43 @@
+/*
+ * Hybrid Inheritance is a combination of two or more types of inheritance, 
+ * typically involving a mix of single inheritance, multilevel inheritance, 
+ * hierarchical inheritance, and multiple inheritance via interfaces.
+ * 
+ * In this example:
+ * - The Puppy class inherits from Dog, which implements both Animal and Pet interfaces.
+ * - Puppy inherits methods from the Animal and Pet interfaces, and also from Dog.
+ */
+interface Animal {
+  void eat();
+}
+
+interface Pet {
+  void play();
+}
+
+class Dog implements Animal, Pet {
+  public void eat() {
+    System.out.println("Dog eats.");
+  }
+
+  public void play() {
+    System.out.println("Dog plays.");
+  }
+}
+
+class Puppy extends Dog {
+  void weep() {
+    System.out.println("Puppy weeps.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Puppy puppy = new Puppy();
+      
+    // Inherited methods from Animal and Pet interfaces, and Dog class
+    puppy.eat();  // From Animal interface
+    puppy.play(); // From Pet interface
+    puppy.weep(); // Specific to Puppy
+  }
+}
