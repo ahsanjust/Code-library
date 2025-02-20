@@ -1,0 +1,28 @@
+/*
+ * Comparison Between Java's Garbage Collection and C++ Destructors
+ * 
+ * 1. Memory Management:
+ *    - Java: Automatic garbage collection managed by the JVM.
+ *    - C++: Manual memory management by the developer using `new`, `delete`, and destructors.
+ * 
+ * 2. Responsibility:
+ *    - Java: The JVM handles the cleanup of unreachable objects and resources.
+ *    - C++: The developer is responsible for releasing memory and resources using destructors.
+ * 
+ * 3. Timing:
+ *    - Java: Garbage collection is non-deterministic and occurs when the JVM decides it’s necessary.
+ *    - C++: Destructors are deterministic, called when an object goes out of scope or is explicitly deleted.
+ * 
+ * 4. Main Purpose:
+ *    - Java: Reclaims memory from objects that are no longer in use by the program.
+ *    - C++: Releases resources such as memory, file handles, or database connections when an object is destroyed.
+ * 
+ * 5. Control:
+ *    - Java: No direct control over when garbage collection takes place; it is managed by the JVM.
+ *    - C++: Developers have full control over when and how destructors are invoked.
+ * 
+ * 6. Performance Impact:
+ *    - Java: Garbage collection can cause performance hiccups if it occurs during critical program execution.
+ *    - C++: No direct performance impact from destructors, but improper handling can lead to memory leaks.
+ */
+
