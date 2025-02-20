@@ -1,0 +1,54 @@
+/*
+The diamond problem occurs in multiple inheritance when a derived class indirectly
+inherits the same base class multiple times.
+It leads to duplicate instance and ambiguity in method resolution.
+Virtual inheritance ensures that the derivied class only has one instance of the common base class.
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+class Device {
+public:
+  Device() {
+    cout << "Device initialized.\n";
+  }
+  void charge() {
+    cout << "Charging device...\n";
+  }
+};
+
+class Smartphone : virtual public Device {
+public:
+  Smartphone() {
+    cout << "Smartphone initialized.\n";
+  }
+  void call () {
+    cout << "Making a phone call...\n";
+  }
+};
+
+class Tablet : virtual public Device {
+public:
+  Tablet() {
+    cout << "Tablet initialized.\n";
+  }
+  void browse() {
+    cout << "Browsing the internet...\n";
+  }
+};
+
+class Hybride : public Smartphone, public Tablet {
+public:
+  Hybride() {
+    cout << "Hybride Device initialized.\n";
+  }
+};
+
+int32_t main() {
+  Hybride who;
+  who.charge();
+  who.call();
+  who.browse();
+}
