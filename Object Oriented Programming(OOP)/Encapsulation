@@ -1,0 +1,74 @@
+/*
+* Encapsulation is one of the core concepts of Object-Oriented Programming (OOP).
+* It is the process of bundling the data (fields) and the methods (functions) 
+* that operate on the data into a single unit known as a class. It helps to hide 
+* the internal state of an object and only allows access through a defined set of 
+* methods. This ensures the integrity of the data and prevents it from being 
+* modified directly, providing control over how the data is accessed and modified.
+* 
+* Usefulness of Encapsulation:
+* 1. "Data Hiding": It hides the internal data and only exposes the necessary parts 
+*    of the class. This prevents unauthorized access to sensitive information.
+* 2. "Controlled Access": Access to fields is controlled via methods, allowing for 
+*    validation and ensuring that only valid data is set.
+* 3. "Code Flexibility": It allows changes to the internal implementation of the 
+*    class without affecting external code that uses the class.
+* 4. "Increased Security": By restricting direct access to the fields, encapsulation 
+*    helps prevent unintended side effects from external manipulations.
+* 
+* Why we use Encapsulation:
+* - To protect object integrity by ensuring that the object is always in a valid state.
+* - To make the code more maintainable and modular by separating the internal workings 
+*   from external code.
+* - To provide a clear interface for interacting with an object, which simplifies 
+*   debugging and testing.
+* 
+* In this example:
+* - The BankAccount class encapsulates the properties of balance and account number.
+* - The getter and setter methods provide controlled access to these fields.
+* - Methods like deposit and withdraw ensure that balance is only modified through 
+*   valid operations.
+*/
+
+class BankAccount {
+  private String accountNumber;
+  private double balance;
+
+  public BankAccount (String accountNumber, double balance) {
+    this.accountNumber = accountNumber;
+    this.balance = balance;
+  }
+
+  public String getAccoundNumber() {
+    return accountNumber;
+  }
+
+  public double getBalance() {
+    return balance;
+  }
+
+  public void deposite(double amount) {
+    balance += amount;
+    System.out.println("Deposited " + amount + ", New balance: " + balance);
+  }
+
+  public void withdraw(double amount) {
+    balance -= amount;
+    System.out.println("Withdraw " + amount + ". New balance: " + balance);
+  }
+
+  public void displayAccoungInfo() {
+    System.out.println("Account Number: " + accountNumber);
+    System.out.println("Balance: " + balance);
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    BankAccount account = new BankAccount("25454534", 100.0);
+    account.displayAccoungInfo();
+    account.deposite(500.0);
+    account.withdraw(200.0);
+    account.displayAccoungInfo();
+  }
+}
