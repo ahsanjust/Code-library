@@ -1,0 +1,56 @@
+/*
+ * Single Inheritance is a type of inheritance where a subclass (child class) inherits
+ * from a single superclass (parent class). The subclass gains access to the non
+ * private fields and methods parent class, promoting code reuseability and hierarchical
+ * relationships in java
+ */
+interface Sound {
+  void makeSound();
+}
+
+class Animal implements Sound {
+  String type = "Mammal";
+  Animal() {
+    System.out.println("Animal constructor called.");
+  }
+  void eat() {
+    System.out.println("This Animal eats food.");
+  }
+  public void makeSound() {
+    System.out.println("This Animal make sound.");
+  }
+  class Heart {
+    void beat() {
+      System.out.println("Heats is beating...");
+    }
+  }
+}
+
+class Dog extends Animal {
+  String breed = "Golden Retriever";
+
+  void bark() {
+    System.out.println("Dog barks.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Dog dog = new Dog();
+
+    // Inherited fields
+    System.out.println("Type: "  + dog.type);
+    System.out.println("Breed: " + dog.breed);
+
+    // Inherited methods
+    dog.eat();
+    dog.makeSound();
+
+    // own mathod
+    dog.bark();
+
+    // Inherited nested class
+    Dog.Heart heart = dog.new Heart();
+    heart.beat();
+  }
+}
