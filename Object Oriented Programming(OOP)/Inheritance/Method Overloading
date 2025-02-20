@@ -1,0 +1,31 @@
+/*
+ * Method Overloading allows a class to have more than one method with the same name,
+ * as long as they differ in the number or type of parameters.
+ */
+class Animal {
+  public void makeSound() {
+    System.out.println("Animal makes a sound.");
+  }
+
+  public void makeSound(String sound) {
+    System.out.println("Animal makes a sound: " + sound);
+  }
+}
+
+class Dog extends Animal {
+  @Override
+  public void makeSound() {
+    System.out.println("Dog barks.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Animal animal = new Animal();
+    animal.makeSound();
+    animal.makeSound("Roar");
+
+    Dog dog = new Dog();
+    dog.makeSound();
+  }
+}
