@@ -1,0 +1,19 @@
+/*
+ * A final class cannot be subclassed. It prevents inheritance of the class.
+ * In this example, the Dog class is declared as final, so no other class can extend it.
+ */
+final class Dog {
+  public void bark() {
+    System.out.println("Dog barks.");
+  }
+}
+
+// This would cause a compile-time error because Dog is final and cannot be extended
+// class Puppy extends Dog {}  // Error: Cannot subclass final class Dog
+
+public class Main {
+  public static void main(String[] args) {
+    Dog dog = new Dog();
+    dog.bark();  // Output: Dog barks.
+  }
+}
