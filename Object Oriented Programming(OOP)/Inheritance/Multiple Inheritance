@@ -1,0 +1,32 @@
+/*
+ * Multiple Inheritance in Java can be achieved using interfaces. A class can implement 
+ * multiple interfaces, inheriting the abstract methods from all the interfaces.
+ *
+ * In this example:
+ * - The Dog class implements two interfaces: Animal and Pet.
+ * - It provides implementations for the methods eat() from Animal and play() from Pet.
+ */
+interface Animal {
+  void eat();
+}
+
+interface Pet {
+  void play();
+}
+
+class Dog implements Animal, Pet {
+  public void eat() {
+    System.out.println("Dog eats.");
+  }
+  public void play() {
+    System.out.println("Dog plays.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Dog dog = new Dog();
+    dog.eat();
+    dog.play();
+  }
+}
