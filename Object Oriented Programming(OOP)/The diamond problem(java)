@@ -1,0 +1,49 @@
+/*
+The diamond problem occurs in multiple inheritance when a derived class indirectly 
+inherits the same base class multiple times, leading to ambiguity in method resolution.
+
+For example, if both intermediate classes inherit from the same base class and a 
+final derived class inherits from both, it ends up with two copies of the base class. 
+This creates confusion about which inherited method or member to use.
+
+Java does not support multiple inheritance of classes to avoid:
+1. Ambiguity in method resolution.
+2. Redundant copies of the base class.
+3. Complexity in constructor chaining.
+4. Increased maintenance difficulty.
+
+Instead, Java allows multiple inheritance using interfaces, where default methods 
+must be overridden if ambiguity arises.
+*/
+interface Device {
+  default void charge() {
+    System.out.println("Charign Device...");
+  }
+}
+
+interface Smartphone extends Device {
+  default void call() {
+    System.out.println("Making a phone call...");
+  }
+}
+
+interface Tablet extends Device {
+  default void browse() {
+    System.out.println("Browsing the internet...");
+  }
+}
+
+class hybride implements Smartphone, Tablet {
+  public hybride() {
+    System.out.println("Hybride Device initialized.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    hybride who = new hybride();
+    who.charge();
+    who.call();
+    who.browse();
+  }
+}
