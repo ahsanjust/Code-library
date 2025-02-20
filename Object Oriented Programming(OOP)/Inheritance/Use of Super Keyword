@@ -1,0 +1,47 @@
+/*
+* The super keyword in Java is used to refer to the immediate parent class.
+* It can be used to call parent class constructors, methods, or fields.
+*
+* Use cases:
+* 1. super() calls the parent class constructor.
+* 2. super.methodName() calls the parent class's overridden method.
+* 3. super.fieldName accesses the parent class field when there is a name conflict.
+*/
+
+class Animal {
+  String name;
+  public Animal(String name) {
+    this.name = name;
+    System.out.println("Animal Constructor: " + name);
+  }
+  public void eat() {
+    System.out.println(name + " is eating...");
+  }
+}
+
+class Dog extends Animal {
+  String breed;
+
+  public Dog(String name, String breed) {
+    super(name);
+    this.breed = breed;
+    System.out.println("Dog constructor: " + breed);
+  }
+
+  public void eat() {
+    super.eat();
+    System.out.println("Dog is eating dog food...");
+  }
+
+  public void printName() {
+    System.out.println("The name is : " + super.name);
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Dog dog = new Dog("Mike", "Gold");
+    dog.eat();
+    dog.printName();
+  }
+}
