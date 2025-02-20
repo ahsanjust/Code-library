@@ -1,0 +1,37 @@
+/*
+ * Multilevel Inheritance is a type of inheritance where a class inherits from another class, 
+ * which itself is inherited from another class. This forms a chain of inheritance, allowing 
+ * each subclass to inherit properties and behaviors from its ancestors.
+ *
+ * In this example:
+ * - The Dog class inherits from Animal.
+ * - The Puppy class inherits from Dog, thus indirectly inheriting from Animal as well.
+ * - This demonstrates how a subclass can inherit methods and fields from multiple levels in 
+ *   an inheritance hierarchy.
+ */
+class Animal {
+  void eat() {
+    System.out.println("This animal eats.");
+  }
+}
+
+class Dog extends Animal {
+  void bark() {
+    System.out.println("Dog barks.");
+  }
+}
+
+class Puppy extends Dog {
+  void weep() {
+    System.out.println("Puppy is weeping.");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Puppy puppy = new Puppy();
+    puppy.eat();  // Inherited from Animal
+    puppy.bark(); // Inherited from Dog
+    puppy.weep(); // Defined in Puppy
+  }
+}
