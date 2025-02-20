@@ -4,8 +4,8 @@
  * based on the type of the object.
  *
  * There are two types of polymorphism:
- * 1. Compile-time polymorphism (Method Overloading)
- * 2. Runtime polymorphism (Method Overriding)
+ * 1. Compile-time / run-time / static polymorphism (Method Overloading)
+ * 2. Runtime / Dynamic polymorphism (Method Overriding)
  */
 
  class Calculator {
