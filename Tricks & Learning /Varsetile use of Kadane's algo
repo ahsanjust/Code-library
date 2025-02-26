@@ -1,0 +1,73 @@
+https://www.codechef.com/START175B/problems/MXFREQ
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+#define int int64_t
+
+void solve(int cs) {
+  int n, k;
+  cin >> n >> k;
+  vector<int> a(n);
+  for (int &i : a) {
+    cin >> i;
+  }
+  int ans = 0;
+  map<int, deque<int>> id;
+  for (int i = 0; i < n; i++) {
+    id[a[i]].push_back(i);
+    ans = max(ans, (int)id[a[i]].size());
+  }
+  if (k == 1) {
+    cout << ans << "\n";
+    return;
+  }
+  for (auto &[x, p] : id) {
+    int y = x * k;
+    if (id.find(y) == id.end()) continue;
+    auto &q = id[y];
+    vector<int> merged;
+    int i = 0, j = 0;
+    while (i < p.size() && j < q.size()) {
+      if (p[i] < q[j]) {
+        merged.push_back(1);
+        i++;
+      } else {
+        merged.push_back(-1);
+        j++;
+      }
+    }
+    while (i < p.size()) {
+      merged.push_back(1);
+      i++;
+    }
+    while (j < q.size()) {
+      merged.push_back(-1);
+      j++;
+    }
+    int best = 0, cur = 0;
+    for (int i = 0; i < merged.size(); i++) {
+      cur = max(merged[i], cur + merged[i]);
+      best = max(best, cur);
+    }
+    ans = max(ans, best + int(q.size()));
+  }
+  cout << ans << '\n';
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
