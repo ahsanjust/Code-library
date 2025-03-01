@@ -1,0 +1,147 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> heap;
+int len;
+
+void heapify(int i) {
+  int Node = i;
+  int left = 2 * i + 1, right = 2 * i + 2;
+  if (left < len && heap[left] > heap[Node]) Node = left;
+  if (right < len && heap[right] > heap[Node]) Node = right;
+  if (Node != i) {
+    swap(heap[Node], heap[i]);
+    heapify(Node);
+  }
+}
+
+void buildHeap(vector<int> &a) {
+  len = a.size();
+  heap = a;
+  for (int i = (len - 1) / 2; i >= 0; i--) {
+    heapify(i);
+  }
+}
+
+void insert(int x) {
+  len += 1;
+  heap.push_back(x);
+  if (len == 1) return;
+  int i = len - 1;
+  while (i != 0 && heap[(i - 1) / 2] < heap[i]) {
+    swap(heap[i], heap[(i - 1) / 2]);
+    i = (i - 1) / 2;
+  }
+}
+
+int top() {
+  if (len <= 0) {
+    return -1;
+  } else return heap[0];
+}
+
+int pop() {
+  if (len <= 0) return -1;
+  if (len == 1) {
+    len -= 1;
+    int ret = heap[0];
+    assert(heap.size() == 1);
+    heap.pop_back();
+    return ret;
+  }
+  int root = heap[0];
+  heap[0] = heap[len - 1];
+  len -= 1;
+  heap.pop_back();
+  heapify(0);
+  return root;
+}
+
+int deleteElement(int key) {
+  int id = -1;
+  for (int i = 0; i < len; i++) {
+    if (heap[i] == key) {
+      id = i;
+      break;
+    }
+  }
+  if (id == -1) return -1;
+  if (id == len - 1) {
+    len -= 1;
+    heap.pop_back();
+    return 1;
+  }
+  heap[id] = heap[len - 1];
+  len -= 1;
+  heap.pop_back();
+  heapify(id);
+  return 1;
+}
+
+void print() {
+  if (len == 0) {
+    cout << "\n The heap is empty!\n";
+    return;
+  }
+  for (int i = 0; i < len; i++) {
+    cout << heap[i] << " \n"[i == len - 1];
+  }
+}
+
+int main() {
+  cout << "Enter the number of elements you want to initialize into your heap: ";
+  int n;
+  cin >> n;
+  cout << "Enter the elements: ";
+  vector<int> a(n);
+  for (int i = 0; i < n; i++) cin >> a[i];
+  buildHeap(a);
+
+  while (1) {
+    cout << "\nWhat do you want to do now, Sir?\n";
+    cout << "1. Insert an element.\n2. top().\n3. pop().\n4. Delete key.\n5. Print heap.\n6. exit.\n";
+    cout << "Enter your choice: ";
+    int t; cin >> t;
+    if (t == 1) {
+      int x;
+      cout << "\nEnter the value: ";
+      cin >> x;
+      insert(x);
+    } else if (t == 2) {
+      if (top() == -1) {
+        cout << "\nThe heap is empty!\n";
+        continue;
+      }
+      cout << "\ntop: " << top() << "\n";
+    } else if (t == 3) {
+      if (pop() == -1) {
+        cout << "\nThe heap is empty, you can't pop()!\n";
+        continue;
+      }
+      cout << "\nAfter pop(), Current heap: ";
+      print();
+    } else if (t == 4) {
+      if (len == 0) {
+        cout << "\nThe heap is empty!\n";
+        continue;
+      }
+      int x;
+      cout << "\nEnter the key: ";
+      cin >> x;
+      if (deleteElement(x) == -1) {
+        cout << "\nThe key doesn't exist in the heap.\n";
+        continue;
+      }
+      cout << "\nAfter deletion: ";
+      print();
+    } else if (t == 5) {
+      cout << "\nCurrent heap: ";
+      print();
+    } else if (t == 6) {
+      cout << "\nThank you, Sir!\n";
+      break;
+    } else {
+      cout << "\nInvalid choice, try again.\n";
+    }
+  }
+}
