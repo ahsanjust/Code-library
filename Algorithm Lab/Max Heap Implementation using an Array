@@ -80,7 +80,7 @@ int deleteElement(int key) {
 
 void print() {
   if (len == 0) {
-    cout << "\n The heap is empty!\n";
+    cout << "\nThe heap is empty!\n";
     return;
   }
   for (int i = 0; i < len; i++) {
@@ -92,7 +92,7 @@ int main() {
   cout << "Enter the number of elements you want to initialize into your heap: ";
   int n;
   cin >> n;
-  cout << "Enter the elements: ";
+  if (n > 0) cout << "Enter the elements: ";
   vector<int> a(n);
   for (int i = 0; i < n; i++) cin >> a[i];
   buildHeap(a);
