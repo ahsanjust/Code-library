@@ -1,2 +1,128 @@
-snapshot -> ctrl + shift + s
-         -> windows + ctrl + s
+Snapshot -> Win + Shift + S
+         -> Opens Snip & Sketch to take a custom screenshot (select an area to capture).
+
+Task Manager -> Ctrl + Shift + Esc
+             -> Opens Task Manager directly (no need to go through Ctrl + Alt + Del).
+
+Desktop Toggle -> Win + D
+               -> Show or hide the desktop instantly.
+
+Minimize All -> Win + M
+             -> Minimize all windows.
+
+Restore Windows -> Win + Shift + M
+                -> Restore minimized windows.
+
+App Switcher -> Alt + Tab
+             -> Switch between open applications (hold Alt and tap Tab to cycle).
+
+Lock PC -> Win + L
+        -> Lock your PC instantly.
+
+File Explorer -> Win + E
+              -> Open File Explorer.
+
+Rename -> F2
+       -> Rename the selected file or folder.
+
+New Folder -> Ctrl + Shift + N
+           -> Create a new folder in File Explorer.
+
+Run Dialog -> Win + R
+           -> Open the Run dialog box to type commands (e.g., "cmd" or "notepad").
+
+Maximize Window -> Win + Up Arrow
+                -> Maximize the current window.
+
+Snap Left/Right -> Win + Left Arrow / Win + Right Arrow
+                -> Snap the current window to the left or right half of the screen.
+
+Virtual Desktop -> Win + Ctrl + D
+                -> Create a new virtual desktop.
+
+Switch Desktops -> Win + Ctrl + Left Arrow / Win + Ctrl + Right Arrow
+                -> Switch between virtual desktops.
+
+Emoji Panel -> Win + .
+            -> Open the emoji, kaomoji, and symbols panel.
+
+Game Bar -> Win + G
+         -> Open the Xbox Game Bar (for gaming or screen recording).
+
+Screen Record -> Win + Alt + R
+              -> Start or stop recording your screen via Xbox Game Bar.
+
+Magnifier Zoom -> Win + Plus (+)
+               -> Open Magnifier and zoom in (use Win + Minus (-) to zoom out).
+
+System Info -> Win + Pause/Break
+            -> Open the System Properties window for quick system info.
+
+Copy -> Ctrl + C
+     -> Copy the selected text, file, or item to the clipboard.
+
+Cut -> Ctrl + X
+    -> Cut the selected text, file, or item to the clipboard.
+
+Paste -> Ctrl + V
+      -> Paste the contents of the clipboard.
+
+Undo -> Ctrl + Z
+     -> Undo the last action.
+
+Redo -> Ctrl + Y
+     -> Redo the last undone action.
+
+Select All -> Ctrl + A
+           -> Select all items, text, or files in the current window.
+
+Find -> Ctrl + F
+     -> Open the Find dialog or search bar in most applications.
+
+Close Window -> Alt + F4
+             -> Close the active window or application.
+
+Refresh -> F5
+        -> Refresh the current window (e.g., File Explorer or browser).
+
+Task View -> Win + Tab
+          -> Open Task View to see all open windows and virtual desktops.
+
+Minimize Window -> Win + Down Arrow
+                -> Minimize or restore the current window (depending on its state).
+
+Move to Monitor -> Win + Shift + Left Arrow / Win + Shift + Right Arrow
+               -> Move the current window to another monitor (multi-monitor setup).
+
+Open Settings -> Win + I
+              -> Open the Windows Settings app.
+
+Action Center -> Win + A
+              -> Open the Action Center (notifications and quick settings).
+
+Project Screen -> Win + P
+               -> Open the Project menu to switch display modes (e.g., Duplicate, Extend).
+
+Open Search -> Win + S
+            -> Open the Windows Search bar (Cortana or Search UI).
+
+Clipboard History -> Win + V
+                  -> Open the clipboard history to paste from previous copies.
+
+Open Context Menu -> Shift + F10
+                  -> Open the right-click context menu for the selected item.
+
+Go Up Folder -> Alt + Up Arrow
+             -> Go up one folder level in File Explorer.
+
+Open Properties -> Alt + Enter
+                -> Open the Properties dialog for the selected file or folder.
+
+Cycle Taskbar Apps -> Win + T
+                   -> Cycle through apps pinned to the taskbar (press Enter to open).
+
+Pin Window Focus -> Win + Space
+                 -> Temporarily show the desktop (release to return to previous view).
+
+Ease of Access -> Win + Ctrl + Enter
+               -> Toggle Narrator (screen reader) on or off.
