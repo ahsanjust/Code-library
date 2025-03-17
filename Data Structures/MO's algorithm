@@ -1,0 +1,85 @@
+https://cses.fi/problemset/task/1139
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+ 
+void solve(int cs) {
+  int n;
+  cin >> n;
+  vector<int> c(n);
+  for (int i = 0; i < n; i++) cin >> c[i];
+  auto t = c;
+  sort(t.begin(), t.end());
+  t.erase(unique(t.begin(), t.end()), t.end());
+  for (int i = 0; i < n; i++) {
+    c[i] = lower_bound(t.begin(), t.end(), c[i]) - t.begin();
+  }
+  vector<vector<int>> g(n);
+  for (int i = 1; i < n; i++) {
+    int u, v;
+    cin >> u >> v;
+    --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  vector<int> in(n), out(n), e;
+  auto dfs = [&](auto &&self, int node, int pr) -> void {
+    in[node] = e.size();
+    e.push_back(node);
+    for (auto &x : g[node]) {
+      if (x != pr) {
+        self(self, x, node);
+      }
+    }
+    out[node] = e.size() - 1;
+  };
+  dfs(dfs, 0, -1);
+  struct Node {
+    int l, r, i;
+  };
+  vector<Node> query(n);
+  for (int i = 0; i < n; i++) {
+    query[i] = {in[i], out[i], i};
+  }
+  int B = sqrt(n);
+  sort(query.begin(), query.end(), [&](Node &a, Node &b) {
+    if (a.l / B != b.l / B) return a.l / B < b.l / B;
+    return (a.l / B) % 2 ? a.r > b.r : a.r < b.r;
+  });
+  vector<int> cnt(n, 0), ans(n);
+  int res = 0;
+  auto add = [&](int x) {
+    if (cnt[x] == 0) res++;
+    cnt[x]++;
+  };
+  auto rem = [&](int x) {
+    cnt[x]--;
+    if (cnt[x] == 0) res--;
+  };
+  int L = 0, R = -1;
+  for (auto &[l, r, i] : query) {
+    while (R < r) add(c[e[++R]]);
+    while (L > l) add(c[e[--L]]);
+    while (R > r) rem(c[e[R--]]);
+    while (L < l) rem(c[e[L++]]);
+    ans[i] = res;
+  }
+  for (int i = 0; i < n; i++) cout << ans[i] << " \n"[i == n - 1];
+}
+ 
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
