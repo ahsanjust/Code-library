@@ -1,56 +1,20 @@
 https://cses.fi/problemset/task/1137/
-/**
- *  Author: AhSaN (JUST-22)
- *  Created: 29-08-2024  13:13:45
- **/
+
 #include <bits/stdc++.h>
  
-#pragma GCC optimize("Ofast")
 using namespace std;
  
 #ifndef ONLINE_JUDGE
 #include "Ash.cpp"
 #else
 #define dbg(...)
-#define dbgA(...)
 #endif
  
-template <class T> class BIT {
-  int size;
-  vector<T> bit, arr;
- 
-public:
-  BIT(int n) : size(n), bit(n + 5, 0), arr(n + 5, 0) {}
- 
-  void set(int id, T val) {
-    T delta = val - arr[id];
-    add(id, delta);
-  }
- 
-  void add(int id, T val) {
-    arr[id] += val;
-    for (; id <= size; id += id & -id) {
-      bit[id] += val;
-    }
-  }
- 
-  T pref_sum(int id) const {
-    T total = 0;
-    for (; id > 0; id -= id & -id) {
-      total += bit[id];
-    }
-    return total;
-  }
- 
-  T range_sum(int L, int R) const { return pref_sum(R) - pref_sum(L - 1); }
-};
- 
-void Sol(int Cs) {
-  int n, Q;
-  cin >> n >> Q;
+void solve(int cs) {
+  int n, q;
+  cin >> n >> q;
   vector<int> a(n);
-  for (int i = 0; i < n; i++)
-    cin >> a[i];
+  for (int i = 0; i < n; i++) cin >> a[i];
   vector<vector<int>> g(n);
   for (int i = 1; i < n; i++) {
     int u, v;
@@ -59,42 +23,55 @@ void Sol(int Cs) {
     g[u].push_back(v);
     g[v].push_back(u);
   }
-  vector<int> start(n, 0), end(n, 0);
-  int timer = 0;
-  auto euler = [&](auto &&self, int node, int par) -> void {
-    start[node] = ++timer;
+  vector<int> start(n), end(n), eular;
+  auto dfs = [&](auto &&self, int node, int pr) -> void {
+    start[node] = eular.size();
+    eular.push_back(node);
     for (auto &son : g[node]) {
-      if (son != par)
+      if (son ^ pr) {
         self(self, son, node);
+      }
     }
-    end[node] = timer;
+    end[node] = eular.size() - 1;
   };
-  euler(euler, 0, -1);
- 
-  BIT<int64_t> fen(n + 1);
-  for (int i = 0; i < n; i++) fen.set(start[i], a[i]);
-  while (Q--) {
-    int t;
-    cin >> t;
+  dfs(dfs, 0, -1);
+  int64_t Fen[n + 1] {};
+  auto add = [&](int i, int x) -> void {
+    for (++i; i <= n; i += i & -i) {
+      Fen[i] += x;
+    }
+  };
+  auto sum = [&](int i) -> int64_t {
+    int64_t res = 0;
+    for (++i; i > 0; i -= i & -i) {
+      res += Fen[i];
+    }
+    return res;
+  };
+  for (int i = 0; i < n; i++) {
+    add(i, a[eular[i]]);
+  }
+  while (q--) {
+    int t; cin >> t;
     if (t == 1) {
-      int id, x;
-      cin >> id >> x;
-      fen.set(start[id - 1], x);
+      int p, x; cin >> p >> x;
+      --p;
+      add(start[p], x - a[p]);
+      a[p] = x;
     } else {
-      int id;
-      cin >> id;
-      cout << fen.range_sum(start[id - 1], end[id - 1]) << "\n";
+      int p; cin >> p;
+      --p;
+      cout << sum(end[p]) - sum(start[p] - 1) << "\n";
     }
   }
 }
  
-signed main() {
-  ios_base::sync_with_stdio(false);
-  cin.tie(NULL);
-  int Tc = 1;
-  // cin >> Tc;
-  for (int Cs = 1; Cs <= Tc; Cs++) {
-    Sol(Cs);
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
   }
   return 0;
 }
