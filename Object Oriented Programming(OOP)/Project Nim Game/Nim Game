@@ -1,0 +1,234 @@
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+import javax.swing.*;
+
+public class NimGame extends JFrame {
+  private int[] piles;
+  private boolean playerTurn;
+  private static final Random rand = new Random();
+
+  private JLabel[] pileLabels;
+  private JTextField pileInput, removeInput;
+  private JButton moveButton, aiMoveButton;
+  private JTextArea messageArea;
+
+  private String player1Name = "Player 1";
+  private String player2Name = "Player 2";
+  private boolean isTwoPlayerMode = false;
+
+  public NimGame() {
+    setTitle("Nim Game");
+    setSize(500, 500);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setLayout(new BorderLayout(10, 10));
+    showStartMenu();
+  }
+
+  private void showStartMenu() {
+    JPanel startPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+    startPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    startPanel.setBackground(new Color(240, 240, 240));
+
+    JLabel modeLabel = new JLabel("Select Game Mode:");
+    modeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+    modeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+    JButton singlePlayerButton = new JButton("Single Player (vs AI)");
+    singlePlayerButton.setFont(new Font("Arial", Font.BOLD, 14));
+    singlePlayerButton.setBackground(new Color(100, 150, 255));
+    singlePlayerButton.setForeground(Color.WHITE);
+    singlePlayerButton.setFocusPainted(false);
+
+    JButton twoPlayerButton = new JButton("Two Players");
+    twoPlayerButton.setFont(new Font("Arial", Font.BOLD, 14));
+    twoPlayerButton.setBackground(new Color(255, 100, 100));
+    twoPlayerButton.setForeground(Color.WHITE);
+    twoPlayerButton.setFocusPainted(false);
+
+    startPanel.add(modeLabel);
+    startPanel.add(singlePlayerButton);
+    startPanel.add(twoPlayerButton);
+
+    singlePlayerButton.addActionListener(_ -> {
+      player1Name = JOptionPane.showInputDialog(
+          this, "Enter Player 1 Name:", "Player 1", JOptionPane.PLAIN_MESSAGE);
+      if (player1Name == null || player1Name.trim().isEmpty()) {
+        player1Name = "Player 1";
+      }
+      isTwoPlayerMode = false;
+      startGame();
+    });
+
+    twoPlayerButton.addActionListener(_ -> {
+      player1Name = JOptionPane.showInputDialog(
+          this, "Enter Player 1 Name:", "Player 1", JOptionPane.PLAIN_MESSAGE);
+      if (player1Name == null || player1Name.trim().isEmpty()) {
+        player1Name = "Player 1";
+      }
+      player2Name = JOptionPane.showInputDialog(
+          this, "Enter Player 2 Name:", "Player 2", JOptionPane.PLAIN_MESSAGE);
+      if (player2Name == null || player2Name.trim().isEmpty()) {
+        player2Name = "Player 2";
+      }
+      isTwoPlayerMode = true;
+      startGame();
+    });
+
+    add(startPanel, BorderLayout.CENTER);
+    setVisible(true);
+  }
+
+  private void startGame() {
+    getContentPane().removeAll();
+    revalidate();
+    repaint();
+
+    // Initialize piles with random objects
+    piles = new int[3];
+    for (int i = 0; i < piles.length; i++) {
+      piles[i] = rand.nextInt(16) + 1;
+    }
+    playerTurn = true;
+
+    Font customFont = new Font("Arial", Font.BOLD, 16);
+
+    JPanel pilePanel = new JPanel(new GridLayout(piles.length, 1, 10, 10));
+    pilePanel.setBackground(new Color(240, 240, 240));
+    pilePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    pileLabels = new JLabel[piles.length];
+    for (int i = 0; i < piles.length; i++) {
+      pileLabels[i] = new JLabel("Pile " + (i + 1) + ": " + piles[i]);
+      pileLabels[i].setFont(customFont);
+      pileLabels[i].setForeground(new Color(50, 50, 150));
+      pilePanel.add(pileLabels[i]);
+    }
+    add(pilePanel, BorderLayout.NORTH);
+
+    // Input panel
+    JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    inputPanel.setBackground(new Color(220, 220, 220));
+    pileInput = new JTextField(3);
+    pileInput.setFont(customFont);
+    removeInput = new JTextField(3);
+    removeInput.setFont(customFont);
+    moveButton = new JButton("Make Move");
+    moveButton.setFont(customFont);
+    moveButton.setBackground(new Color(100, 150, 255));
+    moveButton.setForeground(Color.WHITE);
+    moveButton.setFocusPainted(false);
+
+    inputPanel.add(new JLabel("Pile:"));
+    inputPanel.add(pileInput);
+    inputPanel.add(new JLabel("Remove:"));
+    inputPanel.add(removeInput);
+    inputPanel.add(moveButton);
+    add(inputPanel, BorderLayout.CENTER);
+
+    // AI Move button (only for single-player mode)
+    aiMoveButton = new JButton(isTwoPlayerMode ? player2Name + "'s Move" : "AI Move");
+    aiMoveButton.setFont(customFont);
+    aiMoveButton.setBackground(new Color(255, 100, 100));
+    aiMoveButton.setForeground(Color.WHITE);
+    aiMoveButton.setFocusPainted(false);
+    add(aiMoveButton, BorderLayout.SOUTH);
+
+    // Message area
+    messageArea = new JTextArea();
+    messageArea.setFont(customFont);
+    messageArea.setEditable(false);
+    messageArea.setBackground(new Color(250, 250, 250));
+    messageArea.setForeground(new Color(50, 50, 50));
+    JScrollPane scrollPane = new JScrollPane(messageArea);
+    scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    add(scrollPane, BorderLayout.EAST);
+
+    // Button actions
+    moveButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) { playerMove(); }
+    });
+
+    aiMoveButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (isTwoPlayerMode) {
+          playerMove();
+        } else {
+          aiMove();
+        }
+      }
+    });
+
+    updateDisplay();
+    setVisible(true);
+  }
+
+  private boolean isGameOver() {
+    for (int pile : piles) {
+      if (pile > 0)
+        return false;
+    }
+    return true;
+  }
+
+  private void updateDisplay() {
+    for (int i = 0; i < piles.length; i++) {
+      pileLabels[i].setText("Pile " + (i + 1) + ": " + piles[i]);
+    }
+    if (isGameOver()) {
+      messageArea.append("\nGame Over! " + (playerTurn ? (isTwoPlayerMode ? player2Name : "AI") : player1Name) + " wins!\n");
+      moveButton.setEnabled(false);
+      aiMoveButton.setEnabled(false);
+    }
+  }
+
+  private void playerMove() {
+    try {
+      int pile = Integer.parseInt(pileInput.getText()) - 1;
+      int remove = Integer.parseInt(removeInput.getText());
+
+      if (pile >= 0 && pile < piles.length && remove > 0 && remove <= piles[pile]) {
+        piles[pile] -= remove;
+        messageArea.append((playerTurn ? player1Name : player2Name) + " removed " + remove + " from Pile " + (pile + 1) + "\n");
+        playerTurn = !playerTurn;
+        updateDisplay();
+      } else {
+        messageArea.append("Invalid move. Try again.\n");
+      }
+    } catch (NumberFormatException ex) {
+      messageArea.append("Enter valid numbers.\n");
+    }
+  }
+
+  private void aiMove() {
+    if (playerTurn) {
+      messageArea.append("It's not AI's turn!\n");
+      return;
+    }
+    int nimSum = 0;
+    for (int pile : piles) {
+      nimSum ^= pile;
+    }
+
+    if (nimSum == 0) { // AI plays randomly
+      int pile;
+      do {
+        pile = rand.nextInt(piles.length);
+      } while (piles[pile] == 0);
+      int remove = rand.nextInt(piles[pile]) + 1;
+      piles[pile] -= remove;
+      messageArea.append("AI removed " + remove + " from Pile " + (pile + 1) + "\n");
+    } else { // AI plays optimally
+      for (int i = 0; i < piles.length; i++) {
+        if ((piles[i] ^ nimSum) < piles[i]) {
+          int remove = piles[i] - (piles[i] ^ nimSum);
+          piles[i] -= remove;
+          messageArea.append("AI removed " + remove + " from Pile " + (i + 1) + "\n");
+          break;
+        }
+      }
+    }
+    playerTurn = true;
+    updateDisplay();
+  }
+}
