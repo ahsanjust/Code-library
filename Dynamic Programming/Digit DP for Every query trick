@@ -1,0 +1,42 @@
+https://toph.co/p/noora-number
+
+/* Obsession beats talent */
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+string s;
+int64_t dp[19][1 << 10];
+int64_t go(int p, int t, int mask) {
+  if (p < 0) return __builtin_popcount(mask) == __bit_width(mask) - 1;
+  if (!t && ~dp[p][mask]) return dp[p][mask];
+  int64_t ret = 0;
+  int hi = t ? s[p] - '0' : 9;
+  for (int d = 0; d <= hi; ++d) {
+    ret += go(p - 1, t & d == hi, (!mask && !d) ? mask : mask | (1 << d));
+  }
+  return t ? ret : dp[p][mask] = ret;
+}
+
+void solve(int cs) {
+  cin >> s;
+  reverse(s.begin(), s.end());
+  cout << go(s.size() - 1, 1, 0) << "\n";
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  cin >> t;
+  memset(dp, -1, sizeof dp);
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
