@@ -1,0 +1,95 @@
+https://codeforces.com/blog/entry/44351
+https://codeforces.com/contest/600/problem/E
+
+/* Obsession beats talent */
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  vector<int> c(n);
+  for (int i = 0; i < n; i++) cin >> c[i], --c[i];
+  vector<vector<int>> g(n);
+  for (int i = 0; i < n - 1; i++) {
+    int u, v;
+    cin >> u >> v;
+    --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  vector<int> sz(n, 1);
+  auto calSz = [&](auto &&self, int node, int pr) -> void {
+    for (auto &son : g[node]) {
+      if (son ^ pr) {
+        self(self, son, node);
+        sz[node] += sz[son];
+      }
+    }
+  };
+  calSz(calSz, 0, -1);
+  vector<vector<int>> f(n);
+  vector<int> cnt(n, 0);
+  vector<int64_t> ans(n), sum(n, 0);
+  auto update = [&](int color, int &mxcnt, int delt) -> void {
+    sum[cnt[color]] -= color + 1;
+    cnt[color] += delt;
+    sum[cnt[color]] += color + 1;
+    mxcnt = max(mxcnt, cnt[color]);
+  };
+  auto dfs = [&](auto &&self, int node, int pr, bool keep) -> int {
+    int mx = -1, bigChild = -1, mxcnt = -1;
+    for (auto &son : g[node]) {
+      if (son != pr && sz[son] > mx) {
+        mx = sz[son], bigChild = son;
+      }
+    }
+    for (auto &son : g[node]) {
+      if (son != pr && son != bigChild) {
+        mxcnt = max(mxcnt, self(self, son, node, 0));
+      }
+    }
+    if (~bigChild) {
+      mxcnt = max(mxcnt, self(self, bigChild, node, 1));
+      swap(f[node], f[bigChild]);
+    }
+    f[node].push_back(c[node]);
+    update(c[node], mxcnt, 1);
+    for (auto &son : g[node]) {
+      if (son != pr && son != bigChild) {
+        for (auto &x : f[son]) {
+          f[node].push_back(x);
+          update(x, mxcnt, 1);
+        }
+      }
+    }
+    ans[node] = sum[mxcnt];
+    if (!keep) {
+      for (auto &x : f[node]) {
+        update(x, mxcnt, -1);
+      }
+    }
+    return mxcnt;
+  };
+  dfs(dfs, 0, -1, 0);
+  for (int i = 0; i < n; i++) {
+    cout << ans[i] << " \n"[i == n - 1];
+  }
+}
+
+int32_t main() {
+  ios::sync_with_stdio(!cin.tie(0));
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
