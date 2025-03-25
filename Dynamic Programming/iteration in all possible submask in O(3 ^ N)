@@ -1,0 +1,51 @@
+https://atcoder.jp/contests/dp/tasks/dp_u?lang=en
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "Ash.cpp"
+#else
+#define dbg(...)
+#endif
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  vector<vector<int>> a(n, vector<int>(n));
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      cin >> a[i][j];
+    }
+  }
+  vector<int64_t> score(1 << n, 0);
+  for (int mask = 0; mask < 1 << n; mask++) {
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        if (mask >> i & 1) {
+          if (mask >> j & 1) {
+            score[mask] += a[i][j];
+          }
+        }
+      }
+    }
+  }
+  vector<int64_t> dp(1 << n, 0);
+  for (int mask = 0; mask < 1 << n; mask++) {
+    for (int sub = mask; sub > 0; sub = (sub - 1) & mask) {
+      dp[mask] = max(dp[mask], score[sub] + dp[mask ^ sub]);
+    }
+  }
+  cout << dp.back() << "\n";
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; ++i) {
+    solve(i);
+  }
+  return 0;
+}
