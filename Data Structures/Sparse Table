@@ -23,13 +23,30 @@ public:
     int j = 31 - __builtin_clz(r - l + 1);
     return merge(table[j][l], table[j][r - (1 << j) + 1]);
   }
-  void update(int idx, T value) {
-    table[0][idx] = value;
-    for (int j = 1; j < table.size(); ++j) {
-      if (idx + (1 << j) <= n) {
-        table[j][idx] = merge(table[j - 1][idx], table[j - 1][idx + (1 << (j - 1))]);
+  T get(int idx) { return table[0][idx]; }
+};
+
+
+template <typename T>
+class SparseTable {
+public:
+  int n, maxLog;
+  vector<vector<T>> table;
+  T identity;
+  function<T(T, T)> merge;
+  SparseTable(const vector<T> &A, T identity, function<T(T, T)> merge) : n(A.size()), identity(identity), merge(merge) {
+    maxLog = __lg(n) + 1;
+    table.assign(maxLog, vector<T>(n, identity));
+    table[0] = A;
+    for (int j = 1; j < maxLog; ++j) {
+      for (int i = 0; i + (1 << j) <= n; ++i) {
+        table[j][i] = merge(table[j - 1][i], table[j - 1][i + (1 << (j - 1))]);
       }
     }
   }
-  T get(int idx) { return table[0][idx]; }
+  T qry(int l, int r) const {
+    if (l > r) return identity;
+    int j = __lg(r - l + 1);
+    return merge(table[j][l], table[j][r - (1 << j) + 1]);
+  }
 };
