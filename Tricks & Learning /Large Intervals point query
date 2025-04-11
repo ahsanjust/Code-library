@@ -1,0 +1,44 @@
+https://www.hackerrank.com/contests/eid-salami-contest-by-shohoj-coding-for-absolute-beginners/challenges/occurrence-query
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "BugSlayer.cpp"
+#else
+#define dbg(...)
+#endif
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n;
+  cin >> n;
+  map<int64_t, int64_t> S;
+  for (int i = 0; i < n; i++) {
+    int64_t l, r; cin >> l >> r;
+    S[l] += 1;
+    S[r + 1] -= 1;
+  }
+  vector<int64_t> start, pref;
+  int64_t cur = 0;
+  for (auto &[x, y] : S) {
+    cur += y;
+    start.push_back(x);
+    pref.push_back(cur);
+  }
+  auto query = [&](int64_t x) -> int {
+    auto it = upper_bound(start.begin(), start.end(), x);
+    if (it == start.begin()) return 0;
+    int idx = it - start.begin() - 1;
+    return pref[idx];
+  };
+  int q;
+  cin >> q;
+  while (q--) {
+    int64_t x;
+    cin >> x;
+    cout << query(x) << "\n";
+  }
+  return 0;
+}
