@@ -1,0 +1,49 @@
+https://www.hackerrank.com/contests/eid-salami-contest-by-shohoj-coding-for-absolute-beginners/challenges/mind-sports/copy-from/1391077403
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "BugSlayer.cpp"
+#else
+#define dbg(...)
+#endif
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  const int N = 1e5 + 5;
+  vector<int> spf(N, 0);
+  for (int i = 2; i < N; i++) {
+    if (spf[i] == 0) {
+      for (int j = i; j < N; j += i) {
+        if (spf[j] == 0) {
+          spf[j] = i;
+        }
+      }
+    }
+  }
+  map<int, vector<int64_t>> f;
+  for (int i = 1; i < N; i++) {
+    int x = i, put = 1;
+    while (x > 1) {
+      int p = spf[x], cc = 0;
+      while (x % p == 0) {
+        x /= p;
+        ++cc;
+      }
+      put *= (2 * cc + 1);
+    }
+    f[put].push_back(i * 1LL * i);
+  }
+  int tt;
+  cin >> tt;
+  while (tt--) {
+    int64_t l, r; int x;
+    cin >> l >> r >> x;
+    auto &v = f[x];
+    int mid = upper_bound(v.begin(), v.end(), r) - upper_bound(v.begin(), v.end(), l);
+    cout << mid << "\n";
+  }
+  return 0;
+}
