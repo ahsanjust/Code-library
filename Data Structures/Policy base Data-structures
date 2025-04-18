@@ -1,3 +1,14 @@
+template <class T>
+using Tree = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// to erase in multiset-> less_equal<T> and 
+// s.erase(s.find_by_order(s.order_of_key(x)))
+// lower_bound(x)=>(cannot use the stl lower_bound function)
+// ll idx = s.order_of_key(x)
+// if(idx == s.size()) -> no lower_bound
+// else lb = *s.find_by_order(idx) // as 0-indexing
+// idx-1 will give highest value which is strictly less than x
+// for upper_bound->do the same with (x+1)
+
 #include <bits/stdc++.h>
 using namespace std;
 
