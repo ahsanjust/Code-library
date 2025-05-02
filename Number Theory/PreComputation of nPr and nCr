@@ -1,3 +1,26 @@
+const int N = 1e6 + 5, md = 1e9 + 7;
+int fac[N], inv[N], invfac[N];
+void init() {
+  fac[0] = inv[0] = invfac[0] = 1;
+  inv[1] = 1;
+  for (int i = 1; i < N; i++) {
+    fac[i] = 1ll * fac[i - 1] * i % md;
+  }
+  for (int i = 2; i < N; i++) {
+    inv[i] = md - 1ll * inv[md % i] * (md / i) % md;
+  }
+  for (int i = 1; i < N; i++) {
+    invfac[i] = 1ll * invfac[i - 1] * inv[i] % md;
+  }
+}
+int C(int n, int k) {
+  if (k < 0 || k > n) return 0;
+  return (1ll * fac[n] * invfac[k] % md * invfac[n - k]) % md;
+}
+
+
+
+
 const int N = 1e6 + 9, mod = 1e9 + 7;
 
 int f[N], invf[N];
