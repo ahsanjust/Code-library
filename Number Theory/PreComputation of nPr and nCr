@@ -1,24 +1,31 @@
-const int N = 1e6 + 5, md = 1e9 + 7;
+const int N = 1e6 + 6, md = 1e9 + 7;
+
 int fac[N], inv[N], invfac[N];
+
+int add(int a, int b) {
+  return a + b >= md ? a + b - md : a + b;
+}
+int mul(int a, int b) {
+  return 1LL * a * b % md;
+}
+int power(int a, int b) {
+  int res = 1;
+  while (b > 0) {
+    if (b & 1) res = mul(res, a);
+    a = mul(a, a), b >>= 1;
+  }
+  return res;
+}
 void init() {
-  fac[0] = inv[0] = invfac[0] = 1;
-  inv[1] = 1;
-  for (int i = 1; i < N; i++) {
-    fac[i] = 1ll * fac[i - 1] * i % md;
-  }
-  for (int i = 2; i < N; i++) {
-    inv[i] = md - 1ll * inv[md % i] * (md / i) % md;
-  }
-  for (int i = 1; i < N; i++) {
-    invfac[i] = 1ll * invfac[i - 1] * inv[i] % md;
-  }
+  fac[0] = invfac[0] = inv[1] = 1;
+  for (int i = 1; i < N; i++) fac[i] = mul(fac[i - 1], i);
+  for (int i = 2; i < N; i++) inv[i] = mul(md - md / i, inv[md % i]);
+  for (int i = 1; i < N; i++) invfac[i] = mul(invfac[i - 1], inv[i]);
 }
-int C(int n, int k) {
-  if (k < 0 || k > n) return 0;
-  return (1ll * fac[n] * invfac[k] % md * invfac[n - k]) % md;
+int C(int n, int r) {
+  if (r < 0 || r > n) return 0;
+  return mul(fac[n], mul(invfac[r], invfac[n - r]));
 }
-
-
 
 
 const int N = 1e6 + 9, mod = 1e9 + 7;
