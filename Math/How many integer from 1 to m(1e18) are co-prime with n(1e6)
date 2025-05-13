@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+const int N = 1e6 + 2;
+int spf[N];
+void init() {
+  for (int i = 2; i < N; i++) {
+    if (spf[i] == 0) {
+      for (int j = i; j < N; j += i) {
+        spf[j] = i;
+      }
+    }
+  }
+}
+void solve(int cs) {
+  int n;
+  int64_t m;
+  cin >> n >> m;
+  vector<int> p;
+  while (n > 1) {
+    p.push_back(spf[n]);
+    int k = spf[n];
+    while (n % k == 0) {
+      n /= k;
+    }
+  }
+  int sz = p.size();
+  int64_t ans = 0;
+  for (int i = 1  ; i < 1 << sz; i++) {
+    int64_t who = 1, sign = -1;
+    for (int j = 0; j < sz; j++) {
+      if (i >> j & 1) {
+        who *= p[j];
+        sign *= -1;
+      }
+    }
+    if (~who) ans += m / who * sign;
+  }
+  cout << "Case " << cs << ": ";
+  cout << m - ans << "\n";
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1;
+  cin >> t;
+  init();
+  for (int i = 1; i <= t; i++) {
+    solve(i);
+  }
+  return 0;
+}
