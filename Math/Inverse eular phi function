@@ -1,0 +1,66 @@
+https://acm.timus.ru/problem.aspx?space=1&num=1673
+https://youtu.be/eAiVdJHnd8c?si=FpIDQU1EftwDnxpz
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+vector<int> p;
+bool isp(int n) {
+  if (n < 2) return false;
+  if (n == 2 || n == 3) return true;
+  if (n % 2 == 0 || n % 3 == 0) return false;
+  for (int i = 5; i * i <= n; i += 2) {
+    if (n % i == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int64_t inv_phi(int i, int phi, int64_t who) {
+  if (phi == 1) return who;
+  if (i == p.size()) return 1e18;
+  int64_t ret = inv_phi(i + 1, phi, who);
+  if (phi % (p[i] - 1) == 0) {
+    who = who / (p[i] - 1) * p[i];
+    phi /= (p[i] - 1);
+    while (phi % p[i] == 0) phi /= p[i];
+    ret = min(ret, inv_phi(i + 1, phi, who));
+  }
+  return ret;
+}
+
+void solve(int cs) {
+  int phi;
+  cin >> phi;
+  if (phi & 1) {
+    cout << (phi == 1) << "\n";
+    return;
+  }
+  for (int i = 1; i * i <= phi; i++) {
+    if (phi % i == 0) {
+      if (isp(i + 1)) p.push_back(i + 1);
+      if (i * i != phi && isp(phi / i + 1)) p.push_back(phi / i + 1);
+    }
+  }
+  sort(p.rbegin(), p.rend());
+  auto ans = inv_phi(0, phi, phi);
+  cout << (ans > 1e17 ? 0 : ans);
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1;
+  // cin >> t;
+  for (int i = 1; i <= t; i++) {
+    solve(i);
+  }
+  return 0;
+}
