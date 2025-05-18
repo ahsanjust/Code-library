@@ -1,0 +1,28 @@
+ const long double PI = acosl(-1.0L);
+
+  // Law of Sines: a / sinA = b / sinB = c / sinC
+  /** Solve for side b given side a and opposite angles A and B: b = a * sin(B) / sin(A) */
+  inline long double sine_law_side(long double a, long double angleA, long double angleB) {
+    return a * sinl(angleB) / sinl(angleA);
+  }
+
+  /** Solve for angle B given sides a, b and opposite angle A: B = asin(b * sin(A) / a) */
+  inline long double sine_law_angle(long double a, long double angleA, long double b) {
+    return asinl(b * sinl(angleA) / a);
+  }
+
+  // Law of Cosines: a^2 = b^2 + c^2 - 2 * b * c * cosA
+  /** Solve for side c given sides a, b and included angle C: c = sqrt(a^2 + b^2 - 2ab * cos(C)) */
+  inline long double cosine_law_side(long double a, long double b, long double angleC) {
+    return sqrtl(a * a + b * b - 2.0L * a * b * cosl(angleC));
+  }
+
+  /** Solve for angle C given sides a, b, c: C = acos((a^2 + b^2 - c^2) / (2ab)) */
+  inline long double cosine_law_angle(long double a, long double b, long double c) {
+    return acosl((a * a + b * b - c * c) / (2.0L * a * b));
+  }
+
+  /** Area by two sides and included angle (radians): area = 0.5 * a * b * sin(C) */
+  inline long double area_two_sides_angle(long double a, long double b, long double angleC) {
+    return 0.5L * a * b * sinl(angleC);
+  }
