@@ -1,0 +1,10 @@
+Arc distance : length of the curved path. (s = r * theta)
+Chord distance : straight line between two points. (d = 2 * r * sin(theta / 2))
+
+Minute to Degree: θ_degrees = θ_minutes ÷ 60 
+Degree to Radian: θ_radians = θ_degrees × (π / 180) 
+Minute to Radian: θ_radians = θ_minutes × (π / 10800) 
+Radians to Degrees: θ_degrees = θ_radians × (180 / π) 
+Degrees to Minutes: θ_bytes = θ_degrees × 60 
+Radians to Minutes: θ_minutes = θ_radians × (10800 / π)
+
