@@ -7,6 +7,8 @@
 2. k4 = k1 + k2 + k3 - 2 * sqrt(k1 * k2 + k2 * k3 + k3 * k1)
 here k = 1 / r
 
+when one of the cirle is replaced by straightline, then k3 = 0!
+
 // Radius of small circle tangent to three given circles (external)
 long double computeSmallCircleRadius(long double R1, long double R2, long double R3) {
   long double a = 1.0L / R1;
