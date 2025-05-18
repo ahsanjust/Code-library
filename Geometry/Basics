@@ -27,5 +27,14 @@ volume : area * depth
 long double inradius(long double a, long double b, long double c) {
   long double s = (a + b + c) / 2.0;
   long double area = sqrt(s * (s - a) * (s - b) * (s - c));
+  if (area == 0) return 0; // Invalid triangle
   return area / s;
+}
+
+double circumradius(double a, double b, double c) {
+  double s = (a + b + c) / 2.0;
+  double area = sqrt(s * (s - a) * (s - b) * (s - c));
+  if (area == 0) return 0; // Invalid triangle
+  double R = (a * b * c) / (4.0 * area);
+  return R;
 }
