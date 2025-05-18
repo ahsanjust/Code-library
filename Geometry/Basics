@@ -23,3 +23,9 @@ bool CheckIfThePointInsideTheCirle(array<double, 2> &p, double x, double y, doub
 volume of rectangle : h * l * w
 volume of right angle triange : 1 / 2 * b * h * w 
 volume : area * depth
+
+long double inradius(long double a, long double b, long double c) {
+  long double s = (a + b + c) / 2.0;
+  long double area = sqrt(s * (s - a) * (s - b) * (s - c));
+  return area / s;
+}
