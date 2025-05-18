@@ -1,0 +1,21 @@
+inline long double triangleArea(long double a, long double b, long double c) {
+  if (a < b) swap(a, b);
+  if (a < c) swap(a, c);
+  if (b < c) swap(b, c);
+  // degenerate check
+  if (a >= b + c) return 0.0L;
+  // Kahan’s ¼·√((a+(b+c))·(c−(a−b))·(c+(a−b))·(a+(b−c))) formula:
+  long double s1 = a + (b + c);
+  long double s2 = c - (a - b);
+  long double s3 = c + (a - b);
+  long double s4 = a + (b - c);
+  return 0.25L * sqrtl(s1 * s2 * s3 * s4);
+}
+
+inline long double triangleArea(long double x1, long double y1, long double x2, long double y2, long double x3, long double y3) {
+  long double ux = x2 - x1;
+  long double uy = y2 - y1;
+  long double vx = x3 - x1;
+  long double vy = y3 - y1;
+  return fabsl(ux * vy - uy * vx) * 0.5L;
+}
