@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+inline double dist(double x1, double y1, double x2, double y2) {
+  return hypot(x2 - x1, y2 - y1);
+}
+
+void solve(int cs) {
+  int center[2], a[2], b[2];
+  cin >> center[0] >> center[1];
+  cin >> a[0] >> a[1];
+  cin >> b[0] >> b[1];
+  double B = dist(center[0], center[1], a[0], a[1]);
+  double C = dist(a[0], a[1], b[0], b[1]);
+  double A = dist(center[0], center[1], b[0], b[1]);
+  double o = acos((A * A + B * B - C * C) / (2 * A * B));
+  double arc = A * o;
+  arc = min(arc, 2 * acos(-1) * A - arc);
+  cout << "Case " << cs << ": " << fixed << setprecision(10);
+  cout << arc << "\n";
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1;
+  cin >> t;
+  for (int i = 1; i <= t; i++) {
+    solve(i);
+  }
+  return 0;
+}
