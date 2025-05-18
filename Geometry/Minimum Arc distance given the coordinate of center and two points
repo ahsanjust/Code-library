@@ -1,3 +1,5 @@
+https://lightoj.com/problem/minimum-arc-distance
+
 #include <bits/stdc++.h>
 
 using namespace std;
