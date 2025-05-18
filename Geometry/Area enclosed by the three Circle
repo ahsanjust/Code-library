@@ -1,0 +1,16 @@
+long double solve(long double r1, long double r2, long double r3) {
+  long double a = r2 + r3;
+  long double b = r3 + r1;
+  long double c = r1 + r2;
+
+  long double s = (a + b + c) / 2.0;
+  long double triangleArea = sqrtl(s * (s - a) * (s - b) * (s - c));
+  
+  long double A = acosl((b * b + c * c - a * a) / (2 * b * c));
+  long double B = acosl((a * a + c * c - b * b) / (2 * a * c));
+  long double C = acosl((a * a + b * b - c * c) / (2 * a * b));
+
+  long double sectorArea = 0.5 * ((r1 * r1 * A) + (r2 * r2 * B) + (r3 * r3 * C));
+
+  return triangleArea - sectorArea;
+}
