@@ -19,3 +19,7 @@ inline double dist3D(double x1, double y1, double z1, double x2, double y2, doub
 bool CheckIfThePointInsideTheCirle(array<double, 2> &p, double x, double y, double r) {
   return dist2D(x, y, p[0], p[1]) < r;
 }
+
+volume of rectangle : h * l * w
+volume of right angle triange : 1 / 2 * b * h * w 
+volume : area * depth
