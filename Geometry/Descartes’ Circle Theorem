@@ -1,2 +1,32 @@
-If four cicle are touching each other and radius of three cirle small circle is r, then radius of the big cirle is R = 2 / sqrt(3) + 1
+*When three circle's radius are  same:
+1. If four cicle are touching each other and radius of three small circle is r, then radius of the big cirle is R = (2 / sqrt(3) + 1) * r
+2. If four circle are touching each other and radius of three big circle is r, then radius of the small circle is R = (2 * sqrt(3) - 1) * r
+
+*When three circle's radius are not same:
+1. k4 = k1 + k2 + k3 - 2 * sqrt(k1 * k2 + k2 * k3 + k3 * k1)
+2. k4 = k1 + k2 + k3 - 2 * sqrt(k1 * k2 + k2 * k3 + k3 * k1)
+here k = 1 / r
+
+// Radius of small circle tangent to three given circles (external)
+long double computeSmallCircleRadius(long double R1, long double R2, long double R3) {
+  long double a = 1.0L / R1;
+  long double b = 1.0L / R2;
+  long double c = 1.0L / R3;
+  long double sum = a + b + c;
+  long double rootPart = 2.0L * sqrt(a * b + b * c + c * a);
+  long double k = sum + rootPart;
+  return 1.0L / k;
+}
+
+// Radius of large enclosing circle tangent to three given circles (internal)
+long double computeBigCircleRadius(long double R1, long double R2, long double R3) {
+  long double a = 1.0L / R1;
+  long double b = 1.0L / R2;
+  long double c = 1.0L / R3;
+  long double sum = a + b + c;
+  long double rootPart = 2.0L * sqrt(a * b + b * c + c * a);
+  long double k = sum - rootPart;
+  return 1.0L / k;
+}
+
 
