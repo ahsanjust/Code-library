@@ -8,3 +8,14 @@ Radians to Degrees: θ_degrees = θ_radians × (180 / π)
 Degrees to Minutes: θ_bytes = θ_degrees × 60 
 Radians to Minutes: θ_minutes = θ_radians × (10800 / π)
 
+inline double dist2D(double x1, double y1, double x2, double y2) {
+  return hypot(x2 - x1, y2 - y1);
+}
+
+inline double dist3D(double x1, double y1, double z1, double x2, double y2, double z2) {
+  return hypot(x2 - x1, y2 - y1, z2 - z1);
+}
+
+bool CheckIfThePointInsideTheCirle(array<double, 2> &p, double x, double y, double r) {
+  return dist2D(x, y, p[0], p[1]) < r;
+}
