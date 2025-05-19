@@ -1,0 +1,45 @@
+https://cses.fi/problemset/task/2191/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+ 
+struct P {
+  int x, y;
+  void read() {
+    cin >> x >> y;
+  }
+  P operator - (const P &b) const {
+    return P{x - b.x, y - b.y};
+  }
+  void operator -= (const P &b) {
+    x -= b.x, y -= b.y;
+  }
+  int64_t operator *(const P &b) { // cross product
+    return (int64_t)x * b.y - (int64_t)y * b.x;
+  }
+  int64_t triangle (const P &b, const P &c) const {
+    return (b - *this) * (c - *this);
+  }
+};
+ 
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+    
+  int n;
+  cin >> n;
+  vector<P> polygon(n);
+  for (auto &p : polygon) p.read();
+  int64_t area = 0;
+  for (int i = 0; i < n; i++) {
+    area += polygon[i] * polygon[i + 1 == n ? 0 : i + 1];
+  }
+  cout << abs(area) << "\n";
+  return 0;
+}
