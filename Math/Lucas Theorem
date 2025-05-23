@@ -1,4 +1,5 @@
 // when md is small but, n and r is huge!
+// can be applied here: https://cses.fi/problemset/task/2419/
 
 const int md = 2;
 int fact[md], inv[md];
