@@ -1,0 +1,19 @@
+https://cses.fi/problemset/task/2419
+https://cses.fi/problemset/task/3194
+
+
+0     1      2     3       4      5      row 0
+
+   01    12    23      34     45         row 1
+  
+      02    13     24     35             row 2
+
+        0123   1234   2345               row 3
+
+            04      15                   row 4
+            
+               0145                      row 5
+
+
+
+likte mon cay na -.-!
