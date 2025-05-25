@@ -1,0 +1,52 @@
+https://www.spoj.com/problems/DIVSUM/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+ 
+const int N = 500000 + 5;
+int spf[N];
+void init() {
+  for (int i = 2; i < N; i++) {
+    if (spf[i] == 0) {
+      for (int j = i; j < N; j += i) {
+        if (spf[j] == 0) {
+          spf[j] = i;
+        }
+      }
+    }
+  }
+}
+void solve(int cs) {
+  int n;
+  cin >> n;
+  int ans = 1;
+  auto backupn = n;
+  while (n > 1) {
+    int p = spf[n];
+    int c = 0;
+    while (n % p == 0) {
+      n /= p;
+      c += 1;
+    }
+    ans *= (pow(p, c + 1) - 1) / (p - 1);
+  }
+  cout << ans - backupn << "\n"; 
+}
+ 
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1;
+  cin >> t;
+  init();
+  for (int i = 1; i <= t; i++) {
+    solve(i);
+  }
+  return 0;
+} 
