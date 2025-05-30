@@ -1,6 +1,6 @@
 https://www.hackerrank.com/challenges/prime-sum/problem?isFullScreen=false
 
-Goldbach’s conjecture is a famous conjecture. It asserts that “Every even integer greater than 2 can be expressed as a sum of two prime numbers.
+Goldbach’s conjecture is a famous conjecture. It asserts that “Every even integer greater than 2 can be expressed as a sum of two prime numbers.”
 
 #include <bits/stdc++.h>
 
