@@ -1,0 +1,15 @@
+// returns { r^n mod md, 1 + r + … + r^(n−1) mod md }
+pair<int64_t,int64_t> geom(int64_t r, uint64_t n) {
+  if (n == 0) return {1, 0};
+  if (n & 1) {
+    auto [rn1, s1] = geom(r, n-1);
+    int64_t rn = (__int128_t)rn1 * r % md;
+    int64_t S  = (s1 + rn1) % md;
+    return { rn, S };
+  } else {
+    auto [rhalf, shalf] = geom(r, n/2);
+    int64_t rn = (__int128_t)rhalf * rhalf % md;
+    int64_t S  = (shalf + (__int128_t)rhalf * shalf % md) % md;
+    return { rn, S };
+  }
+}
