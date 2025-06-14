@@ -18,7 +18,7 @@ struct Trie {
       mover = mover -> nxt[b], mover -> cnt += 1;
     }
   }
-  int Qry (int x, int k) { // Number of values (val ^ x) < k;
+  int Qry1 (int x, int k) { // Number of values (val ^ x) < k;
     Node *mover = who;
     int ans = 0;
     for (int i = B - 1; ~i; --i) {
@@ -28,6 +28,20 @@ struct Trie {
         if (mover -> nxt[!d]) mover = mover -> nxt[!d];
         else break;
       } else if (mover -> nxt[d]) mover = mover -> nxt[d];
+      else break;
+    }
+    return ans;
+  }
+  int Qry2 (int x, int k) { // Number of values (val ^ x) > k;
+    Node *mover = who;
+    int ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      int d = x >> i & 1;
+      if (~k >> i & 1) {
+        if (mover -> nxt[!d]) ans += mover -> nxt[!d] -> cnt;
+        if (mover -> nxt[d]) mover = mover -> nxt[d];
+        else break;
+      } else if (mover -> nxt[!d]) mover = mover -> nxt[!d];
       else break;
     }
     return ans;
