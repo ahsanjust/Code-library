@@ -1,13 +1,17 @@
   int LG = 0;
   while ((1 << LG) <= n) LG += 1;
   vector<int> dep(n, 0);
-  vector<vector<int>> up(n, vector<int>(LG));
-  auto dfs = [&](auto &&self, int node) -> void {
+  vector<vector<int>> up(n, vector<int>(LG, -1));
+  auto dfs = [&](auto &&self, int node, int pr = -1) -> void {
     for (auto &son : g[node]) {
+      if (son == pr) continue;
       dep[son] = dep[node] + 1;
       up[son][0] = node;
-      for (int i = 1; i < LG; i++) up[son][i] = up[up[son][i - 1]][i - 1];
-      self(self, son);
+      for (int i = 1; i < LG; i++) {
+        int half = up[son][i-1];
+        up[son][i] = (half == -1 ? -1 : up[half][i-1]);
+      }
+      self(self, son, node);
     }
   };
   dfs(dfs, 0);
