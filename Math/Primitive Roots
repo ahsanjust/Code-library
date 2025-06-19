@@ -30,7 +30,7 @@ int32_t main() {
   }
   if (n > 1) primes.push_back(n);
   n = backup_n;
-  int g = 2; // smallest primitive root
+  int g = 1; // smallest primitive root
   for(;;++g) {
     bool ok = true;
     for (auto &pr : primes) {
