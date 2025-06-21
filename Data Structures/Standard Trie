@@ -1,0 +1,107 @@
+const int N = 200000 * 31;
+const int B = 31;
+int tot, trie[N][2], cnt[N];
+
+int newNode() {
+  int x = ++tot;
+  trie[x][0] = trie[x][1] = 0;
+  cnt[x] = 0;
+  return x;
+}
+
+void init() {
+  tot = 0;
+  newNode();
+}
+
+void insert(int x) {
+  int mover = 1;
+  cnt[mover]++;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    if (!trie[mover][d]) trie[mover][d] = newNode();
+    mover = trie[mover][d];
+    cnt[mover]++;
+  }
+}
+
+int query1(int x, int k) { // number of values (val ^ x) < k
+  int mover = 1, ans = 0;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    if ((k >> i) & 1) {
+      if (trie[mover][d]) ans += cnt[trie[mover][d]];
+      mover = trie[mover][d ^ 1];
+    } else {
+      mover = trie[mover][d];
+    }
+    if (!mover) break;
+  }
+  return ans;
+}
+
+int query2(int x, int k) { // number of values (val ^ x) > k
+  int mover = 1, ans = 0;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    if (!((k >> i) & 1)) {
+      if (trie[mover][d ^ 1]) ans += cnt[trie[mover][d ^ 1]];
+      mover = trie[mover][d];
+    } else {
+      mover = trie[mover][d ^ 1];
+    }
+    if (!mover) break;
+  }
+  return ans;
+}
+
+int64_t go(int mover, int b, int x, int t1, int t2) { // number of values val <= (val ^ x) <= x
+  if (t1 == 2 && t2 == 0) return cnt[mover];
+  if (t1 == 0 || t2 == 2) return 0;
+  if (b == -1) return cnt[mover];
+  int64_t ret = 0;
+  if ((x >> b) & 1) {
+    if (trie[mover][1]) {
+      ret += go(trie[mover][1], b - 1, x, t1 == 1 ? 0 : t1, t2 == 1 ? 0 : t2);
+    }
+    if (trie[mover][0]) {
+      ret += go(trie[mover][0], b - 1, x, t1 == 1 ? 2 : t1, t2);
+    }
+  } else {
+    if (trie[mover][1]) {
+      ret += go(trie[mover][1], b - 1, x, t1, t2 == 1 ? 2 : t2);
+    }
+    if (trie[mover][0]) {
+      ret += go(trie[mover][0], b - 1, x, t1, t2);
+    }
+  }
+  return ret;
+}
+
+int get_max(int x) {
+  int mover = 1, ans = 0;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    if (trie[mover][d ^ 1]) {
+      mover = trie[mover][d ^ 1];
+      ans |= 1 << i;
+    } else {
+      mover = trie[mover][d];
+    }
+  }
+  return ans;
+}
+
+int get_min(int x) {
+  int mover = 1, ans = 0;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    if (trie[mover][d]) {
+      mover = trie[mover][d];
+    } else {
+      mover = trie[mover][d ^ 1];
+      ans |= 1 << i;
+    }
+  }
+  return ans;
+}
