@@ -1,37 +1,61 @@
-// Function to find number of strongly connected components in the graph.
-int kosaraju(int V, vector<vector<int>> &adj) {
-  stack<int> st;
-  vector<int> vis(V, false);
-  auto dfs = [&](auto &&self, int node, int par) -> void {
-    vis[node] = true;
-    for (auto &son : adj[node]) {
-      if (son == par) continue;
-      if (!vis[son]) self(self, son, node);
-    }
-    st.push(node);
-  };
-  for (int i = 0; i < V; i++) if (!vis[i]) dfs(dfs, i, -1);
-  vector<int> g[V];
-  for (int i = 0; i < V; i++) {
-    for (auto &u : adj[i]) {
-      g[u].push_back(i);
-    }
+https://cses.fi/problemset/task/1683/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n), rg(n);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v, --u, --v;
+    g[u].push_back(v);
+    rg[v].push_back(u);
   }
-  vis.assign(V, false);
-  function<void(int, int)> dfs2 = [&](int node, int par) {
+  stack<int> stk;
+  vector<int> vis(n, false);
+  auto dfs = [&](auto &&self, int node) -> void {
     vis[node] = true;
     for (auto &son : g[node]) {
-      if (son == par) continue;
-      if (!vis[son]) dfs2(son, node);
+      if (!vis[son]) {
+        self(self, son);
+      }
+    }
+    stk.push(node);
+  };
+  for (int i = 0; i < n; i++) {
+    if (!vis[i]) {
+      dfs(dfs, i);
+    }
+  }
+  vector<int> whichSSC(n, -1);
+  auto dfs2 = [&](auto &&self, int node, int which) -> void {
+    whichSSC[node] = which;
+    for (auto &son : rg[node]) {
+      if (whichSSC[son] == -1) {
+        self(self, son, which);
+      }
     }
   };
-  int ret = 0;
-  while (st.size()) {
-    if (!vis[st.top()]) {
-      dfs2(st.top(), -1);
-      ret += 1;
+  int id = 0;
+  while (!stk.empty()) {
+    if (whichSSC[stk.top()] == -1) {
+      dfs2(dfs2, stk.top(), ++id);
     }
-    st.pop();
+    stk.pop();
   }
-  return ret;
+  cout << *max_element(whichSSC.begin(), whichSSC.end()) << "\n";
+  for (int i = 0; i < n; i++) {
+    cout << whichSSC[i] << " \n"[i + 1 == n];
+  }
+  return 0;
 }
