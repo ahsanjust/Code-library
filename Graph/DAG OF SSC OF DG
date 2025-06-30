@@ -1,0 +1,99 @@
+https://cses.fi/problemset/task/1686/
+
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+ 
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n, m;
+  cin >> n >> m;
+  vector<int> a(n);
+  for (int i = 0; i < n; i++) cin >> a[i];
+  vector<vector<int>> g(n), rg(n);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    g[u - 1].push_back(v - 1);
+    rg[v - 1].push_back(u - 1);
+  }
+  stack<int> stk;
+  vector<int> vis(n, false);
+  auto dfs = [&](auto &&self, int node) -> void {
+    vis[node] = true;
+    for (auto &son : g[node]) {
+      if (!vis[son]) {
+        self(self, son);
+      }
+    }
+    stk.push(node);
+  };
+  for (int i = 0; i < n; i++) {
+    if (!vis[i]) {
+      dfs(dfs, i);
+    }
+  }
+  vector<int> whichSSC(n, -1);
+  auto dfs2 = [&](auto &&self, int node, int which) -> void {
+    whichSSC[node] = which;
+    for (auto &son : rg[node]) {
+      if (whichSSC[son] == -1) {
+        self(self, son, which);
+      }
+    }
+  };
+  int id = -1;
+  while (stk.size()) {
+    if (whichSSC[stk.top()] == -1) {
+      dfs2(dfs2, stk.top(), ++id);
+    }
+    stk.pop();
+  }
+  vector<int64_t> val(id + 1, 0);
+  vector<set<int>> G(id + 1);
+  for (int i = 0; i < n; i++) {
+    val[whichSSC[i]] += a[i];
+    for (auto &j : g[i]) {
+      if (whichSSC[i] != whichSSC[j]) {
+        G[whichSSC[i]].insert(whichSSC[j]);
+      }
+    }
+  }
+  vector<int64_t> dp(id + 1, 0);
+  queue<int> q;
+  int in[id + 1] {};
+  for (int i = 0; i <= id; i++) {
+    for (auto &j : G[i]) {
+      in[j] += 1;
+    }
+  }
+  for (int i = 0; i <= id; i++) {
+    if (in[i] == 0) {
+      dp[i] = val[i];
+      q.push(i);
+    }
+  }
+  vector<int> topo;
+  while (q.size()) {
+    int u = q.front(); q.pop(); 
+    topo.push_back(u);
+    for (auto &v : G[u]) {
+      if (--in[v] == 0) {
+        q.push(v);
+      }
+    }
+  }
+  for (auto &u : topo) {
+    for (auto &v : G[u]) {
+      dp[v] = max(dp[v], dp[u] + val[v]);
+    }
+  }
+  cout << *max_element(dp.begin(), dp.end());
+  return 0;
+}
