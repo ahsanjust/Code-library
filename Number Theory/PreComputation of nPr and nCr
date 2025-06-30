@@ -1,12 +1,12 @@
-const int N = 1e6 + 6, md = 1e9 + 7;
-
-int fac[N], inv[N], invfac[N];
-
+const int md = 1e9 + 7;
 int add(int a, int b) {
   return a + b >= md ? a + b - md : a + b;
 }
 int mul(int a, int b) {
   return 1LL * a * b % md;
+}
+int sub(int a, int b) {
+  return a - b < 0 ? a - b + md : a - b;
 }
 int power(int a, int b) {
   int res = 1;
@@ -16,6 +16,9 @@ int power(int a, int b) {
   }
   return res;
 }
+
+const int N = 2e5 + 2;
+int fac[N], inv[N], invfac[N];
 void init() {
   fac[0] = invfac[0] = inv[1] = 1;
   for (int i = 1; i < N; i++) fac[i] = mul(fac[i - 1], i);
