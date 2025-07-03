@@ -1,110 +1,142 @@
-#include <bits/stdc++.h>
+const int N = 1e6 + 9, LG = 22;
+void induced_sort(const vector<int> &vec, int val_range, vector<int> &SA, const vector<bool> &sl, const vector<int> &lms_idx) {
+  vector<int> l(val_range, 0), r(val_range, 0);
+  for (int c : vec) {
+    if (c + 1 < val_range) ++l[c + 1];
+    ++r[c];
+  }
+  partial_sum(l.begin(), l.end(), l.begin());
+  partial_sum(r.begin(), r.end(), r.begin());
+  fill(SA.begin(), SA.end(), -1);
+  for (int i = lms_idx.size() - 1; i >= 0; --i)
+    SA[--r[vec[lms_idx[i]]]] = lms_idx[i];
+  for (int i : SA)
+    if (i >= 1 && sl[i - 1]) {
+      SA[l[vec[i - 1]]++] = i - 1;
+    }
+  fill(r.begin(), r.end(), 0);
+  for (int c : vec)
+    ++r[c];
+  partial_sum(r.begin(), r.end(), r.begin());
+  for (int k = SA.size() - 1, i = SA[k]; k >= 1; --k, i = SA[k])
+    if (i >= 1 && !sl[i - 1]) {
+      SA[--r[vec[i - 1]]] = i - 1;
+    }
+}
 
-using namespace std;
+vector<int> SA_IS(const vector<int> &vec, int val_range) {
+  const int n = vec.size();
+  vector<int> SA(n), lms_idx;
+  vector<bool> sl(n);
+  sl[n - 1] = false;
+  for (int i = n - 2; i >= 0; --i) {
+    sl[i] = (vec[i] > vec[i + 1] || (vec[i] == vec[i + 1] && sl[i + 1]));
+    if (sl[i] && !sl[i + 1]) lms_idx.push_back(i + 1);
+  }
+  reverse(lms_idx.begin(), lms_idx.end());
+  induced_sort(vec, val_range, SA, sl, lms_idx);
+  vector<int> new_lms_idx(lms_idx.size()), lms_vec(lms_idx.size());
+  for (int i = 0, k = 0; i < n; ++i)
+    if (!sl[SA[i]] && SA[i] >= 1 && sl[SA[i] - 1]) {
+      new_lms_idx[k++] = SA[i];
+    }
+  int cur = 0;
+  SA[n - 1] = cur;
+  for (size_t k = 1; k < new_lms_idx.size(); ++k) {
+    int i = new_lms_idx[k - 1], j = new_lms_idx[k];
+    if (vec[i] != vec[j]) {
+      SA[j] = ++cur;
+      continue;
+    }
+    bool flag = false;
+    for (int a = i + 1, b = j + 1;; ++a, ++b) {
+      if (vec[a] != vec[b]) {
+        flag = true;
+        break;
+      }
+      if ((!sl[a] && sl[a - 1]) || (!sl[b] && sl[b - 1])) {
+        flag = !((!sl[a] && sl[a - 1]) && (!sl[b] && sl[b - 1]));
+        break;
+      }
+    }
+    SA[j] = (flag ? ++cur : cur);
+  }
+  for (size_t i = 0; i < lms_idx.size(); ++i)
+    lms_vec[i] = SA[lms_idx[i]];
+  if (cur + 1 < (int)lms_idx.size()) {
+    auto lms_SA = SA_IS(lms_vec, cur + 1);
+    for (size_t i = 0; i < lms_idx.size(); ++i) {
+      new_lms_idx[i] = lms_idx[lms_SA[i]];
+    }
+  }
+  induced_sort(vec, val_range, SA, sl, new_lms_idx);
+  return SA;
+}
+vector<int> suffix_array(const string &s, const int LIM = 128) {
+  vector<int> vec(s.size() + 1);
+  copy(begin(s), end(s), begin(vec));
+  vec.back() = '!';
+  auto ret = SA_IS(vec, LIM);
+  ret.erase(ret.begin());
+  return ret;
+}
 
-#ifndef ONLINE_JUDGE
-#include "Ash.cpp"
-#else
-#define dbg(...)
-#define dbgA(...)
-#endif
-
-class SA {
-public:
+struct SuffixArray {
+  int n;
   string s;
-  vector<int> Sa;
-  vector<int> Lcp;
-
-  SA(const string &s) : s(s) {
-    buildSA();
-    buildLCP();
+  vector<int> sa, rank, lcp;
+  vector<vector<int>> t;
+  vector<int> lg;
+  SuffixArray() {}
+  SuffixArray(string _s) {
+    n = _s.size();
+    s = _s;
+    sa = suffix_array(s);
+    rank.resize(n);
+    for (int i = 0; i < n; i++) rank[sa[i]] = i;
+    costruct_lcp();
+    prec();
+    build();
   }
-  vector<int> getSA() { return Sa; }
-  vector<int> getLCP() { return Lcp; }
-
-private:
-  void buildSA() {
-    int n = s.size();
-    Sa.resize(n);
-    vector<int> rank(n), tempRank(n);
-
+  void costruct_lcp() {
+    int k = 0;
+    lcp.resize(n - 1, 0);
     for (int i = 0; i < n; i++) {
-      Sa[i] = i;
-      rank[i] = s[i];
-    }
-
-    for (int k = 1; k < n; k *= 2) {
-      auto compare = [&](int a, int b) {
-        if (rank[a] != rank[b])
-          return rank[a] < rank[b];
-        int ra = (a + k < n) ? rank[a + k] : -1;
-        int rb = (b + k < n) ? rank[b + k] : -1;
-        return ra < rb;
-      };
-      sort(Sa.begin(), Sa.end(), compare);
-      tempRank[Sa[0]] = 0;
-      for (int i = 1; i < n; i++) {
-        tempRank[Sa[i]] = tempRank[Sa[i - 1]];
-        if (compare(Sa[i - 1], Sa[i])) {
-          tempRank[Sa[i]]++;
-        }
+      if (rank[i] == n - 1) {
+        k = 0;
+        continue;
       }
-      rank = tempRank;
+      int j = sa[rank[i] + 1];
+      while (i + k < n && j + k < n && s[i + k] == s[j + k])  k++;
+      lcp[rank[i]] = k;
+      if (k)  k--;
     }
   }
-
-  void buildLCP() {
-    int n = s.size();
-    Lcp.resize(n);
-    vector<int> rank(n);
-
-    for (int i = 0; i < n; i++) {
-      rank[Sa[i]] = i;
+  void prec() {
+    lg.resize(n, 0);
+    for (int i = 2; i < n; i++) lg[i] = lg[i / 2] + 1;
+  }
+  void build() {
+    int sz = n - 1;
+    t.resize(sz);
+    for (int i = 0; i < sz; i++) {
+      t[i].resize(LG);
+      t[i][0] = lcp[i];
     }
-    int h = 0;
-    for (int i = 0; i < n; i++) {
-      if (rank[i] > 0) {
-        int j = Sa[rank[i] - 1];
-        while (i + h < n && j + h < n && s[i + h] == s[j + h]) {
-          h++;
-        }
-        Lcp[rank[i]] = h;
-        if (h > 0) {
-          h--;
-        }
+    for (int k = 1; k < LG; ++k) {
+      for (int i = 0; i + (1 << k) - 1 < sz; ++i) {
+        t[i][k] = min(t[i][k - 1], t[i + (1 << (k - 1))][k - 1]);
       }
     }
+  }
+  int query(int l, int r) { // minimum of lcp[l], ..., lcp[r]
+    int k = lg[r - l + 1];
+    return min(t[l][k], t[r - (1 << k) + 1][k]);
+  }
+  int get_lcp(int i, int j) { // lcp of suffix starting from i and j
+    if (i == j) return n - i;
+    int l = rank[i], r = rank[j];
+    if (l > r) swap(l, r);
+    return query(l, r - 1);
   }
 };
-int longestCommonSubstr(string S1, string S2) {
-    string s = S1 + '$' + S2;
-    SA sa(s);
-    int maxLcp = 0;
-    int t = S1.length() + 1;
-    for (int i = 1; i < s.length(); ++i) {
-        if ((sa.Sa[i] < t && sa.Sa[i-1] >= t) ||
-            (sa.Sa[i] >= t && sa.Sa[i-1] < t)) {
-            maxLcp = max(maxLcp, sa.Lcp[i]);
-        }
-    }
-    return maxLcp;
-}
-void solve(int cs) {
-  int n;
-  cin >> n;
-  string s;
-  cin >> s;
-  SA sa(s);
-  cout << *max_element(sa.Lcp.begin(), sa.Lcp.end()) << "\n";
-}
-
-int main() {
-  ios_base::sync_with_stdio(false);
-  cin.tie(NULL);
-  int tc = 1;
-  // cin >> tc;
-  for (int cs = 1; cs <= tc; cs++) {
-    solve(cs);
-  }
-  return 0;
-}
