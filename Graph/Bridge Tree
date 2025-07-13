@@ -1,0 +1,57 @@
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n);
+  for (int i = 0, v, u; i < m; i++) {
+    cin >> u >> v;
+    --u, --v;
+    g[u].push_back(v);
+    g[v].push_back(u);
+  }
+  int timer = 0;
+  vector<bool> vis(n, false);
+  vector<int> tin(n, -1), low(n, -1);
+  set<pair<int,int>> bridges;
+  auto dfs = [&](auto &&self, int node, int father = -1) -> void {
+    vis[node] = true;
+    low[node] = tin[node] = timer++;
+    for (auto &son : g[node]) {
+      if (son == father) continue;
+      if (!vis[son]) {
+        self(self, son, node);
+        low[node] = min(low[node], low[son]);
+        if (low[son] > tin[node]) {
+          bridges.emplace(min(node, son), max(node, son));
+        }
+      } else {
+        low[node] = min(low[node], tin[son]);
+      }
+    }
+  };
+  for (int i = 0; i < n; i++) if (!vis[i]) dfs(dfs, i);
+  vector<int> whichcomp(n, -1);
+  auto dfs2 = [&](auto &&self, int node, int which) -> void {
+    whichcomp[node] = which;
+    for (auto &son : g[node]) {
+      if (whichcomp[son] == -1) {
+        if (bridges.count({min(node, son), max(node, son)}) == 0) {
+          self(self, son, which);
+        }
+      }
+    }
+  };
+  int id = 0;
+  for (int i = 0; i < n; i++) {
+    if (whichcomp[i] == -1) {
+      dfs2(dfs2, i, id++);
+    }
+  }
+  vector<set<int>> G(id);
+  for (int i = 0; i < n; i++) {
+    for (auto &j : g[i]) {
+      if (whichcomp[i] != whichcomp[j]) {
+        G[whichcomp[i]].insert(whichcomp[j]);
+        G[whichcomp[j]].insert(whichcomp[i]);
+      }
+    }
+  }
+  // now we have our tree
