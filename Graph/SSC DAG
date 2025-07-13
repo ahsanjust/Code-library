@@ -1,0 +1,49 @@
+  int n, m;
+  cin >> n >> m;
+  vector<vector<int>> g(n), rg(n);
+  vector<bool> isSelf(n, false);
+  for (int i = 0; i < m; i++) {
+    int u, v;
+    cin >> u >> v;
+    --u, --v;
+    if (u == v) isSelf[u] = true;
+    g[u].push_back(v);
+    rg[v].push_back(u);
+  }  
+  stack<int> stk;
+  vector<bool> vis(n, false);
+  auto dfs = [&](auto &&self, int node) -> void {
+    vis[node] = true;
+    for (auto &son : g[node]) {
+      if (!vis[son]) {
+        self(self, son);
+      }
+    }
+    stk.push(node);
+  };
+  for (int i = 0; i < n; i++) if (!vis[i]) dfs(dfs, i);
+  vector<int> whichssc(n, -1);
+  auto dfs2 = [&](auto &&self, int node, int which) -> void {
+    whichssc[node] = which;
+    for (auto &son : rg[node]) {
+      if (whichssc[son] == -1) {
+        self(self, son, which);
+      }
+    }
+  };
+  int id = 0;
+  while (stk.size()) {
+    if (whichssc[stk.top()] == -1) {
+      dfs2(dfs2, stk.top(), id++);
+    }
+    stk.pop();
+  }
+  vector<set<int>> G(id);
+  for (int i = 0; i < n; i++) {
+    for (auto &j : g[i]) {
+      if (whichssc[i] != whichssc[j]) {
+        G[whichssc[i]].insert(whichssc[j]);
+      }
+    }
+  }
+  // here G is the DAG of the graph g of ssc as nodes.
