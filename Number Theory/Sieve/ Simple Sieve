@@ -1,9 +1,10 @@
 const int N = 1e6 + 10;
-vector<bool> yo(N, true);
+bitset<N> yo;
 vector<int> primes;
 
 void sieve() {
-  yo[0] = yo[1] = false;
+  yo.set();
+  yo[0] = yo[1] = 0;
   for (int i = 2; i * i < N; i++) {
     if (yo[i]) {
       for (int j = i * i; j < N; j += i) {
