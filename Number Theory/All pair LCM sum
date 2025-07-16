@@ -13,7 +13,7 @@ s[i] = sum of all numbers which are divisible by i.
 then f[i] = s[i] * s[i];
 then the answer is nothing but summation of g[i] / i for all i 1 to N;
 
-
+https://codeforces.com/gym/101992/problem/D
 https://atcoder.jp/contests/agc038/tasks/agc038_c
 #include <bits/stdc++.h>
 
