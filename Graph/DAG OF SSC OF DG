@@ -14,8 +14,6 @@ int32_t main() {
   cin.tie(0) -> sync_with_stdio(0);
   int n, m;
   cin >> n >> m;
-  vector<int> a(n);
-  for (int i = 0; i < n; i++) cin >> a[i];
   vector<vector<int>> g(n), rg(n);
   for (int i = 0; i < m; i++) {
     int u, v;
@@ -55,17 +53,14 @@ int32_t main() {
     }
     stk.pop();
   }
-  vector<int64_t> val(id + 1, 0);
   vector<set<int>> G(id + 1);
   for (int i = 0; i < n; i++) {
-    val[whichSSC[i]] += a[i];
     for (auto &j : g[i]) {
       if (whichSSC[i] != whichSSC[j]) {
         G[whichSSC[i]].insert(whichSSC[j]);
       }
     }
   }
-  vector<int64_t> dp(id + 1, 0);
   queue<int> q;
   int in[id + 1] {};
   for (int i = 0; i <= id; i++) {
@@ -89,11 +84,5 @@ int32_t main() {
       }
     }
   }
-  for (auto &u : topo) {
-    for (auto &v : G[u]) {
-      dp[v] = max(dp[v], dp[u] + val[v]);
-    }
-  }
-  cout << *max_element(dp.begin(), dp.end());
   return 0;
 }
