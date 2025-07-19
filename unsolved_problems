@@ -1,8 +1,7 @@
 - https://vjudge.net/contest/713779#problem/B (maximum sum on a tree)
 - https://vjudge.net/contest/713651#problem/G (three states)
 
-- https://toph.co/p/colded-lcm
-hint: iterate on possible gcds
+- https://toph.co/p/colded-lcm (iterate on possible gcds)
 
 - https://www.hackerearth.com/problem/algorithm/yet-another-sum-problem/
 - https://codeforces.com/contest/1706/problem/D1
