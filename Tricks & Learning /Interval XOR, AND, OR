@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+const int B = 60;
+
+int64_t xorRange0toN(int64_t n) {
+  if (n <= 0) return 0;
+  n += 1;
+  int64_t ret = 0;
+  for (int b = 1; b <= B; b++) {
+    int64_t x = 1LL << b;
+    int64_t cnt1 = n / x * (1LL << (b - 1));
+    int64_t rem = n % x;
+    cnt1 += max(0LL, rem - (1LL << (b - 1)));
+    if (cnt1 & 1) {
+      ret |= 1LL << (b - 1);
+    }
+  }
+  return ret;
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int64_t l, r;
+  cin >> l >> r;  
+  int64_t OR = 0, AND = 0;
+  for (int b = 0; b < B; b++) {
+    if ((l >> b) == (r >> b)) {
+      if (l >> b & 1) {
+        AND |= 1LL << b;
+        OR |= 1LL << b;
+      }
+    } else {
+      OR |= 1LL << b;
+    }
+  }
+  int64_t XOR = xorRange0toN(r) ^ xorRange0toN(l - 1);
+  cout << XOR << " " << OR << " " << AND;
+  return 0;
+}
+/*
+*/
