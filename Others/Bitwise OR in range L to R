@@ -1,8 +1,0 @@
-auto bitwiseOrLtoR = [&](int64_t l, int64_t r) -> int64_t {
-    int64_t hi = 0;
-    while ((l >> hi) != (r >> hi)) {
-      hi++;
-    }
-    int64_t mask = (1 << hi) - 1;
-    return r | mask;
-  };
