@@ -1,0 +1,266 @@
+#include <bits/stdc++.h>
+using namespace std;
+using int64 = int64_t;
+
+struct XorTrie {
+  struct Node {
+    int nxt[2];   // child indices into pool; 0 = null/dummy
+    int cnt;      // number of values in subtree (leaf counts)
+    Node() { nxt[0] = nxt[1] = 0; cnt = 0; }
+  };
+
+  // static pool for cheap merges across many tries
+  static vector<Node> pool;
+
+  int B;    // bit-width (number of bits to consider)
+  int root; // index of this trie's root in pool (0 means empty)
+
+  explicit XorTrie(int B_ = 31) : B(B_) {
+    if (pool.empty()) pool.emplace_back(); // pool[0] reserved as null
+    root = new_node();
+  }
+
+  // allocate new node in pool and return its index
+  int new_node() {
+    pool.emplace_back();
+    return (int)pool.size() - 1;
+  }
+
+  // reserve pool nodes to avoid repeated allocations (optional)
+  static void reserve_nodes(size_t want) { pool.reserve(want); }
+
+  // Insert `x` with multiplicity `delta` (default +1). Use delta = -1 to erase one occurrence.
+  // If delta < 0 and value not present, erase does nothing.
+  void insert(int64 x, int delta = 1) {
+    if (delta == 0) return;
+    if (delta < 0 && !exists(x)) return; // guard for negative deletes
+
+    int cur = root;
+    for (int i = B - 1; i >= 0; --i) {
+      int b = (int)((x >> i) & 1LL);
+      if (pool[cur].nxt[b] == 0) {
+        if (delta > 0) pool[cur].nxt[b] = new_node();
+        else return; // trying to remove non-existing path
+      }
+      cur = pool[cur].nxt[b];
+      pool[cur].cnt += delta;
+    }
+  }
+
+  // erase one occurrence of x if present
+  void erase(int64 x) { insert(x, -1); }
+
+  // does x exist (count >= 1)
+  bool exists(int64 x) const {
+    int cur = root;
+    for (int i = B - 1; i >= 0; --i) {
+      if (!cur) return false;
+      int b = (int)((x >> i) & 1LL);
+      cur = pool[cur].nxt[b];
+    }
+    return (cur != 0) && pool[cur].cnt > 0;
+  }
+
+  // max_xor: returns pair {max_xor_value, matched_value}
+  // If trie empty -> returns {0, 0}
+  pair<int64,int64> max_xor(int64 x) const {
+    bool nonempty = false;
+    for (int d = 0; d < 2; ++d) {
+      int ch = pool[root].nxt[d];
+      if (ch && pool[ch].cnt > 0) { nonempty = true; break; }
+    }
+    if (!nonempty) return {0, 0};
+
+    int64 res = 0, matched = 0;
+    int cur = root;
+    for (int i = B - 1; i >= 0; --i) {
+      int bit = (int)((x >> i) & 1LL);
+      int want = bit ^ 1;
+      int go = pool[cur].nxt[want];
+      if (go && pool[go].cnt > 0) {
+        res |= (1LL << i);
+        matched = (matched << 1) | want;
+        cur = go;
+      } else {
+        int go2 = pool[cur].nxt[bit];
+        if (!go2) { matched <<= i; break; }
+        matched = (matched << 1) | bit;
+        cur = go2;
+      }
+    }
+    return {res, matched};
+  }
+
+  // min_xor: returns pair {min_xor_value, matched_value}
+  pair<int64,int64> min_xor(int64 x) const {
+    bool nonempty = false;
+    for (int d = 0; d < 2; ++d) {
+      int ch = pool[root].nxt[d];
+      if (ch && pool[ch].cnt > 0) { nonempty = true; break; }
+    }
+    if (!nonempty) return {0, 0};
+
+    int64 matched = 0;
+    int cur = root;
+    for (int i = B - 1; i >= 0; --i) {
+      int bit = (int)((x >> i) & 1LL);
+      int same = pool[cur].nxt[bit];
+      if (same && pool[same].cnt > 0) {
+        matched = (matched << 1) | bit;
+        cur = same;
+      } else {
+        int other = pool[cur].nxt[!bit];
+        if (!other) { matched <<= i; break; }
+        matched = (matched << 1) | (!bit);
+        cur = other;
+      }
+    }
+    return { (x ^ matched), matched };
+  }
+
+  // shorthand: just the xor numeric value
+  int64 get_max_xor(int64 x) const { return max_xor(x).first; }
+  int64 get_min_xor(int64 x) const { return min_xor(x).first; }
+
+  // count y inserted such that (a xor y) < b
+  int64 count_xor_less_than(int64 a, int64 b) const {
+    int cur = root;
+    int64 res = 0;
+    for (int i = B - 1; i >= 0; --i) {
+      if (!cur) break;
+      int a_bit = (int)((a >> i) & 1LL);
+      int b_bit = (int)((b >> i) & 1LL);
+      if (b_bit) {
+        int ch = pool[cur].nxt[a_bit];
+        if (ch) res += pool[ch].cnt;
+        cur = pool[cur].nxt[a_bit ^ 1];
+      } else {
+        cur = pool[cur].nxt[a_bit];
+      }
+    }
+    return res;
+  }
+
+  // count y inserted such that (a xor y) > b
+  int64 count_xor_greater_than(int64 a, int64 b) const {
+    int cur = root;
+    int64 res = 0;
+    for (int i = B - 1; i >= 0; --i) {
+      if (!cur) break;
+      int a_bit = (int)((a >> i) & 1LL);
+      int b_bit = (int)((b >> i) & 1LL);
+      if (b_bit == 0) {
+        int ch = pool[cur].nxt[a_bit ^ 1];
+        if (ch) res += pool[ch].cnt;
+      }
+      cur = pool[cur].nxt[b_bit ^ a_bit];
+    }
+    return res;
+  }
+
+  // find_mex_relative(x): follows template semantics
+  int64 find_mex_relative(int64 x) const {
+    int64 mex = 0;
+    int cur = root;
+    for (int i = B - 1; i >= 0; --i) {
+      if (!cur) break;
+      int bit = (int)((x >> i) & 1LL);
+      int child = pool[cur].nxt[bit];
+      int64 c = child ? pool[child].cnt : 0;
+      if (c < (1LL << i)) {
+        cur = child;
+      } else {
+        mex |= (1LL << i);
+        cur = pool[cur].nxt[!bit];
+      }
+    }
+    return mex;
+  }
+
+  // dfs_insert: lower-level builder when creating counts bottom-up along a path
+  void dfs_insert(int curr, int64 num, int bit) {
+    if (bit == -1) {
+      pool[curr].cnt = 1;
+      return;
+    }
+    int b = (int)((num >> bit) & 1LL);
+    if (pool[curr].nxt[b] == 0) pool[curr].nxt[b] = new_node();
+    int nxt = pool[curr].nxt[b];
+    dfs_insert(nxt, num, bit - 1);
+    pool[curr].cnt = pool[nxt].cnt + (pool[curr].nxt[!b] ? pool[ pool[curr].nxt[!b] ].cnt : 0);
+  }
+
+  // merge another trie into this; other.root becomes 0 (empty) afterwards
+  void merge(XorTrie &other) {
+    root = merge_root(root, other.root);
+    other.root = 0;
+  }
+
+  // recursive merge helper
+  int merge_root(int u, int v) {
+    if (u == 0) return v;
+    if (v == 0) return u;
+    pool[u].cnt += pool[v].cnt;
+    for (int bit = 0; bit < 2; ++bit) {
+      int cu = pool[u].nxt[bit];
+      int cv = pool[v].nxt[bit];
+      if (!cu) {
+        pool[u].nxt[bit] = cv;
+      } else if (cv) {
+        pool[u].nxt[bit] = merge_root(cu, cv);
+      }
+    }
+    return u;
+  }
+
+  // clear static pool entirely (resets everything)
+  void clear_all() {
+    pool.clear();
+    pool.emplace_back(); // dummy
+    root = new_node();
+  }
+
+  // reset this trie but keep pool (creates a fresh root)
+  void clear_root() { root = new_node(); }
+
+  // total count of values stored in this trie
+  int64 total_count() const {
+    if (!root) return 0;
+    int64 tot = 0;
+    for (int d = 0; d < 2; ++d) {
+      int ch = pool[root].nxt[d];
+      if (ch) tot += pool[ch].cnt;
+    }
+    return tot;
+  }
+
+  // pool diagnostics
+  size_t nodes() const { return pool.size(); }
+
+  // for debug: dump counts along a path (not used in contest)
+  void debug_dump_path(int64 x) const {
+    int cur = root;
+    cerr << "path for " << x << ": ";
+    for (int i = B - 1; i >= 0; --i) {
+      if (!cur) { cerr << "[null]\n"; return; }
+      int b = (int)((x >> i) & 1LL);
+      cur = pool[cur].nxt[b];
+      cerr << (cur ? to_string(pool[cur].cnt) : string("0")) << " ";
+    }
+    cerr << "\n";
+  }
+};
+
+// static pool definition: pool[0] reserved as a null/dummy node
+vector<XorTrie::Node> XorTrie::pool = vector<XorTrie::Node>(1);
+
+// ----------------------
+// Example usage:
+//
+// XorTrie::reserve_nodes(1<<20); // optional
+// XorTrie t(31); // 31-bit trie
+// t.insert(5);
+// t.insert(10);
+// auto p = t.max_xor(7); // p.first = xor value, p.second = matched value
+// cout << "max xor: " << p.first << " matched value: " << p.second << "\n";
+// ----------------------
