@@ -1,0 +1,20 @@
+template <class T, T unit = T()>
+struct SegTree {
+  T f(T a, T b) { return max(a, b); }
+  vector<T> s;
+  int n;
+  SegTree(int _n = 0, T def = unit) : s(_n << 1, def), n(_n) {}
+  void update(int pos, T val) {
+    for (s[pos += n] = val; pos >>= 1;) {
+      s[pos >> 1] = f(s[pos], s[pos ^ 1]);
+    }
+  }
+  T query(int b, int e) {
+    T ra = unit, rb = unit;
+    for (b += n, e += n; b < e; b >>= 1, e >>= 1) {
+      if (b & 1) ra = f(ra, s[b++]);
+      if (e & 1) rb = f(s[--e], rb);
+    }
+    return f(ra, rb);
+  }
+};
