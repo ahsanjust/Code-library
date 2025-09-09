@@ -1,30 +1,36 @@
 struct Bitset {
   /// Author: Neal Wu (neal)
   vector<uint64_t> bits;
-  int64_t b, n;
- 
+  int64_t b, n; // b = number of bits, n = number of 64-bit blocks
+
   Bitset(int64_t _b = 0) {
     init(_b);
   }
+
   void init(int64_t _b) {
     b = _b;
     n = (b + 63) / 64;
     bits.assign(n, 0);
   }
+
   void clear() {
     b = n = 0;
     bits.clear();
   }
+
   void reset() {
     bits.assign(n, 0);
   }
+
+  // Ensures unused bits are cleared (mask trailing unused bits)
+  // O(1)
   void _clean() {
     // Reset all bits after `b`.
     if (b != 64 * n) {
-        bits.back() &= (1LLU << (b - 64 * (n - 1))) - 1;
+        bits.back() &= (1ULL << (b - 64 * (n - 1))) - 1ULL;
     }
   }
- 
+
   int count() const {
     int cnt = 0;
     for (int i = 0; i < n; i++) {
@@ -32,36 +38,84 @@ struct Bitset {
     }
     return cnt;
   }
- 
+
   bool get(int64_t index) const {
-    return bits[index / 64] >> (index % 64) & 1;
+    return (bits[index / 64] >> (index % 64)) & 1ULL;
   }
- 
+
   void set(int64_t index, bool value) {
     assert(0 <= index && index < b);
-    bits[index / 64] &= ~(1LLU << (index % 64));
+    bits[index / 64] &= ~(1ULL << (index % 64));
     bits[index / 64] |= uint64_t(value) << (index % 64);
   }
- 
+
+  void set_all() {
+    for (int64_t i = 0; i < n; ++i) bits[i] = ~0ULL;
+    _clean();
+  }
+
+  void flip(int64_t index) {
+    assert(0 <= index && index < b);
+    bits[index / 64] ^= (1ULL << (index % 64));
+  }
+
+  void flip_all() {
+    for (int64_t i = 0; i < n; ++i) bits[i] = ~bits[i];
+    _clean();
+  }
+
+  bool any() const {
+    for (int i = 0; i < n; ++i) if (bits[i]) return true;
+    return false;
+  }
+
+  bool none() const {
+    return !any();
+  }
+
+  // Count set bits in range [l, r]
+  // O((r-l)/64)
+  int count_range(int64_t l, int64_t r) const {
+    assert(0 <= l && l <= r && r < b);
+    int64_t li = l / 64, ri = r / 64;
+    int64_t lo = l % 64, ro = r % 64;
+    if (li == ri) {
+      uint64_t left_mask = (~0ULL) << lo;
+      uint64_t right_mask = (ro == 63 ? ~0ULL : ((1ULL << (ro + 1)) - 1ULL));
+      uint64_t mask = left_mask & right_mask;
+      return __builtin_popcountll(bits[li] & mask);
+    }
+    int cnt = 0;
+    uint64_t left_mask = (~0ULL) << lo;
+    cnt += __builtin_popcountll(bits[li] & left_mask);
+    for (int64_t i = li + 1; i < ri; ++i) cnt += __builtin_popcountll(bits[i]);
+    uint64_t last_mask = (ro == 63 ? ~0ULL : ((1ULL << (ro + 1)) - 1ULL));
+    cnt += __builtin_popcountll(bits[ri] & last_mask);
+    return cnt;
+  }
+
+  // Checks if any bit is set in range [l, r]
+  // O((r-l)/64)
   bool check_range(int64_t l, int64_t r) {
     assert(0 <= l && l <= r && r < b);
     int64_t li = l / 64, ri = r / 64;
     int64_t lo = l % 64, ro = r % 64;
     if (li == ri) {
-      uint64_t left_mask = (~0LLU) << lo;
-      uint64_t right_mask = (ro == 63 ? ~0LLU : ((1LLU << (ro + 1)) - 1));
+      uint64_t left_mask = (~0ULL) << lo;
+      uint64_t right_mask = (ro == 63 ? ~0ULL : ((1ULL << (ro + 1)) - 1ULL));
       uint64_t mask = left_mask & right_mask;
       return (bits[li] & mask) != 0;
     }
-    if ((bits[li] & ((~0LLU) << lo)) != 0) return true;
+    if ((bits[li] & ((~0ULL) << lo)) != 0) return true;
     for (int64_t i = li + 1; i < ri; ++i) {
       if (bits[i]) return true;
     }
-    uint64_t last_mask = (ro == 63 ? ~0LLU : ((1LLU << (ro + 1)) - 1));
+    uint64_t last_mask = (ro == 63 ? ~0ULL : ((1ULL << (ro + 1)) - 1ULL));
     return (bits[ri] & last_mask) != 0;
   }
- 
-  // Simulates `bs |= bs << shift;`
+
+  // Performs bs |= bs << shift (in-place OR with left-shifted version)
+  // O(n)
   void or_shift(int64_t shift) {
     int64_t div = shift / 64, mod = shift % 64;
     if (mod == 0) {
@@ -78,8 +132,9 @@ struct Bitset {
     }
     _clean();
   }
- 
-  // Simulates `bs |= bs >> shift;`
+
+  // Performs bs |= bs >> shift (in-place OR with right-shifted version)
+  // O(n)
   void or_shift_down(int64_t shift) {
     int64_t div = shift / 64, mod = shift % 64;
     if (mod == 0) {
@@ -97,6 +152,169 @@ struct Bitset {
     _clean();
   }
 
+  // Logical left shift (assign): bs <<= shift
+  // O(n)
+  void shift_left(int64_t shift) {
+    if (shift <= 0) return;
+    if (shift >= b) { reset(); return; }
+    int64_t div = shift / 64, mod = shift % 64;
+    vector<uint64_t> nb(n, 0);
+    if (mod == 0) {
+      for (int64_t i = n - 1; i >= div; --i) nb[i] = bits[i - div];
+    } else {
+      for (int64_t i = n - 1; i >= div + 1; --i) {
+        nb[i] = (bits[i - div] << mod) | (bits[i - div - 1] >> (64 - mod));
+      }
+      if (div < n) nb[div] = bits[0] << mod;
+    }
+    bits.swap(nb);
+    _clean();
+  }
+
+  // Logical right shift (assign): bs >>= shift
+  // O(n)
+  void shift_right(int64_t shift) {
+    if (shift <= 0) return;
+    if (shift >= b) { reset(); return; }
+    int64_t div = shift / 64, mod = shift % 64;
+    vector<uint64_t> nb(n, 0);
+    if (mod == 0) {
+      for (int64_t i = 0; i + div < n; ++i) nb[i] = bits[i + div];
+    } else {
+      for (int64_t i = 0; i + div + 1 < n; ++i) {
+        nb[i] = (bits[i + div] >> mod) | (bits[i + div + 1] << (64 - mod));
+      }
+      if (div < n) nb[n - div - 1] = bits[n - 1] >> mod;
+    }
+    bits.swap(nb);
+    _clean();
+  }
+
+  // Find first set bit >= pos, or -1 if none
+  // O(n) worst-case (usually much faster)
+  int64_t find_next(int64_t pos) const {
+    if (pos >= b) return -1;
+    int64_t i = pos / 64;
+    int64_t off = pos % 64;
+    uint64_t w = bits[i] & ((~0ULL) << off);
+    if (w) return 64 * i + __builtin_ctzll(w);
+    for (++i; i < n; ++i) if (bits[i]) return 64 * i + __builtin_ctzll(bits[i]);
+    return -1;
+  }
+
+  // Find last set bit <= pos, or -1 if none
+  // O(n) worst-case (usually much faster)
+  int64_t find_prev(int64_t pos) const {
+    if (pos < 0) return -1;
+    if (pos >= b) pos = b - 1;
+    int64_t i = pos / 64;
+    int64_t off = pos % 64;
+    uint64_t mask = (off == 63 ? ~0ULL : ((1ULL << (off + 1)) - 1ULL));
+    uint64_t w = bits[i] & mask;
+    if (w) return 64 * i + (63 - __builtin_clzll(w));
+    for (--i; i >= 0; --i) {
+      if (bits[i]) return 64 * i + (63 - __builtin_clzll(bits[i]));
+    }
+    return -1;
+  }
+
+  // Find index of k-th set bit (0-based). Returns -1 if k out of range.
+  // O(n) worst-case
+  int64_t find_kth(int64_t k) const {
+    if (k < 0) return -1;
+    int64_t cnt = 0;
+    for (int64_t i = 0; i < n; ++i) {
+      int c = __builtin_popcountll(bits[i]);
+      if (cnt + c > k) {
+        uint64_t w = bits[i];
+        int64_t need = k - cnt;
+        while (need--) w &= (w - 1);
+        return 64 * i + __builtin_ctzll(w);
+      }
+      cnt += c;
+    }
+    return -1;
+  }
+
+  // Return indices of set bits (in increasing order)
+  // O(n + S) where S = number of set bits
+  vector<int64_t> to_vector() const {
+    vector<int64_t> res;
+    res.reserve(count());
+    for (int64_t i = 0; i < n; ++i) {
+      uint64_t w = bits[i];
+      while (w) {
+        int t = __builtin_ctzll(w);
+        res.push_back(64 * i + t);
+        w &= (w - 1);
+      }
+    }
+    while (!res.empty() && res.back() >= b) res.pop_back();
+    return res;
+  }
+
+  // resize while preserving as many bits as possible (truncate or extend with zeros)
+  // O(new_n)
+  void resize(int64_t new_b) {
+    if (new_b == b) return;
+    int64_t new_n = (new_b + 63) / 64;
+    if (new_n == n) {
+      b = new_b;
+      _clean();
+      return;
+    }
+    bits.resize(new_n);
+    if (new_n > n) {
+      for (int64_t i = n; i < new_n; ++i) bits[i] = 0;
+    }
+    b = new_b;
+    n = new_n;
+    _clean();
+  }
+
+  // Bitwise operators that return new Bitset
+  // O(n)
+  Bitset operator|(const Bitset &other) const {
+    Bitset res(b);
+    for (int i = 0; i < n; ++i) res.bits[i] = bits[i] | other.bits[i];
+    return res;
+  }
+  Bitset operator&(const Bitset &other) const {
+    Bitset res(b);
+    for (int i = 0; i < n; ++i) res.bits[i] = bits[i] & other.bits[i];
+    return res;
+  }
+  Bitset operator^(const Bitset &other) const {
+    Bitset res(b);
+    for (int i = 0; i < n; ++i) res.bits[i] = bits[i] ^ other.bits[i];
+    res._clean();
+    return res;
+  }
+  Bitset operator~() const {
+    Bitset res(b);
+    for (int i = 0; i < n; ++i) res.bits[i] = ~bits[i];
+    res._clean();
+    return res;
+  }
+
+  // Simple string serializer: index 0 -> first char (LSB). Useful for debugging.
+  // O(b)
+  string to_string_bits() const {
+    string s;
+    s.reserve(b);
+    for (int64_t i = 0; i < b; ++i) s.push_back(get(i) ? '1' : '0');
+    return s;
+  }
+
+  // Build from string of '0'/'1' where index 0 is LSB (same convention as to_string_bits)
+  // O(b)
+  void from_string_bits(const string &s) {
+    init((int64_t)s.size());
+    for (int64_t i = 0; i < b; ++i) if (s[i] == '1') set(i, true);
+  }
+
+  // Find first set bit (low to high) or -1 if none
+  // O(n)
   int64_t find_first() const {
     for (int i = 0; i < n; i++) {
       if (bits[i] != 0) {
@@ -105,7 +323,9 @@ struct Bitset {
     }
     return -1;
   }
-  
+
+  // Bitwise AND assignment with another Bitset
+  // O(n)
   Bitset& operator&=(const Bitset &other) {
     assert(b == other.b);
     for (int i = 0; i < n; i++) {
