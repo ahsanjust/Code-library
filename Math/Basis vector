@@ -1,19 +1,27 @@
 template<typename T = int, int LG = 31>
 struct Basis {
   T basis[LG]; int sz;
+  vector<int> who;
   Basis() {
     fill(basis, basis + LG, 0), sz = 0;
+    who.clear();
   }
-  void insert(T mask) {
+  void reset() {
+    fill(basis, basis + LG, 0), sz = 0;
+    who.clear();
+  }
+  bool insert(T mask, int idx = -1) {
     for (int i = LG - 1; i >= 0; --i) {
       if (mask >> i & 1) {
         if (basis[i]) mask ^= basis[i];
         else {
           basis[i] = mask, ++sz;
-          break;
+          who.push_back(idx);
+          return true;
         }
       }
     }
+    return false;
   }
   T maxXor() {
     T ans = 0;
@@ -32,6 +40,7 @@ struct Basis {
     return true;
   }
   T kth(T k) {
+    if (k < 1 || k > ((T)1 << sz)) return -1;
     T mask = 0;
     int64_t tot = 1LL << sz;
     for (int i = LG - 1; i >= 0; --i) {
@@ -48,19 +57,18 @@ struct Basis {
     return mask;
   }
   // number of subsets having xor < x
-  T count_lt(T x) {
+  T count_less(T x) {
     if (x < 0) {
       return 0;
     }
-    T ans = 0;
+    T ret = 0;
     T cnt = ((T)1 << sz);
     T mask = 0;
     for (int i = LG - 1; i >= 0; i--) {
-      // at this stage, all prev > i th bits in mask and x are the same
       if (basis[i]) {
         if (x >> i & 1) {
-          ans += (cnt >> 1);
-          if (!(mask >> i & 1)) {
+          ret += (cnt >> 1);
+          if (~mask >> i & 1) {
             mask ^= basis[i];
           }
         } else {
@@ -70,15 +78,22 @@ struct Basis {
         }
         cnt >>= 1;
       } else {
-        if ((x >> i & 1) != (mask >> i & 1)) {
+        if ((x ^ mask) >> i & 1) {
           if (x >> i & 1) {
-            return ans + cnt;
+            return ret + cnt;
           } else {
-            return ans; 
+            return ret; 
           }
         }
       }
     }
-    return ans;
+    return ret;
+  }
+  T count_leq(T x) {
+    return count_less(x + 1);
+  }
+  T jumpK(T val, T k) {
+    T p = count_leq(val);
+    return kth(p + k);
   }
 };
