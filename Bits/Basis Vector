@@ -4,6 +4,9 @@ struct Basis {
   Basis() {
     fill(basis, basis + LG, 0), sz = 0;
   }
+  void reset() {
+    fill(basis, basis + LG, 0), sz = 0;
+  }
   void insert(T mask) {
     for (int i = LG - 1; i >= 0; --i) {
       if (mask >> i & 1) {
@@ -32,6 +35,7 @@ struct Basis {
     return true;
   }
   T kth(T k) {
+    if (k < 1 || k > ((T)1 << sz)) return -1;
     T mask = 0;
     int64_t tot = 1LL << sz;
     for (int i = LG - 1; i >= 0; --i) {
