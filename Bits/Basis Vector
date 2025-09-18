@@ -48,19 +48,18 @@ struct Basis {
     return mask;
   }
   // number of subsets having xor < x
-  T count_lt(T x) {
+  T count_less(T x) {
     if (x < 0) {
       return 0;
     }
-    T ans = 0;
+    T ret = 0;
     T cnt = ((T)1 << sz);
     T mask = 0;
     for (int i = LG - 1; i >= 0; i--) {
-      // at this stage, all prev > i th bits in mask and x are the same
       if (basis[i]) {
         if (x >> i & 1) {
-          ans += (cnt >> 1);
-          if (!(mask >> i & 1)) {
+          ret += (cnt >> 1);
+          if (~mask >> i & 1) {
             mask ^= basis[i];
           }
         } else {
@@ -70,15 +69,22 @@ struct Basis {
         }
         cnt >>= 1;
       } else {
-        if ((x >> i & 1) != (mask >> i & 1)) {
+        if ((x ^ mask) >> i & 1) {
           if (x >> i & 1) {
-            return ans + cnt;
+            return ret + cnt;
           } else {
-            return ans; 
+            return ret; 
           }
         }
       }
     }
-    return ans;
+    return ret;
+  }
+  T count_leq(T x) {
+    return count_less(x + 1);
+  }
+  T jumpK(T val, T k) {
+    T p = count_leq(val);
+    return kth(p + k);
   }
 };
