@@ -1,0 +1,445 @@
+// Modified by GPT
+
+template<typename T, typename C = long long, bool do_compress = false, bool use_sum = false>
+class wavelet_tree {
+  size_t n;
+  size_t layers;
+  T mne, mxe;
+  vector<T> keys;
+
+  vector<vector<int>> pref0;
+  vector<vector<C>> sums;
+
+  inline int seg0_count(size_t layer, int l, int r) const {
+    return pref0[layer][r + 1] - pref0[layer][l];
+  }
+
+  inline C get_sum(size_t layer, int l, int r) const {
+    return sums[layer][r + 1] - sums[layer][l];
+  }
+
+  pair<int, C> seg_count_and_sum_leq_(int ql, int qr, T x) const {
+    if (ql > qr) return {0, 0};
+    if (do_compress) {
+      auto it = upper_bound(keys.begin(), keys.end(), x);
+      if (it == keys.begin()) return {0, 0};
+      x = (T)(it - keys.begin() - 1);
+    } else {
+      if (x < mne) return {0, 0};
+      if (x > mxe) x = mxe;
+      x = x - mne;
+    }
+
+    int l = 0, r = (int)n - 1;
+    T vl = 0;
+    T vr = (T)(mxe - mne);
+    if (do_compress) vr = (T)keys.size() - 1;
+
+    int cnt = 0;
+    C sum = 0;
+    for (size_t layer = 0; ql <= qr && vl <= vr; ++layer) {
+      if (vl == vr) {
+        if (vl <= x) {
+          cnt += qr - ql + 1;
+          if constexpr (use_sum) sum += get_sum(layer, ql, qr);
+        }
+        break;
+      }
+      T vm = vl + (vr - vl) / 2;
+      int c0 = seg0_count(layer, l, r);
+      int cq0 = seg0_count(layer, ql, qr);
+      int cq1 = (qr - ql + 1) - cq0;
+
+      if (x <= vm) {
+        int zeros_before_ql = pref0[layer][ql] - pref0[layer][l];
+        ql = l + zeros_before_ql;
+        qr = ql + cq0 - 1;
+        r = l + c0 - 1;
+        vr = vm;
+      } else {
+        cnt += cq0;
+        if constexpr (use_sum) sum += get_sum(layer, ql, qr);
+        int zeros_before_ql = pref0[layer][ql] - pref0[layer][l];
+        int ones_before_ql = (ql - l) - zeros_before_ql;
+        ql = l + c0 + ones_before_ql;
+        qr = ql + cq1 - 1;
+        l = l + c0;
+        vl = vm + 1;
+      }
+    }
+    return {cnt, sum};
+  }
+
+  pair<int, C> seg_count_and_sum_seg_(int ql, int qr, T x, T y) const {
+    if (ql > qr) return {0, 0};
+    if (x > y) return {0, 0};
+
+    T bx = x, by = y;
+    if (do_compress) {
+      auto ix = lower_bound(keys.begin(), keys.end(), bx);
+      if (ix == keys.end()) return {0, 0};
+      x = (T)(ix - keys.begin());
+      auto iy = upper_bound(keys.begin(), keys.end(), by);
+      if (iy == keys.begin()) return {0, 0};
+      y = (T)(iy - keys.begin() - 1);
+      if (x > y) return {0, 0};
+    } else {
+      if (by < mne || bx > mxe) return {0, 0};
+      x = max(bx, mne) - mne;
+      y = min(by, mxe) - mne;
+      if (x > y) return {0, 0};
+    }
+
+    int cnt = 0;
+    C sum = 0;
+    function<void(int,int,int,int,int,T,T)> dfs = [&](int layer, int l, int r, int ql_, int qr_, T vl, T vr) {
+      if (ql_ > qr_ || l > r || vr < x || y < vl) return;
+      if (x <= vl && vr <= y) {
+        cnt += qr_ - ql_ + 1;
+        if constexpr (use_sum) sum += get_sum(layer, ql_, qr_);
+        return;
+      }
+      T vm = vl + (vr - vl) / 2;
+      int c0 = seg0_count(layer, l, r);
+      int cq0 = seg0_count(layer, ql_, qr_);
+      int cq1 = (qr_ - ql_ + 1) - cq0;
+
+      int lfql = l + (pref0[layer][ql_] - pref0[layer][l]);
+      int lfqr = lfql + cq0 - 1;
+      dfs(layer + 1, l, l + c0 - 1, lfql, lfqr, vl, vm);
+
+      int rgql = l + c0 + ((ql_ - l) - (pref0[layer][ql_] - pref0[layer][l]));
+      int rgqr = rgql + cq1 - 1;
+      dfs(layer + 1, l + c0, r, rgql, rgqr, vm + 1, vr);
+    };
+
+    T vl = 0;
+    T vr = (T)(mxe - mne);
+    if (do_compress) vr = (T)keys.size() - 1;
+    dfs(0, 0, (int)n - 1, ql, qr, vl, vr);
+    return {cnt, sum};
+  }
+
+  pair<T, C> seg_kth_ordered_statistics_(int ql, int qr, int k) const {
+    assert(0 <= k && ql <= qr && qr < (int)n);
+    int l = 0, r = (int)n - 1;
+    T vl = 0;
+    T vr = (T)(mxe - mne);
+    if (do_compress) vr = (T)keys.size() - 1;
+    C sum = 0;
+    for (size_t layer = 0; vl < vr; ++layer) {
+      T vm = vl + (vr - vl) / 2;
+      int c0 = seg0_count(layer, l, r);
+      int cq0 = seg0_count(layer, ql, qr);
+      int cq1 = qr - ql + 1 - cq0;
+      if (k < cq0) {
+        int zeros_before_ql = pref0[layer][ql] - pref0[layer][l];
+        ql = l + zeros_before_ql;
+        qr = ql + cq0 - 1;
+        r = l + c0 - 1;
+        vr = vm;
+      } else {
+        k -= cq0;
+        if constexpr (use_sum) sum += get_sum(layer, ql, qr);
+        int zeros_before_ql = pref0[layer][ql] - pref0[layer][l];
+        int ones_before_ql = (ql - l) - zeros_before_ql;
+        ql = l + c0 + ones_before_ql;
+        qr = ql + cq1 - 1;
+        l = l + c0;
+        vl = vm + 1;
+      }
+    }
+    T val = do_compress ? keys[vl] : (vl + mne);
+    return {val, sum};
+  }
+
+  pair<int,int> seg_count_freq_at_least_(int ql, int qr, int k) const {
+    if (ql > qr || k <= 0) return {0, 0};
+    T vl0 = 0;
+    T vr0 = (T)(mxe - mne);
+    if (do_compress) vr0 = (T)keys.size() - 1;
+    function<pair<int,int>(int,int,int,int,int,T,T)> dfs = [&](int layer, int l, int r, int ql_, int qr_, T vl, T vr) -> pair<int,int> {
+      if (ql_ > qr_ || l > r) return {0, 0};
+      int total = qr_ - ql_ + 1;
+      if (total < k) return {0, 0};
+      if (vl == vr) return {1, total};
+      T vm = vl + (vr - vl) / 2;
+      int c0 = seg0_count(layer, l, r);
+      int cq0 = seg0_count(layer, ql_, qr_);
+      int cq1 = total - cq0;
+
+      int lfql = l + (pref0[layer][ql_] - pref0[layer][l]);
+      int lfqr = lfql + cq0 - 1;
+      auto left = dfs(layer + 1, l, l + c0 - 1, lfql, lfqr, vl, vm);
+
+      int rgql = l + c0 + ((ql_ - l) - (pref0[layer][ql_] - pref0[layer][l]));
+      int rgqr = rgql + cq1 - 1;
+      auto right = dfs(layer + 1, l + c0, r, rgql, rgqr, vm + 1, vr);
+
+      return {left.first + right.first, left.second + right.second};
+    };
+
+    return dfs(0, 0, (int)n - 1, ql, qr, vl0, vr0);
+  }
+
+  // private helper that collects values with freq >= k (ascending)
+  void seg_values_with_freq_at_least_impl(int ql, int qr, int k, vector<T> &res) const {
+    if (ql > qr || k <= 0) return;
+    T vl0 = 0;
+    T vr0 = (T)(mxe - mne);
+    if (do_compress) vr0 = (T)keys.size() - 1;
+
+    function<void(int,int,int,int,int,T,T)> dfs = [&](int layer, int l, int r, int ql_, int qr_, T vl, T vr) {
+      if (ql_ > qr_ || l > r) return;
+      int total = qr_ - ql_ + 1;
+      if (total < k) return;
+      if (vl == vr) {
+        if (do_compress) res.push_back(keys[vl]);
+        else res.push_back(vl + mne);
+        return;
+      }
+      T vm = vl + (vr - vl) / 2;
+      int c0 = seg0_count(layer, l, r);
+      int cq0 = seg0_count(layer, ql_, qr_);
+      int cq1 = total - cq0;
+
+      int lfql = l + (pref0[layer][ql_] - pref0[layer][l]);
+      int lfqr = lfql + cq0 - 1;
+      dfs(layer + 1, l, l + c0 - 1, lfql, lfqr, vl, vm);
+
+      int rgql = l + c0 + ((ql_ - l) - (pref0[layer][ql_] - pref0[layer][l]));
+      int rgqr = rgql + cq1 - 1;
+      dfs(layer + 1, l + c0, r, rgql, rgqr, vm + 1, vr);
+    };
+
+    dfs(0, 0, (int)n - 1, ql, qr, vl0, vr0);
+  }
+
+public:
+  wavelet_tree() = default;
+
+  // public wrapper that returns values (ascending) with freq >= k in [l,r]
+  vector<T> seg_values_with_freq_at_least(int l, int r, int k) const {
+    vector<T> res;
+    seg_values_with_freq_at_least_impl(l, r, k, res);
+    return res;
+  }
+
+  // occurrences of value v in [l,r]
+  int occ(int l, int r, T v) const {
+    return seg_count_seg(l, r, v, v);
+  }
+
+  // rank: occurrences of v in prefix [0, pos]
+  int rank(int pos, T v) const {
+    if (pos < 0) return 0;
+    pos = min(pos, (int)n - 1);
+    return occ(0, pos, v);
+  }
+
+  // select: index of j-th occurrence of v in whole array (1-based j). returns -1 if not found.
+  int select(T v, int j) const {
+    if (j <= 0) return -1;
+    int total = occ(0, (int)n - 1, v);
+    if (j > total) return -1;
+    int lo = 0, hi = (int)n - 1;
+    while (lo < hi) {
+      int mid = (lo + hi) >> 1;
+      if (occ(0, mid, v) >= j) hi = mid;
+      else lo = mid + 1;
+    }
+    return lo;
+  }
+
+  // access: value at position pos
+  T access(int pos) const {
+    assert(0 <= pos && pos < (int)n);
+    int l = 0, r = (int)n - 1;
+    T vl = 0;
+    T vr = (T)(mxe - mne);
+    if (do_compress) vr = (T)keys.size() - 1;
+
+    for (size_t layer = 0; vl < vr; ++layer) {
+      T vm = vl + (vr - vl) / 2;
+      int is_zero = (pref0[layer][pos + 1] - pref0[layer][pos]) == 1;
+      int c0 = seg0_count(layer, l, r);
+      if (is_zero) {
+        int zeros_before_pos = pref0[layer][pos] - pref0[layer][l];
+        pos = l + zeros_before_pos;
+        r = l + c0 - 1;
+        vr = vm;
+      } else {
+        int zeros_before_pos = pref0[layer][pos] - pref0[layer][l];
+        int ones_before_pos = (pos - l) - zeros_before_pos;
+        pos = l + c0 + ones_before_pos;
+        l = l + c0;
+        vl = vm + 1;
+      }
+    }
+    return do_compress ? keys[vl] : (vl + mne);
+  }
+
+  // kth largest (1-based k). returns kth largest value in [l,r]
+  T kth_largest(int l, int r, int k) const {
+    int len = r - l + 1;
+    assert(1 <= k && k <= len);
+    int kth_small_idx = len - k; // 0-based index for kth smallest
+    return seg_kth_ordered_statistics(l, r, kth_small_idx);
+  }
+
+  // median: return lower median (for even lengths returns lower one)
+  T median(int l, int r) const {
+    int len = r - l + 1;
+    int k = (len - 1) / 2; // 0-based index of lower median
+    return seg_kth_ordered_statistics(l, r, k);
+  }
+
+  // find smallest value >= x present in [l,r]. returns nullopt if none.
+  optional<T> lower_bound_in_range(int l, int r, T x) const {
+    if (l > r) return nullopt;
+    long long cnt_leq_before = 0;
+    if (x == numeric_limits<T>::min()) {
+      cnt_leq_before = 0;
+    } else {
+      cnt_leq_before = seg_count_leq(l, r, (T)(x - 1));
+    }
+    int total = r - l + 1;
+    if (cnt_leq_before == total) return nullopt;
+    T res = seg_kth_ordered_statistics(l, r, (int)cnt_leq_before);
+    return res;
+  }
+
+  // list distinct values in [l,r] (ascending)
+  vector<T> distinct_values(int l, int r) const {
+    return seg_values_with_freq_at_least(l, r, 1);
+  }
+
+  // --- NEW: sum of top-k largest values (by value T) in [l,r]
+  C sum_top_k(int l, int r, int k) const {
+    if (l > r || k <= 0) return 0;
+    int total = r - l + 1;
+    if (k >= total) {
+      // sum all values in [l,r] by iterating distinct values (cheap if many duplicates),
+      // reuse the same loop below but with k = total.
+      // Fall through: set k = total and proceed.
+    }
+    k = min(k, total);
+    C sum = 0;
+    int consumed = 0; // number of largest elements already taken
+    while (k > 0 && consumed < total) {
+      int idx = total - 1 - consumed; // 0-based index for kth smallest to pick current largest
+      T v = seg_kth_ordered_statistics(l, r, idx);
+      int c = occ(l, r, v);
+      int take = min(k, c);
+      sum += (C)take * (C)v;
+      k -= take;
+      consumed += c;
+    }
+    return sum;
+  }
+
+  // public existing API wrappers
+  int seg_count_leq(int l, int r, T x) const { return seg_count_and_sum_leq_(l, r, x).first; }
+  int seg_count_gt(int l, int r, T x) const { return (r - l + 1) - seg_count_and_sum_leq_(l, r, x).first; }
+  C seg_sum_leq(int l, int r, T x) const { return seg_count_and_sum_leq_(l, r, x).second; }
+  pair<int, C> seg_count_and_sum_leq(int l, int r, T x) const { return seg_count_and_sum_leq_(l, r, x); }
+
+  int seg_count_seg(int l, int r, T x, T y) const { return seg_count_and_sum_seg_(l, r, x, y).first; }
+  C seg_sum_seg(int l, int r, T x, T y) const { return seg_count_and_sum_seg_(l, r, x, y).second; }
+  pair<int, C> seg_count_and_sum_seg(int l, int r, T x, T y) const { return seg_count_and_sum_seg_(l, r, x, y); }
+
+  T seg_kth_ordered_statistics(int l, int r, int k) const { return seg_kth_ordered_statistics_(l, r, k).first; }
+  C seg_kth_ordered_statistics_sum(int l, int r, int k) const { return seg_kth_ordered_statistics_(l, r, k).second; }
+  pair<T, C> seg_kth_ordered_statistics_and_sum(int l, int r, int k) const { return seg_kth_ordered_statistics_(l, r, k); }
+
+  int seg_count_values_with_freq_at_least(int l, int r, int k) const {
+    return seg_count_freq_at_least_(l, r, k).first;
+  }
+  int seg_count_elements_with_freq_at_least(int l, int r, int k) const {
+    return seg_count_freq_at_least_(l, r, k).second;
+  }
+
+  // constructor / builder
+  template<typename I>
+  wavelet_tree(I first, I last, const vector<C>& sum_data = {}) {
+    n = distance(first, last);
+    if constexpr (use_sum) {
+      assert((size_t)sum_data.size() == n);
+    }
+    if (n == 0) {
+      layers = 0;
+      return;
+    }
+
+    vector<T> a;
+    a.reserve(n);
+    for (auto it = first; it != last; ++it) a.push_back(*it);
+
+    vector<int> idx(n);
+    iota(idx.begin(), idx.end(), 0);
+    if (do_compress) {
+      vector<pair<T,int>> tmp;
+      tmp.reserve(n);
+      for (int i = 0; i < (int)n; ++i) tmp.emplace_back(a[i], i);
+      sort(tmp.begin(), tmp.end(), [](const auto &l, const auto &r){ return l.first < r.first; });
+      keys.clear();
+      keys.reserve(n);
+      for (auto &p : tmp) {
+        if (keys.empty() || keys.back() != p.first) keys.push_back(p.first);
+      }
+      for (int i = 0; i < (int)n; ++i) {
+        auto it = lower_bound(keys.begin(), keys.end(), a[i]);
+        a[i] = (T)(it - keys.begin());
+      }
+      iota(idx.begin(), idx.end(), 0);
+    }
+
+    auto [mn_it, mx_it] = minmax_element(a.begin(), a.end());
+    mne = *mn_it;
+    mxe = *mx_it;
+
+    size_t D = (size_t)mxe - (size_t)mne + 1;
+    layers = 0;
+    while ((1ull << layers) < D) ++layers;
+    if (layers == 0) layers = 1;
+
+    vector<vector<char>> bits(layers, vector<char>(n, 0));
+    vector<vector<C>> raw_sums;
+    if constexpr (use_sum) raw_sums.assign(layers, vector<C>(n, 0));
+
+    pref0.assign(layers, vector<int>(n + 1, 0));
+    if constexpr (use_sum) sums.assign(layers, vector<C>(n + 1, 0));
+
+    function<void(int,int,int,T,T)> build = [&](int layer, int lpos, int rpos, T vl, T vr) {
+      if (lpos > rpos) return;
+      if (vl == vr) {
+        if constexpr (use_sum) {
+          for (int i = lpos; i <= rpos; ++i) raw_sums[layer][i] = sum_data[idx[i]];
+        }
+        return;
+      }
+      T vm = vl + (vr - vl) / 2;
+      for (int i = lpos; i <= rpos; ++i) {
+        if (a[idx[i]] > vm) bits[layer][i] = 1;
+        else {
+          bits[layer][i] = 0;
+          if constexpr (use_sum) raw_sums[layer][i] = sum_data[idx[i]];
+        }
+      }
+      int mid = stable_partition(idx.begin() + lpos, idx.begin() + rpos + 1,
+          [&](int id){ return a[id] <= vm; }) - idx.begin();
+      build(layer + 1, lpos, mid - 1, vl, vm);
+      build(layer + 1, mid, rpos, vm + 1, vr);
+    };
+
+    iota(idx.begin(), idx.end(), 0);
+    build(0, 0, (int)n - 1, mne, mxe);
+
+    for (size_t layer = 0; layer < layers; ++layer) {
+      for (size_t i = 0; i < n; ++i) {
+        pref0[layer][i + 1] = pref0[layer][i] + (bits[layer][i] == 0);
+        if constexpr (use_sum) sums[layer][i + 1] = sums[layer][i] + raw_sums[layer][i];
+      }
+    }
+  }
+};
