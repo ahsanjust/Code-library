@@ -1,0 +1,22 @@
+struct P {
+  int64_t x, y;
+  void read() { cin >> x >> y; }
+  P operator - (const P &b) const { return P{x - b.x, y - b.y}; }
+  P operator + (const P &b) const { return P{x + b.x, y + b.y}; }
+  void operator -= (const P &b) { x -= b.x; y -= b.y; }
+  void operator += (const P &b) { x += b.x; y += b.y; }
+  bool operator < (const P &b) const { return x == b.x ? y < b.y : x < b.x; }
+  bool operator == (const P &b) const { return x == b.x && y == b.y; }
+  int64_t operator * (const P &b) const { // cross product (this x b)
+    return x * b.y - y * b.x;
+  }
+};
+
+bool collinear(P &a, P &b, P &c) {
+  return (b - a) * (c - a) == 0;
+}
+
+inline bool on_segment(P &p, P &q, P &r) {
+  if (!collinear(p, q, r)) return false;
+  return r.x <= max(p.x, q.x) && r.x >= min(p.x, q.x) && r.y <= max(p.y, q.y) && r.y >= min(p.y, q.y);
+}
