@@ -1,5 +1,3 @@
-// Modified by GPT
-
 template<typename T, typename C = long long, bool do_compress = false, bool use_sum = false>
 class wavelet_tree {
   size_t n;
@@ -218,7 +216,7 @@ class wavelet_tree {
 public:
   wavelet_tree() = default;
 
-  // public wrapper that returns values (ascending) with freq >= k in [l,r]
+  // returns values (ascending) with freq >= k in [l,r]
   vector<T> seg_values_with_freq_at_least(int l, int r, int k) const {
     vector<T> res;
     seg_values_with_freq_at_least_impl(l, r, k, res);
@@ -287,7 +285,7 @@ public:
     return seg_kth_ordered_statistics(l, r, kth_small_idx);
   }
 
-  // median: return lower median (for even lengths returns lower one)
+  // return lower median (for even lengths returns lower one)
   T median(int l, int r) const {
     int len = r - l + 1;
     int k = (len - 1) / 2; // 0-based index of lower median
@@ -309,25 +307,21 @@ public:
     return res;
   }
 
-  // list distinct values in [l,r] (ascending)
   vector<T> distinct_values(int l, int r) const {
     return seg_values_with_freq_at_least(l, r, 1);
   }
 
-  // --- NEW: sum of top-k largest values (by value T) in [l,r]
   C sum_top_k(int l, int r, int k) const {
     if (l > r || k <= 0) return 0;
     int total = r - l + 1;
     if (k >= total) {
-      // sum all values in [l,r] by iterating distinct values (cheap if many duplicates),
-      // reuse the same loop below but with k = total.
-      // Fall through: set k = total and proceed.
+      // --- IGNORE ---
     }
     k = min(k, total);
     C sum = 0;
-    int consumed = 0; // number of largest elements already taken
+    int consumed = 0;
     while (k > 0 && consumed < total) {
-      int idx = total - 1 - consumed; // 0-based index for kth smallest to pick current largest
+      int idx = total - 1 - consumed;
       T v = seg_kth_ordered_statistics(l, r, idx);
       int c = occ(l, r, v);
       int take = min(k, c);
@@ -338,7 +332,6 @@ public:
     return sum;
   }
 
-  // public existing API wrappers
   int seg_count_leq(int l, int r, T x) const { return seg_count_and_sum_leq_(l, r, x).first; }
   int seg_count_gt(int l, int r, T x) const { return (r - l + 1) - seg_count_and_sum_leq_(l, r, x).first; }
   C seg_sum_leq(int l, int r, T x) const { return seg_count_and_sum_leq_(l, r, x).second; }
@@ -359,7 +352,6 @@ public:
     return seg_count_freq_at_least_(l, r, k).second;
   }
 
-  // constructor / builder
   template<typename I>
   wavelet_tree(I first, I last, const vector<C>& sum_data = {}) {
     n = distance(first, last);
