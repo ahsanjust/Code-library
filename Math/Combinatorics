@@ -1,0 +1,97 @@
+template <typename T>
+struct Comb {
+  vector<T> fact, ifact, D;
+
+  Comb() {}
+  Comb(int n) { init(n); }
+
+  void init(int n) {
+    fact.assign(n + 1, 0);
+    ifact.assign(n + 1, 0);
+    fact[0] = 1;
+    for (int i = 1; i <= n; ++i) fact[i] = fact[i - 1] * i;
+    ifact[n] = fact[n].inv();
+    for (int i = n; i > 0; --i) ifact[i - 1] = ifact[i] * i;
+
+    D.assign(n + 1, 0);
+    if (n > 0) D[1] = 0;
+    if (n > 1) D[2] = 1;
+    for (int i = 3; i <= n; i++) {
+      D[i] = (i - 1) * (D[i - 1] + D[i - 2]);
+    }
+  }
+
+  T C(int n, int k) const {
+    if (k < 0 || k > n) return 0;
+    return fact[n] * ifact[k] * ifact[n - k];
+  }
+
+  T P(int n, int k) const {
+    if (k < 0 || k > n) return 0;
+    return fact[n] * ifact[n - k];
+  }
+
+  // stars and bars: combinations with repetition
+  T H(int n, int k) const {
+    if (n == 0 && k == 0) return 1;
+    if (n <= 0 || k < 0) return 0;
+    return C(n + k - 1, k);
+  }
+
+  T catalan(int n) const {
+    if (n == 0) return 1;
+    return C(2 * n, n) - C(2 * n, n - 1);
+  }
+
+  T derangement(int n) const {
+    assert((int)D.size() > n);
+    return D[n];
+  }
+
+  static uint64_t nCr_no_mod(uint64_t n, uint64_t r) {
+    if (r > n) return 0;
+    r = min(r, n - r);
+    __int128 res = 1;
+    for (uint64_t i = 1; i <= r; ++i) {
+      uint64_t d = gcd(res, (__int128)i);
+      res /= d;
+      res *= (n - i + 1) / (i / d);
+    }
+    return (uint64_t)res;
+  }
+
+  T lucas(int64_t n, int64_t r) const {
+    if (r > n) return 0;
+    if (r == 0) return 1;
+    const int m = T::mod;
+    int ni = int(n % m);
+    int ri = int(r % m);
+    if (ri > ni) return 0;
+    return lucas(n / m, r / m) * C(ni, ri);
+  }
+
+  T fact_range(int l, int r) const {
+    if (l > r) return 1;
+    assert(r < (int)fact.size());
+    if (l == 0) return fact[r];
+    return fact[r] * ifact[l - 1];
+  }
+
+  T stirling2(int n, int k) const {
+    if (k < 0 || k > n) return 0;
+    vector<vector<T>> S(n + 1, vector<T>(k + 1, 0));
+    S[0][0] = 1;
+    for (int i = 1; i <= n; ++i) {
+      for (int j = 1; j <= k; ++j) {
+        S[i][j] = S[i - 1][j - 1] + T(j) * S[i - 1][j];
+      }
+    }
+    return S[n][k];
+  }
+
+  T bell(int n) const {
+    T res = 0;
+    for (int k = 0; k <= n; ++k) res += stirling2(n, k);
+    return res;
+  }
+};
