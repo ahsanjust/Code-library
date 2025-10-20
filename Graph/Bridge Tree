@@ -44,3 +44,56 @@ vector<int> Brige_tree(int n, vector<vector<int>> &g) {
   }
   return which_comp;
 }
+
+
+another way:
+// return component id for each node in the bridge tree
+vector<int> Brige_tree(int n, vector<pair<int, int>> &edges) {
+  int m = edges.size();
+  vector<vector<pair<int, int>>> g(n);
+  for (int i = 0; i < m; i++) {
+    int u = edges[i].first;
+    int v = edges[i].second;
+    g[u].push_back({v, i});
+    g[v].push_back({u, i});
+  }
+  vector<int> tin(n, -1), low(n, -1);
+  vector<bool> is_bridge(m, false), vis(n, false);
+  int timer = 0;
+  function<void(int, int)> dfs = [&](int u, int p) {
+    vis[u] = true;
+    tin[u] = low[u] = timer++;
+    for (auto &[v, idx] : g[u]) {
+      if (v == p) continue;
+      if (vis[v]) {
+        low[u] = min(low[u], tin[v]);
+      } else {
+        dfs(v, u);
+        low[u] = min(low[u], low[v]);
+        if (low[v] > tin[u]) {
+          is_bridge[idx] = true;
+        }
+      }
+    }
+  };
+  for (int i = 0; i < n; i++) if (!vis[i]) dfs(i, -1);
+  vector<int> which_comp(n, -1);
+  int cid = 0;
+  vector<int> st;
+  for (int i = 0; i < n; i++) {
+    if (which_comp[i] != -1) continue;
+    st.clear();
+    st.push_back(i);
+    which_comp[i] = cid++;
+    while (!st.empty()) {
+      int u = st.back(); st.pop_back();
+      for (auto &[v, idx] : g[u]) {
+        if (which_comp[v] == -1 && !is_bridge[idx]) {
+          which_comp[v] = which_comp[u];
+          st.push_back(v);
+        }
+      }
+    }
+  }
+  return which_comp;
+}
