@@ -1,6 +1,69 @@
 https://codeforces.com/blog/entry/44351
 https://codeforces.com/contest/600/problem/E
 
+new_version(23 oct, 2025):
+  vector<int> sz(n, 1);
+  auto dfs0 = [&](auto &&self, int node, int pr) -> void {
+    for (auto &son : g[node]) {
+      if (pr == son) continue;
+      self(self, son, node);
+      sz[node] += sz[son];
+    }
+  };
+  dfs0(dfs0, root, -1);
+
+  vector<int> cnt(n), ans(n);
+  vector<vector<int>> f(n);
+  int res = 0;
+
+  auto add = [&](int node, int v) -> void {
+    cnt[c[v]] += 1;
+    f[node].push_back(v);
+    if (cnt[c[v]] > cnt[res]) res = c[v];
+    else if (cnt[c[v]] == cnt[res] && res > c[v]) res = c[v];
+  };
+
+  auto remove = [&](int v) -> void {
+    --cnt[c[v]];
+  };
+
+  auto dfs = [&](auto &&self, int node, bool keep, int pr) -> void {
+    int big = -1;
+    for (auto &son : g[node]) {
+      if (son == pr) continue;
+      if (big == -1 || sz[big] < sz[son]) {
+        big = son;
+      }
+    }
+    for (auto &son : g[node]) {
+      if (son != big) self(self, son, false, node);
+    }
+    if (big != -1) self(self, big, true, node), swap(f[node], f[big]);
+    add(node, node);
+    for (auto &son : g[node]) {
+      if (son != big && son != pr) {
+        for (auto &v : f[son]) {
+          add(node, v);
+        }
+      }
+    }
+    ans[node] = res;    
+    if (!keep) {
+      res = 0;
+      for (auto &v : f[node]) {
+        remove(v);
+      }
+    }
+  };
+  dfs(dfs, root, false, -1);
+
+  for (int i = 0; i < n; i++) {
+    cout << who[ans[i]] << " \n"[i == n - 1];
+  }
+
+
+
+
 /* Obsession beats talent */
 #include <bits/stdc++.h>
 
