@@ -1,0 +1,49 @@
+struct info {
+  
+  info() {
+    
+  }
+  info(...) {
+    
+  }
+};
+
+info merge(const info &a, const info &b) {
+  info res = info();
+  
+  return res;
+}
+
+struct segment_tree {
+  int _n;
+  vector<info> t;
+  segment_tree(int size) {
+    _n = size;
+    t.resize(_n << 2);
+  }
+  void build(int n, int s, int e) {
+    if (s == e) {
+      t[n] = info();
+      return;
+    }
+    int m = (s + e) >> 1;
+    build(n << 1, s, m), build(n << 1 | 1, m + 1, e);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  void update(int n, int s, int e, int p, const info &v) {
+    if (s == e) {
+      t[n] = v;
+      return;
+    }
+    int m = (s + e) >> 1;
+    if (p <= m) update(n << 1, s, m, p, v);
+    else update(n << 1 | 1, m + 1, e, p, v);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  info query(int n, int s, int e, int l, int r) {
+    if (r < s || e < l) return info();
+    if (l <= s && e <= r) return t[n];
+    int m = (s + e) >> 1;
+    return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
+  }
+};
