@@ -1,0 +1,86 @@
+https://codeforces.com/gym/105789/problem/B
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+const int K = 1505, LG = 1505;
+bitset<K> basis[K], who[K];
+int sz;
+
+// here who[i] = the vectors where used to make the basis i.
+
+void reset() {
+  sz = 0;
+  for (int i = 0; i < LG; i++) {
+    basis[i].reset();
+    who[i].reset();
+  }
+}
+
+bool insert(bitset<K> mask, bitset<K> &cur) {
+  for (int i = LG - 1; i >= 0; --i) {
+    if (mask.test(i)) {
+      if (basis[i].any()) mask ^= basis[i], cur ^= who[i];
+      else {
+        basis[i] = mask, ++sz;
+        who[i] = cur;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n, k;
+  cin >> n >> k;
+  reset();
+  vector<bitset<K>> a;
+  for (int i = 0; i < n; i++) {
+    string s;
+    cin >> s;
+    bitset<K> tmp;
+    for (int j = 0; j < k; j++) {
+      if (s[j] == '1') {
+        tmp[j] = 1;
+      }
+    }
+    tmp[k] = 1;
+    a.push_back(tmp);
+  }
+  bool ok = false;
+  string ans(n, '0');
+  for (int i = 0; i < n; i++) {
+    bitset<K> cur;
+    cur.set(i);
+    if (!insert(a[i], cur)) {
+      ok = true;
+      vector<int> got;
+      for (int j = 0; j < n; j++) {
+        if (cur.test(j)) {
+          got.push_back(j);
+        }
+      }
+      for (int j = 0; j < got.size(); j++) {
+        if (j < got.size() / 2) ans[got[j]] = '1';
+        else ans[got[j]] = '2';
+      }
+      break;
+    }
+  }
+  if (!ok) {
+    cout << "*\n";
+  } else {
+    cout << ans;
+  }
+  return 0;
+}
