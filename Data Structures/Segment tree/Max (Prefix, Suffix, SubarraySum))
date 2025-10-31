@@ -1,0 +1,62 @@
+struct info {
+  int64_t sum;
+  int64_t maxPrefix;
+  int64_t maxSuffix;
+  int64_t maxSubarray;
+  info() : sum(0), maxPrefix(0), maxSuffix(0), maxSubarray(0) {}
+  info(int v) {
+    sum = maxPrefix = maxSuffix = maxSubarray = v;
+  }
+};
+
+info merge(const info &a, const info &b) {
+  info res = info();
+  res.sum = a.sum + b.sum;
+  res.maxPrefix = max(a.maxPrefix, a.sum + b.maxPrefix);
+  res.maxSuffix = max(b.maxSuffix, b.sum + a.maxSuffix);
+  res.maxSubarray = max({a.maxSubarray, b.maxSubarray, a.maxSuffix + b.maxPrefix});
+  return res;
+}
+
+struct ST {
+  int _n;
+  vector<info> t;
+  ST(int size) {
+    _n = size;
+    t.resize(_n << 2);
+  }
+  void build(int n, int s, int e, vector<int64_t> &a) {
+    if (s == e) {
+      t[n] = info(a[s]);
+      return;
+    }
+    int m = (s + e) >> 1;
+    build(n << 1, s, m, a), build(n << 1 | 1, m + 1, e, a);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  void update(int n, int s, int e, int p, info &v) {
+    if (s == e) {
+      t[n] = v;
+      return;
+    }
+    int m = (s + e) >> 1;
+    if (p <= m) update(n << 1, s, m, p, v);
+    else update(n << 1 | 1, m + 1, e, p, v);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  info query(int n, int s, int e, int l, int r) {
+    if (r < s || e < l) return info();
+    if (l <= s && e <= r) return t[n];
+    int m = (s + e) >> 1;
+    return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
+  }
+  void build(vector<int64_t> a) {
+    build(1, 0, _n - 1, a);
+  }
+  void update(int p, info v) {
+    update(1, 0, _n - 1, p, v);
+  }
+  info query(int l, int r) {
+    return query(1, 0, _n - 1, l, r);
+  }
+};
