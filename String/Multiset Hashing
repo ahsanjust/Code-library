@@ -1,20 +1,13 @@
-https://atcoder.jp/contests/abc367/tasks/abc367_f
+
 https://dmoj.ca/problem/ccc20s3
 https://dmoj.ca/submission/7384601
 
+https://atcoder.jp/contests/abc367/tasks/abc367_f
+
 #include <bits/stdc++.h>
-
 using namespace std;
-
-#ifndef ONLINE_JUDGE
-#include "trace.cpp"
-#else
-#define dbg(...)
-#endif
-
 mt19937_64 rnd((unsigned int)chrono::steady_clock::now().time_since_epoch().count());
 int64_t R(int64_t l, int64_t r) { return (l + (rnd() % (r - l + 1))); }
-
 int32_t main() {
   cin.tie(0) -> sync_with_stdio(0);
   int n, q;
