@@ -3,7 +3,7 @@ struct info {
   info() {
     
   }
-  info(...) {
+  info(int val) {
     
   }
 };
@@ -21,9 +21,9 @@ struct segment_tree {
     _n = size;
     t.resize(_n << 2);
   }
-  void build(int n, int s, int e) {
+  void build(int n, int s, int e, vector<int> &a) {
     if (s == e) {
-      t[n] = info();
+      t[n] = info(a[s]);
       return;
     }
     int m = (s + e) >> 1;
@@ -45,5 +45,14 @@ struct segment_tree {
     if (l <= s && e <= r) return t[n];
     int m = (s + e) >> 1;
     return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
+  }
+  void build (vector<int> &a) {
+    build(1, 0, n - 1, a);
+  }
+  info query(int l, int r) {
+    return query(1, 0, n - 1, l, r);
+  }
+  void update(int p, info v) {
+    update(1, 0, n - 1, p, v);
   }
 };
