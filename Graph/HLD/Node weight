@@ -5,17 +5,17 @@ struct info {
 };
 
 info merge(const info &a, const info &b) {
-  info res;
-  res.val = a.val + b.val;
-  return res;
+  info r;
+  r.val = a.val + b.val;
+  return r;
 }
 
-struct segment_tree {
+struct ST {
   int _n;
   vector<info> t;
-  segment_tree(int size = 0) {
-    _n = size;
-    if (size > 0) t.resize(_n << 2);
+  ST(int n = 0) {
+    _n = n;
+    if (n) t.resize(n << 2);
   }
   void build(int n, int s, int e, const vector<info> &a) {
     if (s == e) {
@@ -56,10 +56,10 @@ struct segment_tree {
 
 struct HLD {
   int n, cur_pos;
-  vector<vector<int>> g;
-  vector<int> parent, depth, heavy, head, pos, sz;
-  vector<long long> value;
-  segment_tree seg;
+  vector<vector<pair<int, int64_t>>> g;
+  vector<int> parent, depth, heavy, head, pos, sz, node_at;
+  vector<int64_t> edge_val;
+  ST seg;
 
   HLD(int _n) {
     n = _n;
@@ -70,51 +70,54 @@ struct HLD {
     head.resize(n);
     pos.resize(n);
     sz.resize(n);
-    value.resize(n);
+    edge_val.resize(n);
+    node_at.resize(n);
     cur_pos = 0;
-    seg = segment_tree(n);
+    seg = ST(n);
   }
 
-  void add_edge(int u, int v) {
-    g[u].push_back(v);
-    g[v].push_back(u);
+  void add_edge(int u, int v, int64_t w) {
+    g[u].push_back({v, w});
+    g[v].push_back({u, w});
   }
 
   int dfs(int v, int p) {
     parent[v] = p;
     sz[v] = 1;
-    int max_sz = 0;
-    for (int u : g[v]) if (u != p) {
+    int mx = 0;
+    for (auto [u, w] : g[v]) if (u != p) {
       depth[u] = depth[v] + 1;
+      edge_val[u] = w;
       int sub = dfs(u, v);
       sz[v] += sub;
-      if (sub > max_sz) {
-        max_sz = sub;
-        heavy[v] = u;
-      }
+      if (sub > mx) mx = sub, heavy[v] = u;
     }
     return sz[v];
   }
 
   void decompose(int v, int h) {
     head[v] = h;
-    pos[v] = cur_pos++;
+    pos[v] = cur_pos;
+    node_at[cur_pos++] = v;
     if (heavy[v] != -1) decompose(heavy[v], h);
-    for (int u : g[v]) {
-      if (u != parent[v] && u != heavy[v]) decompose(u, u);
-    }
+    for (auto [u, w] : g[v]) if (u != parent[v] && u != heavy[v]) decompose(u, u);
   }
 
   void build(int root = 0) {
     dfs(root, -1);
     decompose(root, root);
     vector<info> base(n);
-    for (int i = 0; i < n; i++) base[pos[i]] = info(value[i]);
+    for (int i = 0; i < n; i++) base[pos[i]] = info(edge_val[i]);
     seg.build(base);
   }
 
-  void update_node(int v, long long val) {
+  void update_edge(int v, int64_t val) {
     seg.update(pos[v], info(val));
+  }
+
+  void update_subtree(int v, int64_t val) {
+    for (int i = pos[v] + 1; i < pos[v] + sz[v]; i++)
+      seg.update(i, info(val));
   }
 
   info query_path(int a, int b) {
@@ -125,11 +128,38 @@ struct HLD {
       a = parent[head[a]];
     }
     if (depth[a] > depth[b]) swap(a, b);
-    res = merge(res, seg.query(pos[a], pos[b]));
+    res = merge(res, seg.query(pos[a] + 1, pos[b]));
     return res;
   }
 
   info query_subtree(int v) {
-    return seg.query(pos[v], pos[v] + sz[v] - 1);
+    return seg.query(pos[v] + 1, pos[v] + sz[v] - 1);
+  }
+
+  int lca(int a, int b) {
+    while (head[a] != head[b]) {
+      if (depth[head[a]] > depth[head[b]]) a = parent[head[a]];
+      else b = parent[head[b]];
+    }
+    return depth[a] < depth[b] ? a : b;
+  }
+
+  int kth_ancestor(int u, int k) {
+    while (u != -1) {
+      int h = head[u];
+      int d = depth[u] - depth[h];
+      if (k <= d) return node_at[pos[u] - k];
+      k -= d + 1;
+      u = parent[h];
+    }
+    return -1;
+  }
+
+  int kth_on_path(int u, int v, int k) {
+    int w = lca(u, v);
+    int du = depth[u] - depth[w];
+    if (k <= du) return kth_ancestor(u, k);
+    k = depth[u] + depth[v] - 2 * depth[w] - k;
+    return kth_ancestor(v, k);
   }
 };
