@@ -1,0 +1,139 @@
+struct info {
+  int64_t val;
+  info() : val(0) {}
+  info(int64_t v) : val(v) {}
+};
+
+info merge(const info &a, const info &b) {
+  info res;
+  res.val = a.val + b.val;
+  return res;
+}
+
+struct ST {
+  int _n;
+  vector<info> t;
+  ST(int size = 0) {
+    _n = size;
+    if (size > 0) t.resize(_n << 2);
+  }
+  void build(int n, int s, int e, const vector<info> &a) {
+    if (s == e) {
+      t[n] = a[s];
+      return;
+    }
+    int m = (s + e) >> 1;
+    build(n << 1, s, m, a);
+    build(n << 1 | 1, m + 1, e, a);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  void build(const vector<info> &a) {
+    if (_n) build(1, 0, _n - 1, a);
+  }
+  void update(int n, int s, int e, int p, const info &v) {
+    if (s == e) {
+      t[n] = v;
+      return;
+    }
+    int m = (s + e) >> 1;
+    if (p <= m) update(n << 1, s, m, p, v);
+    else update(n << 1 | 1, m + 1, e, p, v);
+    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+  }
+  void update(int p, const info &v) {
+    update(1, 0, _n - 1, p, v);
+  }
+  info query(int n, int s, int e, int l, int r) {
+    if (r < s || e < l) return info();
+    if (l <= s && e <= r) return t[n];
+    int m = (s + e) >> 1;
+    return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
+  }
+  info query(int l, int r) {
+    return query(1, 0, _n - 1, l, r);
+  }
+};
+
+struct HLD {
+  int n, cur_pos;
+  vector<vector<pair<int, long long>>> g;
+  vector<int> parent, depth, heavy, head, pos, sz;
+  vector<long long> edge_val;
+  ST seg;
+
+  HLD(int _n) {
+    n = _n;
+    g.resize(n);
+    parent.resize(n);
+    depth.resize(n);
+    heavy.assign(n, -1);
+    head.resize(n);
+    pos.resize(n);
+    sz.resize(n);
+    edge_val.assign(n, 0);
+    cur_pos = 0;
+    seg = ST(n);
+  }
+
+  void add_edge(int u, int v, long long w) {
+    g[u].push_back({v, w});
+    g[v].push_back({u, w});
+  }
+
+  int dfs(int v, int p) {
+    parent[v] = p;
+    sz[v] = 1;
+    int max_sz = 0;
+    for (auto [u, w] : g[v]) if (u != p) {
+      depth[u] = depth[v] + 1;
+      edge_val[u] = w;
+      int sub = dfs(u, v);
+      sz[v] += sub;
+      if (sub > max_sz) {
+        max_sz = sub;
+        heavy[v] = u;
+      }
+    }
+    return sz[v];
+  }
+
+  void decompose(int v, int h) {
+    head[v] = h;
+    pos[v] = cur_pos++;
+    if (heavy[v] != -1) decompose(heavy[v], h);
+    for (auto [u, _] : g[v]) {
+      if (u != parent[v] && u != heavy[v]) decompose(u, u);
+    }
+  }
+
+  void build(int root = 0) {
+    dfs(root, -1);
+    decompose(root, root);
+    vector<info> base(n);
+    for (int i = 0; i < n; i++) base[pos[i]] = info(edge_val[i]);
+    seg.build(base);
+  }
+
+  void update_edge(int u, int v, long long val) {
+    if (depth[u] < depth[v]) swap(u, v);
+    seg.update(pos[u], info(val));
+  }
+
+  info query_path(int a, int b) {
+    info res;
+    while (head[a] != head[b]) {
+      if (depth[head[a]] < depth[head[b]]) swap(a, b);
+      res = merge(res, seg.query(pos[head[a]], pos[a]));
+      a = parent[head[a]];
+    }
+    if (a == b) return res;
+    if (depth[a] > depth[b]) swap(a, b);
+    res = merge(res, seg.query(pos[a]+1, pos[b]));
+    return res;
+  }
+
+  info query_subtree(int v) {
+    if (sz[v] == 1) return info();
+    return seg.query(pos[v]+1, pos[v]+sz[v]-1);
+  }
+};
