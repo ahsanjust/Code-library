@@ -3,7 +3,6 @@ struct info {
   info() : val(0) {}
   info(int64_t v) : val(v) {}
 };
-
 info merge(const info &a, const info &b) {
   info r;
   r.val = a.val + b.val;
@@ -56,9 +55,9 @@ struct ST {
 
 struct HLD {
   int n, cur_pos;
-  vector<vector<pair<int, int64_t>>> g;
+  vector<vector<int>> g;
   vector<int> parent, depth, heavy, head, pos, sz, node_at;
-  vector<int64_t> edge_val;
+  vector<int64_t> node_val;
   ST seg;
 
   HLD(int _n) {
@@ -70,24 +69,23 @@ struct HLD {
     head.resize(n);
     pos.resize(n);
     sz.resize(n);
-    edge_val.resize(n);
+    node_val.resize(n);
     node_at.resize(n);
     cur_pos = 0;
     seg = ST(n);
   }
 
-  void add_edge(int u, int v, int64_t w) {
-    g[u].push_back({v, w});
-    g[v].push_back({u, w});
+  void add_edge(int u, int v) {
+    g[u].push_back(v);
+    g[v].push_back(u);
   }
 
   int dfs(int v, int p) {
     parent[v] = p;
     sz[v] = 1;
     int mx = 0;
-    for (auto [u, w] : g[v]) if (u != p) {
+    for (int u : g[v]) if (u != p) {
       depth[u] = depth[v] + 1;
-      edge_val[u] = w;
       int sub = dfs(u, v);
       sz[v] += sub;
       if (sub > mx) mx = sub, heavy[v] = u;
@@ -100,23 +98,23 @@ struct HLD {
     pos[v] = cur_pos;
     node_at[cur_pos++] = v;
     if (heavy[v] != -1) decompose(heavy[v], h);
-    for (auto [u, w] : g[v]) if (u != parent[v] && u != heavy[v]) decompose(u, u);
+    for (int u : g[v]) if (u != parent[v] && u != heavy[v]) decompose(u, u);
   }
 
   void build(int root = 0) {
     dfs(root, -1);
     decompose(root, root);
     vector<info> base(n);
-    for (int i = 0; i < n; i++) base[pos[i]] = info(edge_val[i]);
+    for (int i = 0; i < n; i++) base[pos[i]] = info(node_val[i]);
     seg.build(base);
   }
 
-  void update_edge(int v, int64_t val) {
+  void update_node(int v, int64_t val) {
     seg.update(pos[v], info(val));
   }
 
   void update_subtree(int v, int64_t val) {
-    for (int i = pos[v] + 1; i < pos[v] + sz[v]; i++)
+    for (int i = pos[v]; i < pos[v] + sz[v]; i++)
       seg.update(i, info(val));
   }
 
@@ -128,12 +126,12 @@ struct HLD {
       a = parent[head[a]];
     }
     if (depth[a] > depth[b]) swap(a, b);
-    res = merge(res, seg.query(pos[a] + 1, pos[b]));
+    res = merge(res, seg.query(pos[a], pos[b]));
     return res;
   }
 
   info query_subtree(int v) {
-    return seg.query(pos[v] + 1, pos[v] + sz[v] - 1);
+    return seg.query(pos[v], pos[v] + sz[v] - 1);
   }
 
   int lca(int a, int b) {
