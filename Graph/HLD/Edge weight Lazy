@@ -1,0 +1,169 @@
+struct info {
+  int64_t val;
+  info() : val(0) {}
+  info(int64_t v) : val(v) {}
+};
+
+info merge(const info &a, const info &b) {
+  info res;
+  res.val = a.val + b.val;
+  return res;
+}
+
+int64_t lazy_merge(int64_t old_lazy, int64_t new_lazy) {
+  return old_lazy + new_lazy;
+}
+
+void apply_lazy_to_node(int node, int s, int e, int64_t lazy_val, vector<info> &t) {
+  t[node].val += (int64_t)(e - s + 1) * lazy_val;
+}
+
+struct segment_tree {
+  int n;
+  vector<info> t;
+  vector<int64_t> lz;
+  segment_tree(int _n = 0) { init(_n); }
+  void init(int _n) {
+    n = _n;
+    if (n) {
+      t.assign(4 * n, info());
+      lz.assign(4 * n, 0);
+    } else {
+      t.clear();
+      lz.clear();
+    }
+  }
+  void build(int node, int s, int e, const vector<info> &a) {
+    if (s == e) {
+      t[node] = a[s];
+      return;
+    }
+    int m = (s + e) >> 1;
+    build(node << 1, s, m, a);
+    build(node << 1 | 1, m + 1, e, a);
+    t[node] = merge(t[node << 1], t[node << 1 | 1]);
+  }
+  void build(const vector<info> &a) { if (n) build(1, 0, n - 1, a); }
+  void push(int node, int s, int e) {
+    if (lz[node] != 0) {
+      apply_lazy_to_node(node, s, e, lz[node], t);
+      if (s != e) {
+        lz[node << 1] = lazy_merge(lz[node << 1], lz[node]);
+        lz[node << 1 | 1] = lazy_merge(lz[node << 1 | 1], lz[node]);
+      }
+      lz[node] = 0;
+    }
+  }
+  void update(int node, int s, int e, int l, int r, int64_t val) {
+    push(node, s, e);
+    if (r < s || e < l) return;
+    if (l <= s && e <= r) {
+      lz[node] = lazy_merge(lz[node], val);
+      push(node, s, e);
+      return;
+    }
+    int m = (s + e) >> 1;
+    update(node << 1, s, m, l, r, val);
+    update(node << 1 | 1, m + 1, e, l, r, val);
+    t[node] = merge(t[node << 1], t[node << 1 | 1]);
+  }
+  info query(int node, int s, int e, int l, int r) {
+    if (r < s || e < l) return info();
+    push(node, s, e);
+    if (l <= s && e <= r) return t[node];
+    int m = (s + e) >> 1;
+    return merge(query(node << 1, s, m, l, r), query(node << 1 | 1, m + 1, e, l, r));
+  }
+  void update(int l, int r, int64_t val) { if (n) update(1, 0, n - 1, l, r, val); }
+  info query(int l, int r) { if (!n) return info(); return query(1, 0, n - 1, l, r); }
+};
+
+struct HLD {
+  int n, cur_pos;
+  vector<vector<int>> g;
+  vector<int> parent, depth, heavy, head, pos, sz;
+  vector<int64_t> value;
+  segment_tree seg;
+  HLD(int _n = 0) { init(_n); }
+  void init(int _n) {
+    n = _n;
+    cur_pos = 0;
+    g.assign(n, {});
+    parent.assign(n, -1);
+    depth.assign(n, 0);
+    heavy.assign(n, -1);
+    head.assign(n, 0);
+    pos.assign(n, 0);
+    sz.assign(n, 0);
+    value.assign(n, 0);
+    seg.init(n);
+  }
+  void add_edge(int u, int v) { g[u].push_back(v); g[v].push_back(u); }
+  int dfs(int v, int p) {
+    parent[v] = p;
+    sz[v] = 1;
+    int max_sz = 0;
+    for (int u : g[v]) if (u != p) {
+      depth[u] = depth[v] + 1;
+      int sub = dfs(u, v);
+      sz[v] += sub;
+      if (sub > max_sz) { max_sz = sub; heavy[v] = u; }
+    }
+    return sz[v];
+  }
+  void decompose(int v, int h) {
+    head[v] = h;
+    pos[v] = cur_pos++;
+    if (heavy[v] != -1) decompose(heavy[v], h);
+    for (int u : g[v]) if (u != parent[v] && u != heavy[v]) decompose(u, u);
+  }
+  void build(int root = 0) {
+    dfs(root, -1);
+    decompose(root, root);
+    vector<info> base(n);
+    for (int i = 0; i < n; ++i) base[pos[i]] = info(value[i]);
+    seg.init(n);
+    seg.build(base);
+  }
+  void update_edge_add(int u, int v, int64_t val) {
+    int child = (parent[u] == v) ? u : ((parent[v] == u) ? v : -1);
+    if (child == -1) return;
+    seg.update(pos[child], pos[child], val);
+  }
+  void update_edge_set(int u, int v, int64_t val) {
+    int child = (parent[u] == v) ? u : ((parent[v] == u) ? v : -1);
+    if (child == -1) return;
+    info cur = seg.query(pos[child], pos[child]);
+    seg.update(pos[child], pos[child], val - cur.val);
+  }
+  void update_path_edges(int a, int b, int64_t val) {
+    while (head[a] != head[b]) {
+      if (depth[head[a]] < depth[head[b]]) swap(a, b);
+      seg.update(pos[head[a]], pos[a], val);
+      a = parent[head[a]];
+    }
+    if (a == b) return;
+    if (depth[a] > depth[b]) swap(a, b);
+    seg.update(pos[a] + 1, pos[b], val);
+  }
+  info query_path_edges(int a, int b) {
+    info res;
+    while (head[a] != head[b]) {
+      if (depth[head[a]] < depth[head[b]]) swap(a, b);
+      res = merge(res, seg.query(pos[head[a]], pos[a]));
+      a = parent[head[a]];
+    }
+    if (a == b) return res;
+    if (depth[a] > depth[b]) swap(a, b);
+    res = merge(res, seg.query(pos[a] + 1, pos[b]));
+    return res;
+  }
+  void update_subtree_edges(int v, int64_t val) {
+    if (sz[v] <= 1) return;
+    seg.update(pos[v] + 1, pos[v] + sz[v] - 1, val);
+  }
+  info query_subtree_edges(int v) {
+    if (sz[v] <= 1) return info();
+    return seg.query(pos[v] + 1, pos[v] + sz[v] - 1);
+  }
+};
