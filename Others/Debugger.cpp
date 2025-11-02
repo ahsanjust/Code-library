@@ -184,10 +184,10 @@ namespace __DEBUG_UTIL__
     }
 }
 #ifndef ONLINE_JUDGE
-#define debug(...) std::cerr << __LINE__ << ": [", __DEBUG_UTIL__::printer(#__VA_ARGS__, __VA_ARGS__)
-#define debugArr(...) std::cerr << __LINE__ << ": [", __DEBUG_UTIL__::printerArr(#__VA_ARGS__, __VA_ARGS__)
+#define dbg(...) std::cerr << __LINE__ << ": [", __DEBUG_UTIL__::printer(#__VA_ARGS__, __VA_ARGS__)
+#define dbgA(...) std::cerr << __LINE__ << ": [", __DEBUG_UTIL__::printerArr(#__VA_ARGS__, __VA_ARGS__)
 #else
-#define debug(...)
-#define debugArr(...)
+#define dbg(...)
+#define dbgA(...)
 #endif
 #endif
