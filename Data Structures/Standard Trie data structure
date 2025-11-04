@@ -1,4 +1,4 @@
-const int N = 5 * 1e5 * 31;
+const int N = 500000 * 31 + 5;
 const int B = 31;
 int tot, trie[N][2], cnt[N];
 int newNode() {
@@ -7,7 +7,7 @@ int newNode() {
   return ptr;
 }
 void initTrie() {
-  tot = 0, newNode();
+  tot = 0; newNode();
 }
 void insert(int x) {
   int ptr = 1;
@@ -22,28 +22,38 @@ void insert(int x) {
 int query1(int x, int k) { // number of values (val ^ x) < k
   int ptr = 1, ans = 0;
   for (int i = B - 1; i >= 0; --i) {
+    if (!ptr) break;
     int d = (x >> i) & 1;
     if ((k >> i) & 1) {
-      if (trie[ptr][d]) ans += cnt[trie[ptr][d]];
-      ptr = trie[ptr][!d];
+      int child_same = trie[ptr][d];
+      if (child_same != 0 && cnt[child_same] > 0) ans += cnt[child_same];
+      int next = trie[ptr][!d];
+      if (next != 0 && cnt[next] > 0) ptr = next;
+      else { ptr = 0; break; }
     } else {
-      ptr = trie[ptr][d];
+      int next = trie[ptr][d];
+      if (next != 0 && cnt[next] > 0) ptr = next;
+      else { ptr = 0; break; }
     }
-    if (!ptr) break;
   }
   return ans;
 }
 int query2(int x, int k) { // number of values (val ^ x) > k
   int ptr = 1, ans = 0;
   for (int i = B - 1; i >= 0; --i) {
+    if (!ptr) break;
     int d = (x >> i) & 1;
     if (!((k >> i) & 1)) {
-      if (trie[ptr][!d]) ans += cnt[trie[ptr][!d]];
-      ptr = trie[ptr][d];
+      int child_opposite = trie[ptr][!d];
+      if (child_opposite != 0 && cnt[child_opposite] > 0) ans += cnt[child_opposite];
+      int next = trie[ptr][d];
+      if (next != 0 && cnt[next] > 0) ptr = next;
+      else { ptr = 0; break; }
     } else {
-      ptr = trie[ptr][!d];
+      int next = trie[ptr][!d];
+      if (next != 0 && cnt[next] > 0) ptr = next;
+      else { ptr = 0; break; }
     }
-    if (!ptr) break;
   }
   return ans;
 }
@@ -66,12 +76,19 @@ int64_t query3(int x) {  // number of values val <= (val ^ x) <= x
 int get_max(int x) { // max(val ^ x)
   int ptr = 1, ans = 0;
   for (int i = B - 1; i >= 0; --i) {
+    if (!ptr) break;
     int d = (x >> i) & 1;
-    if (trie[ptr][!d]) {
-      ptr = trie[ptr][!d];
+    int prefer = trie[ptr][!d];
+    if (prefer != 0 && cnt[prefer] > 0) {
+      ptr = prefer;
       ans |= 1 << i;
     } else {
-      ptr = trie[ptr][d];
+      int other = trie[ptr][d];
+      if (other != 0 && cnt[other] > 0) {
+        ptr = other;
+      } else {
+        break;
+      }
     }
   }
   return ans;
@@ -79,13 +96,29 @@ int get_max(int x) { // max(val ^ x)
 int get_min(int x) { // min(val ^ x)
   int ptr = 1, ans = 0;
   for (int i = B - 1; i >= 0; --i) {
+    if (!ptr) break;
     int d = (x >> i) & 1;
-    if (trie[ptr][d]) {
-      ptr = trie[ptr][d];
+    int prefer = trie[ptr][d];
+    if (prefer != 0 && cnt[prefer] > 0) {
+      ptr = prefer;
     } else {
-      ptr = trie[ptr][!d];
-      ans |= 1 << i;
+      int other = trie[ptr][!d];
+      if (other != 0 && cnt[other] > 0) {
+        ptr = other;
+        ans |= 1 << i;
+      } else {
+        break;
+      }
     }
   }
   return ans;
+}
+void erase(int x) {
+  int ptr = 1;
+  cnt[ptr]--;
+  for (int i = B - 1; i >= 0; --i) {
+    int d = (x >> i) & 1;
+    ptr = trie[ptr][d];
+    cnt[ptr]--;
+  }
 }
