@@ -1,4 +1,4 @@
-struct Segment_tree_lazy {
+struct ST_Lazy {
   int N;
   struct Node {
     int64_t sum;
@@ -11,7 +11,7 @@ struct Segment_tree_lazy {
   const int64_t NEG_INF = LLONG_MIN / 4;
   const int64_t POS_INF = LLONG_MAX / 4;
 
-  Segment_tree_lazy(int _n = 0) {
+  ST_Lazy(int _n = 0) {
     init(_n);
   }
 
@@ -93,6 +93,7 @@ struct Segment_tree_lazy {
     pull_up(n);
   }
   void range_set(int l, int r, int64_t val) {
+    if (l > r) return;
     if (N) range_set(1, 0, N - 1, l, r, val);
   }
 
@@ -109,6 +110,7 @@ struct Segment_tree_lazy {
     pull_up(n);
   }
   void range_add(int l, int r, int64_t val) {
+    if (l > r) return;
     if (N) range_add(1, 0, N - 1, l, r, val);
   }
 
@@ -120,6 +122,7 @@ struct Segment_tree_lazy {
     return range_sum(n << 1, s, m, l, r) + range_sum(n << 1 | 1, m + 1, e, l, r);
   }
   int64_t range_sum(int l, int r) {
+    if (l > r) return 0;
     if (N) return range_sum(1, 0, N - 1, l, r);
     return 0;
   }
@@ -132,6 +135,7 @@ struct Segment_tree_lazy {
     return max(range_max(n << 1, s, m, l, r), range_max(n << 1 | 1, m + 1, e, l, r));
   }
   int64_t range_max(int l, int r) {
+    if (l > r) return NEG_INF;
     if (N) return range_max(1, 0, N - 1, l, r);
     return NEG_INF;
   }
@@ -144,6 +148,7 @@ struct Segment_tree_lazy {
     return min(range_min(n << 1, s, m, l, r), range_min(n << 1 | 1, m + 1, e, l, r));
   }
   int64_t range_min(int l, int r) {
+    if (l > r) return POS_INF;
     if (N) return range_min(1, 0, N - 1, l, r);
     return POS_INF;
   }
@@ -184,6 +189,7 @@ struct Segment_tree_lazy {
     return find_first_at_least(n << 1 | 1, m + 1, e, l, r, val);
   }
   int find_first_at_least(int l, int r, int64_t val) {
+    if (l > r) return -1;
     if (N) return find_first_at_least(1, 0, N - 1, l, r, val);
     return -1;
   }
@@ -200,13 +206,43 @@ struct Segment_tree_lazy {
     return find_last_at_least(n << 1, s, m, l, r, val);
   }
   int find_last_at_least(int l, int r, int64_t val) {
+    if (l > r) return -1;
     if (N) return find_last_at_least(1, 0, N - 1, l, r, val);
     return -1;
   }
 
-  // find smallest index i such that prefix sum(0..i) >= target.
-  // NOTE: this function assumes the array elements are non-negative (so prefix sums are non-decreasing).
-  // Returns -1 if total sum < target.
+  int find_first_at_most(int n, int s, int e, int l, int r, int64_t val) {
+    if (r < s || e < l || l > r) return -1;
+    if (t[n].min_val > val) return -1;
+    if (s == e) return s;
+    push_down(n, s, e);
+    int m = (s + e) >> 1;
+    int res = find_first_at_most(n << 1, s, m, l, r, val);
+    if (res != -1) return res;
+    return find_first_at_most(n << 1 | 1, m + 1, e, l, r, val);
+  }
+  int find_first_at_most(int l, int r, int64_t val) {
+    if (l > r) return -1;
+    if (N) return find_first_at_most(1, 0, N - 1, l, r, val);
+    return -1;
+  }
+  int find_last_at_most(int n, int s, int e, int l, int r, int64_t val) {
+    if (r < s || e < l || l > r) return -1;
+    if (t[n].min_val > val) return -1;
+    if (s == e) return s;
+    push_down(n, s, e);
+    int m = (s + e) >> 1;
+    int res = find_last_at_most(n << 1 | 1, m + 1, e, l, r, val);
+    if (res != -1) return res;
+    return find_last_at_most(n << 1, s, m, l, r, val);
+  }
+  int find_last_at_most(int l, int r, int64_t val) {
+    if (l > r) return -1;
+    if (N) return find_last_at_most(1, 0, N - 1, l, r, val);
+    return -1;
+  }
+
+  // find smallest index i such that prefix sum(0..i) >= target. works only with non-negative values. -1 if none
   int find_by_prefixSum(int64_t target) {
     if (N == 0 || t[1].sum < target) return -1;
     int n = 1, s = 0, e = N - 1;
@@ -254,14 +290,13 @@ struct Segment_tree_lazy {
     return find_index_of_min(n << 1 | 1, m + 1, e, l, r, val);
   }
   int find_index_of_min(int l, int r) {
+    if (l > r) return -1;
     if (N == 0) return -1;
     int64_t min_in_range = range_min(l, r);
     return find_index_of_min(1, 0, N - 1, l, r, min_in_range);
   }
 
-  // max_right_by_sum(start, maxSum):
-  // returns largest r >= start such that sum(start..r) <= maxSum.
-  // If no r satisfies returns start-1.
+  // returns largest r >= start such that sum(start..r) <= maxSum. -1 if none.
   // This uses prefix-search: find smallest idx with prefix >= prefixBefore + maxSum.
   int max_right_by_sum(int start, int64_t maxSum) {
     if (!N) return start - 1;
@@ -284,7 +319,6 @@ struct Segment_tree_lazy {
     return r;
   }
 
-  // for debugging
   void print() {
     for (int i = 0; i < N; i++) {
       cout << point_get(i) << " \n"[i == N - 1];
