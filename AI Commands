@@ -1,0 +1,16 @@
+Q. Not understanding the problemstatement.
+Please explain the problem concisely using a mix of real Bangla (e.g., আপনি কেমন আছেন) and English, so that it is easier for a Bangladeshi reader to understand quickly : 
+
+Q. Explanations:
+Please explain that concisely using a mix of real Bangla (e.g., আপনি কেমন আছেন) and English, so that it is easier for a Bangladeshi reader to understand quickly : 
+
+Q. CounterTests
+Please provide counterexamples where the given code would produce incorrect results. Make sure the test cases are valid and demonstrate a failure of the current implementation. Analyze the code carefully, identify its weaknesses, and design stress tests that expose potential errors. For each test case give: for this test: <input...> expected: <expected output> but found: <actual output> and include a minimal reproducible snippet and steps to run the test.
+
+Q. Learning by PDF:
+Analyze this PDF and create a study guide for me.
+Explain the topics in simple language
+Highlight key concepts and formulas
+Provide examples
+Give me practice questions with solutions
+Help me remember the important points for the exam.
