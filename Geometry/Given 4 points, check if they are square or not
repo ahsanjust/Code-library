@@ -1,0 +1,18 @@
+int get_dist(P &p1, P &p2) {
+  return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+}
+ 
+bool is_square(P &p1, P &p2, P &p3, P &p4) {
+  vector<int> dists;
+  dists.push_back(get_dist(p1, p2));
+  dists.push_back(get_dist(p1, p3));
+  dists.push_back(get_dist(p1, p4));
+  dists.push_back(get_dist(p2, p3));
+  dists.push_back(get_dist(p2, p4));
+  dists.push_back(get_dist(p3, p4));
+  sort(dists.begin(), dists.end());
+  if (dists[0] > 0 && dists[0] == dists[3] && dists[4] == dists[5] && dists[0] * 2 == dists[4]) {
+    return true;
+  }
+  return false;
+}
