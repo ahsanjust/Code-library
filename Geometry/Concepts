@@ -1,1 +1,8 @@
+Rotating a point(x, y) by 90*:
+By origin: 
+    CW: (y, -x)
+    CCW: (-y, x)
+By another point(a, b):
+    CW: (a + y - b, b - x + a)
+    CCW: (a - y + b, b + x - a)
 
