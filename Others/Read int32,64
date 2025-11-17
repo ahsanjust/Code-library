@@ -1,0 +1,8 @@
+template <class T = int>
+inline T read() {
+  T x = 0; int f = 0, ch;
+  while (!isdigit(ch = getchar())) f |= (ch == '-');
+  do x = (x << 1) + (x << 3) + (ch ^ 48);
+  while (isdigit(ch = getchar()));
+  return f ? -x : x;
+}
