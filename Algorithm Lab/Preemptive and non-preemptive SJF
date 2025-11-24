@@ -1,0 +1,123 @@
+/*
+problems:
+1. shortest job first (non-preemtive)
+2. shortest job first (preemptive)
+
+inputs: Number of processes and process ID, arrival time of the processes 
+burst time of the processes
+
+outputs: waiting time of individual processes average waiting time of the
+processes turnaround time of individual processes
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void non_preemtive(vector<pair<int, int>> &time) {
+  int n = time.size();
+  vector<int> done(n, 0), ct(n, 0);
+  int timer = 0;
+  while (accumulate(done.begin(), done.end(), 0) < n) {
+    pair<int, int> who = {-1, 2e9};
+    for (int i = 0; i < n; i++) {
+      if (done[i]) continue;
+      if (time[i].first <= timer && who.second > time[i].second) {
+        who.first = i;
+        who.second = time[i].second;
+      }
+    }
+    if (who.first == -1) {
+      ++timer;
+      continue;
+    }
+    timer += who.second;
+    ct[who.first] = timer;
+    done[who.first] = 1;
+  } 
+  vector<int> tat(n, 0), wt(n, 0);
+  for (int i = 0; i < n; i++) {
+    tat[i] = ct[i] - time[i].first;
+    wt[i] = tat[i] - time[i].second;
+  }
+  int totwt = 0;
+  cout << "Non-preemptive SJF\n";
+  cout << "Waiting Time: \n";
+  for (int i = 0; i < n; i++) {
+    cout << "P" << i + 1 << " : " << wt[i] << "\n"; 
+    totwt += wt[i];
+  }
+  cout << "Turnaround Time: \n";
+  for (int i = 0; i < n; i++) {
+    cout << "P" << i + 1 << " : " << tat[i] << "\n"; 
+  }
+  cout << "Average waiting time: " << (double) totwt / n << "\n";
+}
+
+void preemtive(vector<pair<int, int>> &time) {
+  int n = time.size();
+  vector<int> rem(n), ct(n, 0), done(n, 0);
+  for (int i = 0; i < n; i++) {
+    rem[i] = time[i].second;
+  }
+  int timer = 0;
+  while (accumulate(done.begin(), done.end(), 0) < n) {
+    pair<int, int> who = {-1, 2e9};
+    for (int i = 0; i < n; i++) {
+      if (done[i]) continue;
+      if (time[i].first <= timer && rem[i] < who.second) {
+        who.second = rem[i];
+        who.first = i;
+      }
+    }
+
+    if (who.first == -1) {
+      ++timer;
+      continue;
+    }
+
+    rem[who.first]--;
+    ++timer;
+
+    if (rem[who.first] == 0) {
+      ct[who.first] = timer;
+      done[who.first] = 1;
+    }
+  }
+
+  vector<int> tat(n, 0), wt(n, 0);
+  int totwt = 0;
+
+  for (int i = 0; i < n; i++) {
+    tat[i] = ct[i] - time[i].first;
+    wt[i] = tat[i] - time[i].second;
+  }
+
+  cout << "\nPreemptive SJF\n";
+  cout << "Waiting time:\n";
+  for (int i = 0; i < n; i++) {
+    cout << "P" << i + 1 << " : " << wt[i] << "\n";
+    totwt += wt[i];
+  }
+
+  cout << "Turnaround time:\n";
+  for (int i = 0; i < n; i++) {
+    cout << "P" << i + 1 << " : " << tat[i] << "\n";
+  }
+
+  cout << "Average waiting time: " << (double) totwt / n << "\n";
+}
+
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n;
+  cin >> n;
+  vector<pair<int, int>> time(n);
+  for (int i = 0; i < n; i++) {
+    cin >> time[i].first >> time[i].second;
+  }
+  non_preemtive(time);
+  preemtive(time);
+  return 0;
+}
