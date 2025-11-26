@@ -1,0 +1,24 @@
+vector<vector<int>> MatMul(vector<vector<int>> &a, vector<vector<int>> &b) {
+  int n = a.size(), m = a[0].size(), p = b.size();
+  vector<vector<int>> ret(n, vector<int>(m, 0));
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      for (int k = 0; k < p; k++) {
+        ret[i][j] += a[i][k] * b[k][j];
+      }
+    }
+  }
+  return ret;
+}
+
+vector<vector<int>> MatExpo(vector<vector<int>> a, int64_t p) {
+  int n = a.size();
+  vector<vector<int>> ret(n, vector<int>(n, 0));
+  for (int i = 0; i < n; i++) ret[i][i] = 1;
+  while (p) {
+    if (p & 1) ret = MatMul(ret, a);
+    a = MatMul(a, a);
+    p >>= 1;
+  }
+  return ret;
+}
