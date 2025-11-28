@@ -5,7 +5,7 @@ int64_t xor_0ton(int64_t n) {
   return 0;
 }
 int64_t xor_range(int64_t l, int64_t r) {
-  return xor_0_n(r) ^ xor_0_n(l - 1);
+  return xor_0ton(r) ^ xor_0ton(l - 1);
 }
 
 int64_t and_range(int64_t l, int64_t r) {
