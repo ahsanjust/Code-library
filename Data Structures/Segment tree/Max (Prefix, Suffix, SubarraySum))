@@ -3,7 +3,7 @@ struct info {
   int64_t maxPrefix;
   int64_t maxSuffix;
   int64_t maxSubarray;
-  info() : sum(0), maxPrefix(0), maxSuffix(0), maxSubarray(0) {}
+  info() : sum(0), maxPrefix(-1e17), maxSuffix(-1e17), maxSubarray(-1e17) {}
   info(int v) {
     sum = maxPrefix = maxSuffix = maxSubarray = v;
   }
@@ -21,18 +21,29 @@ info merge(const info &a, const info &b) {
 struct ST {
   int _n;
   vector<info> t;
-  ST(int size) {
+  ST(int size = 0) {
     _n = size;
     t.resize(_n << 2);
   }
-  void build(int n, int s, int e, vector<int64_t> &a) {
+
+  void build(int node, int s, int e, const vector<int> &a) {
     if (s == e) {
-      t[n] = info(a[s]);
+      t[node] = info(a[s]);
       return;
     }
     int m = (s + e) >> 1;
-    build(n << 1, s, m, a), build(n << 1 | 1, m + 1, e, a);
-    t[n] = merge(t[n << 1], t[n << 1 | 1]);
+    build(node << 1, s, m, a);
+    build(node << 1 | 1, m + 1, e, a);
+    t[node] = merge(t[node << 1], t[node << 1 | 1]);
+  }
+
+  info query(int node, int s, int e, int l, int r) {
+    if (r < s || e < l) return info();
+    if (l <= s && e <= r) return t[node];
+    int m = (s + e) >> 1;
+    info left = query(node << 1, s, m, l, r);
+    info right = query(node << 1 | 1, m + 1, e, l, r);
+    return merge(left, right);
   }
   void update(int n, int s, int e, int p, info &v) {
     if (s == e) {
@@ -44,19 +55,17 @@ struct ST {
     else update(n << 1 | 1, m + 1, e, p, v);
     t[n] = merge(t[n << 1], t[n << 1 | 1]);
   }
-  info query(int n, int s, int e, int l, int r) {
-    if (r < s || e < l) return info();
-    if (l <= s && e <= r) return t[n];
-    int m = (s + e) >> 1;
-    return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
-  }
-  void build(vector<int64_t> a) {
+  void build(const vector<int> &a) {
+    _n = (int)a.size();
+    if (_n == 0) return;
+    t.assign(_n << 2, info());
     build(1, 0, _n - 1, a);
   }
   void update(int p, info v) {
     update(1, 0, _n - 1, p, v);
   }
   info query(int l, int r) {
+    if (_n == 0 || l > r) return info();
     return query(1, 0, _n - 1, l, r);
   }
 };
