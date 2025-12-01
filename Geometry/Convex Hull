@@ -1,64 +1,18 @@
-#include <bits/stdc++.h>
-
-using namespace std;
-
-#ifndef ONLINE_JUDGE
-#include "trace.cpp"
-#else
-#define dbg(...)
-#endif
-
-struct P {
-  int x, y;
-  void read() {
-    cin >> x >> y;
+vector<P> convexHull(vector<P> &p) {
+  int n = p.size();
+  sort(p.begin(), p.end());
+  vector<P> low;
+  for (int i = 0; i < n; i++) {
+    while (low.size() >= 2 && low[low.size() - 2].cross(low[low.size() - 1], p[i]) <= 0) low.pop_back();
+    low.push_back(p[i]);
   }
-  P operator - (const P &b) const {
-    return P{x - b.x, y - b.y};
+  vector<P> up;
+  for (int i = n - 1; i >= 0; --i) {
+    while (up.size() >= 2 && up[up.size() - 2].cross(up[up.size() - 1], p[i]) <= 0) up.pop_back();
+    up.push_back(p[i]);
   }
-  void operator -= (const P &b) {
-    x -= b.x, y -= b.y;
-  }
-  int64_t operator *(const P &b) {
-    return (int64_t)x * b.y - (int64_t)y * b.x;
-  }
-  int64_t triangle (const P &b, const P &c) const {
-    return (b - *this) * (c - *this);
-  }
-};
-
-int32_t main() {
-  cin.tie(0) -> sync_with_stdio(0);
-  
-  int n;
-  cin >> n;
-  vector<P> points(n);
-  for (auto &p : points) p.read();
-  sort(points.begin(), points.end(), [&](auto a, auto b) {
-    return make_pair(a.x, a.y) < make_pair(b.x, b.y);
-  });
-  
-  vector<P> hull;
-  for (int rep = 0; rep < 2; ++rep) {
-    const int S = hull.size();
-    for (int i = 0; i < n; i++) {
-      while (hull.size() - S >= 2) {
-        P A = hull.end()[-2];
-        P B = hull.end()[-1];
-        if (A.triangle(B, points[i]) <= 0) {
-          break;
-        } else {
-          hull.pop_back();
-        }
-      }
-      hull.push_back(points[i]);
-    }
-    hull.pop_back();
-    reverse(points.begin(), points.end());
-  }
-  cout << hull.size() << "\n";
-  for (auto &p : hull) {
-    cout << p.x << " " << p.y << "\n";
-  }
-  return 0;
+  low.pop_back();
+  up.pop_back();
+  low.insert(low.end(), up.begin(), up.end());
+  return low;
 }
