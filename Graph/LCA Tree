@@ -1,0 +1,178 @@
+struct LCA {
+  int n, LG;
+  int root = 0;
+  vector<vector<int>> g, aux_tree;
+  vector<vector<int>> up;
+  vector<int> dep, in, out, sz;
+  int timer = 0;
+
+  LCA(int _n) { init(_n); }
+  LCA(const vector<vector<int>> &_g) { init((int)_g.size()); g = _g; }
+
+  void init(int _n) {
+    n = _n, LG = 1;
+    while ((1 << LG) <= max(1, n)) ++LG;
+    up.assign(n, vector<int>(LG)), g.assign(n, {}), dep.assign(n, 0);
+    in.assign(n, 0), out.assign(n, 0), sz.assign(n, 1);
+    aux_tree.assign(n, {});
+    timer = 0, root = 0;
+  }
+
+  void add_edge(int u, int v) {
+    g[u].push_back(v), g[v].push_back(u);
+  }
+
+  void dfs(int u, int p) {
+    in[u] = ++timer;
+    up[u][0] = p;
+    for (int j = 1; j < LG; ++j) up[u][j] = up[ up[u][j-1] ][j-1];
+    for (int v : g[u]) {
+      if (v == p) continue;
+      dep[v] = dep[u] + 1;
+      dfs(v, u);
+      sz[u] += sz[v];
+    }
+    out[u] = timer;
+  }
+
+  void init_dfs(int _root = 0) {
+    root = _root, timer = 0;
+    dep[root] = 0;
+    for (int j = 0; j < LG; ++j) up[root][j] = root;
+    dfs(root, root);
+  }
+
+  inline bool is_ancestor(int u, int v) const {
+    return in[u] <= in[v] && out[v] <= out[u];
+  }
+
+  int lca(int u, int v) {
+    if (is_ancestor(u, v)) return u;
+    if (is_ancestor(v, u)) return v;
+    if (dep[u] < dep[v]) swap(u, v);
+    int k = dep[u] - dep[v];
+    for (int j = 0; j < LG; ++j) if (k & (1 << j)) u = up[u][j];
+    if (u == v) return u;
+    for (int j = LG - 1; j >= 0; --j) {
+      if (up[u][j] != up[v][j]) {
+        u = up[u][j], v = up[v][j];
+      }
+    }
+    return up[u][0];
+  }
+
+  int dist(int u, int v) {
+    int w = lca(u, v);
+    return dep[u] + dep[v] - 2 * dep[w];
+  }
+
+  int kth_ancestor(int u, int k) {
+    if (k < 0 || k > dep[u]) return -1;
+    for (int j = 0; j < LG; ++j) if (k & (1 << j)) u = up[u][j];
+    return u;
+  }
+
+  // get kth node on path u->v (1-based k)
+  // k = 1 => u, k = dist(u,v)+1 => v
+  int get_kth_node_on_path(int u, int v, int k) {
+    int lc = lca(u, v);
+    int d1 = dep[u] - dep[lc];
+    int total = d1 + (dep[v] - dep[lc]) + 1;
+    if (k < 1 || k > total) return -1;
+    if (k <= d1 + 1) return kth_ancestor(u, k - 1);
+    int rem = k - (d1 + 1);
+    int steps_from_v = (dep[v] - dep[lc]) - rem;
+    return kth_ancestor(v, steps_from_v);
+  }
+
+  vector<int> get_path(int u, int v) {
+    int w = lca(u, v);
+    vector<int> a, b;
+    int cur = u;
+    while (cur != w) { a.push_back(cur); cur = up[cur][0]; }
+    a.push_back(w);
+    cur = v;
+    while (cur != w) { b.push_back(cur); cur = up[cur][0]; }
+    reverse(b.begin(), b.end());
+    a.insert(a.end(), b.begin(), b.end());
+    return a;
+  }
+
+  int get_sz(int u) const { return sz[u]; }
+
+  bool on_path(int u, int v, int x) {
+    return dist(u, x) + dist(x, v) == dist(u, v);
+  }
+
+  // return the deepest common node among lca(a,b), lca(b,c), lca(c,a)
+  // the node with the minimum sum of distances to a,b,c
+  int get_common_node(int a, int b, int c) {
+    int x = lca(a, b);
+    int y = lca(b, c);
+    int z = lca(c, a);
+    if (dep[y] > dep[x]) x = y;
+    if (dep[z] > dep[x]) x = z;
+    return x;
+  }
+
+  // minimal subtree (virtual tree) built over a subset of nodes (O(k log k))
+  // returns vector of (node, parent) where parent == -1 for the virtual-tree root.
+  vector<pair<int,int>> build_tree(const vector<int> &nodes) {
+    if (nodes.empty()) return {};
+    vector<int> v = nodes;
+    sort(v.begin(), v.end(), [&](int a, int b){ return in[a] < in[b]; });
+    int s = (int)v.size();
+    for (int i = 0; i + 1 < s; ++i) v.push_back(lca(v[i], v[i+1]));
+    sort(v.begin(), v.end(), [&](int a, int b){ return in[a] < in[b]; });
+    v.erase(unique(v.begin(), v.end()), v.end());
+    vector<pair<int,int>> ret;
+    stack<int> st;
+    st.push(v[0]);
+    ret.emplace_back(v[0], -1);
+    for (int i = 1; i < (int)v.size(); ++i) {
+      while (!is_ancestor(st.top(), v[i])) st.pop();
+      ret.emplace_back(v[i], st.top());
+      st.push(v[i]);
+    }
+    return ret;
+  }
+
+  vector<int> buildtree(vector<int> v) {
+    sort(v.begin(), v.end(), [&](int x, int y) {
+      return in[x] < in[y];
+    });
+    int s = v.size();
+    for (int i = 0; i < s - 1; i++) {
+      int lc = lca(v[i], v[i + 1]);
+      v.push_back(lc);
+    }
+    sort(v.begin(), v.end());
+    v.erase(unique(v.begin(), v.end()), v.end());
+    sort(v.begin(), v.end(), [&](int x, int y) {
+      return in[x] < in[y];
+    });
+    stack<int> st;
+    st.push(v[0]);
+    for (int i = 1; i < v.size(); i++) {
+      while (!is_ancestor(st.top(), v[i])) st.pop();
+      aux_tree[st.top()].push_back(v[i]);
+      st.push(v[i]);
+    }
+    return v;
+  }
+
+  pair<int, int> find_farthest(int src) {
+    vector<int> d(n, -1);
+    queue<int> q;
+    q.push(src); d[src] = 0;
+    int far = src;
+    while (!q.empty()) {
+      int u = q.front(); q.pop();
+      if (d[u] > d[far]) far = u;
+      for (int v : g[u]) if (d[v] == -1) {
+        d[v] = d[u] + 1; q.push(v);
+      }
+    }
+    return {far, d[far]};
+  }
+};
