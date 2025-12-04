@@ -1,5 +1,6 @@
 struct P {
-  int64_t x, y, id;
+  using T = long double;
+  T x, y;
   void read() { cin >> x >> y; }
   P operator - (const P &b) const { return P{x - b.x, y - b.y}; }
   P operator + (const P &b) const { return P{x + b.x, y + b.y}; }
@@ -7,11 +8,11 @@ struct P {
   void operator += (const P &b) { x += b.x; y += b.y; }
   bool operator < (const P &b) const { return x == b.x ? y < b.y : x < b.x; }
   bool operator == (const P &b) const { return x == b.x && y == b.y; }
-  int64_t operator * (const P &b) const { // cross product (this x b)
+  T operator * (const P &b) const { // cross product (this x b)
     return x * b.y - y * b.x;
   }
-  int64_t cross (P &a, P &b) {
-    return (a.x - x) * (b.y - y) - (a.y - y) * (b.x - x);
+  T cross (P &a, P &b) {
+    return (a - *this) * (b - *this);
   }
 };
 
