@@ -1,0 +1,5 @@
+long double lgC(long double n, long double r) {
+  if (r > n) return -INFINITY;
+  if (r < 0 || n < 0) return -INFINITY;
+  return lgammal(n + 1) - lgammal(n - r + 1) - lgammal(r + 1);
+}
