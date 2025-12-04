@@ -1,0 +1,39 @@
+vector<P> convexHull(vector<P> p) {
+  int n = p.size();
+  sort(p.begin(), p.end());
+  vector<P> low;
+  // use '<' -> if we want to keep co-linear points
+  // use '<=' -> if we want to remove co-linear points
+  for (int i = 0; i < n; i++) {
+    while (low.size() >= 2 && low[low.size() - 2].cross(low[low.size() - 1], p[i]) < 0) low.pop_back();
+    low.push_back(p[i]);
+  }
+  vector<P> up;
+  for (int i = n - 1; i >= 0; --i) {
+    while (up.size() >= 2 && up[up.size() - 2].cross(up[up.size() - 1], p[i]) < 0) up.pop_back();
+    up.push_back(p[i]);
+  }
+  low.pop_back();
+  up.pop_back();
+  low.insert(low.end(), up.begin(), up.end());
+  return low;
+}
+
+int is_point_in_polygon(const vector<P> &p, const P &q) {
+  int n = p.size(), inside = 0;
+  for (int i = 0; i < n; ++i) {
+    int j = (i + 1) % n;
+    auto a = p[i], b = p[j];
+    if ((b - a) * (q - a) == 0 && min(a.x, b.x) <= q.x && q.x <= max(a.x, b.x) && min(a.y, b.y) <= q.y && q.y <= max(a.y, b.y))
+      return 2;
+    if ((a.y <= q.y && q.y < b.y || b.y <= q.y && q.y < a.y) && q.x * (b.y - a.y) < a.x * (b.y - a.y) + (b.x - a.x) * (q.y - a.y))
+      inside = !inside;
+  }
+  return inside;
+}
+
+long double polygon_area(vector<P> &p) {
+  int64_t area = 0, n = p.size();
+  for (int i = 0; i < n; ++i) area += p[i] * p[(i + 1) % n];
+  return abs(area) / 2;
+}
