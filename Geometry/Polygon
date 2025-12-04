@@ -25,15 +25,12 @@ vector<P> convexHull(vector<P> p) {
   return low;
 }
 
-int is_point_in_polygon(const vector<P> &p, const P &q) {
-  int n = p.size(), inside = 0;
-  for (int i = 0; i < n; ++i) {
-    int j = (i + 1) % n;
-    auto a = p[i], b = p[j];
-    if ((b - a) * (q - a) == 0 && min(a.x, b.x) <= q.x && q.x <= max(a.x, b.x) && min(a.y, b.y) <= q.y && q.y <= max(a.y, b.y))
-      return 2;
-    if ((a.y <= q.y && q.y < b.y || b.y <= q.y && q.y < a.y) && q.x * (b.y - a.y) < a.x * (b.y - a.y) + (b.x - a.x) * (q.y - a.y))
-      inside = !inside;
+int is_point_in_polygon(const vector<P>& p, P q) {
+  int c = 0;
+  for (int i = 0, n = p.size(); i < n; ++i) {
+    P a = p[i], b = p[(i + 1) % n];
+    if ((b - a) * (q - a) == 0 && min(a.x, b.x) <= q.x && q.x <= max(a.x, b.x) && min(a.y, b.y) <= q.y && q.y <= max(a.y, b.y)) return 2;
+    if ((a.y > q.y) != (b.y > q.y) && ((b - a) * (q - a) > 0) == (a.y < b.y)) c = !c;
   }
-  return inside;
+  return c;
 }
