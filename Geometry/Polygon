@@ -6,6 +6,7 @@ long double polygon_area(vector<P> &p) {
 
 vector<P> convexHull(vector<P> p) {
   int n = p.size();
+  if (n <= 2) return p;
   sort(p.begin(), p.end());
   vector<P> low;
   // use '<' -> if we want to keep co-linear points
