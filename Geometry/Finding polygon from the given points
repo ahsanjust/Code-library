@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+
+#define all(x) (x).begin(), (x).end()
+#define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+using T = int64_t;
+
+struct P {
+  T x, y, ind;
+  void read() { cin >> x >> y; }
+  P operator - (const P &b) const { return P{x - b.x, y - b.y}; }
+  P operator + (const P &b) const { return P{x + b.x, y + b.y}; }
+  void operator -= (const P &b) { x -= b.x; y -= b.y; }
+  void operator += (const P &b) { x += b.x; y += b.y; }
+  bool operator < (const P &b) const { return x == b.x ? y < b.y : x < b.x; }
+  bool operator == (const P &b) const { return x == b.x && y == b.y; }
+  T operator * (const P &b) const { // cross product (this x b)
+    return x * b.y - y * b.x;
+  }
+  T cross (P &a, P &b) {
+    return (a - *this) * (b - *this);
+  }
+};
+
+T dist(P &a, P &b) {
+  return ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+}
+
+void solve(int cs) {
+  int n;
+  cin >> n;
+  vector<P> p(n);
+  for (int i = 0; i < n; i++) {
+    p[i].read();
+    p[i].ind = i;
+  }
+  sort(p.begin(), p.end());
+
+  sort(p.begin() + 1, p.end(), [&](P &a, P &b){
+    int64_t C = p[0].cross(a, b);
+    if (C != 0) return C > 0;
+    return dist(p[0], a) < dist(p[0], b);
+  });
+
+  cout << "Case " << cs << ":\n";
+
+  int where = -1;
+
+  for (int i = n - 2; i > 0; --i) {
+    if (p[0].cross(p[i], p[n - 1]) != 0) {
+      where = i;
+      break;
+    }
+  }
+
+  if (where == -1) {
+    cout << "Impossible\n";
+    return;
+  }
+
+  reverse(p.begin() + where + 1, p.end());
+
+  for (int i = 0; i < n; i++) {
+    cout << p[i].ind << " \n"[i == n - 1];
+  }
+
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int t = 1, cs = 1;
+  cin >> t;
+  while (t--) {
+    solve(cs++);
+  }
+  return 0;
+}
