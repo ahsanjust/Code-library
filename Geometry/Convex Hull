@@ -1,4 +1,4 @@
-vector<P> convexHull(vector<P> &p) {
+vector<P> convexHull(vector<P> p) {
   int n = p.size();
   sort(p.begin(), p.end());
   vector<P> low;
