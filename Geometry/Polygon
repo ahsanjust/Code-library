@@ -35,3 +35,8 @@ int is_point_in_polygon(const vector<P>& p, P q) {
   }
   return c;
 }
+
+double angle_at_vertex(P &a, P &b, P &c) {
+  double ang_rad = atan2l(fabs(b.cross(a, c)), b.dot(a, c));
+  return ang_rad * 180.0L / acosl(-1.0L);
+}
