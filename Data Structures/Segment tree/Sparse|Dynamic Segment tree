@@ -104,3 +104,144 @@ struct sparse_segment_tree {
     return range_minmax(0, 1, N, l, r);
   }
 };
+
+
+struct sparse_segment_tree {
+  const int64_t INF = numeric_limits<int64_t>::max() / 8;
+  struct Node {
+    int l = -1, r = -1;
+    int64_t mn = 0, mx = 0, add = 0;
+    int64_t sum = 0;
+  };
+  uint64_t N;
+  vector<Node> pool;
+  sparse_segment_tree(uint64_t N_ = 1) : N(max<uint64_t>(1, N_)) {
+    pool.reserve(1 << 20);
+    pool.push_back(Node());
+  }
+  inline int newNode() { pool.push_back(Node()); return (int)pool.size() - 1; }
+
+  void push(int idx, uint64_t L, uint64_t R) {
+    if (idx < 0) return;
+    int64_t v = pool[idx].add;
+    if (v == 0) return;
+    if (L == R) { pool[idx].add = 0; return; }
+    uint64_t M = L + (R - L) / 2;
+    if (pool[idx].l == -1) pool[idx].l = newNode();
+    if (pool[idx].r == -1) pool[idx].r = newNode();
+    int Lc = pool[idx].l, Rc = pool[idx].r;
+    uint64_t left_len = M - L + 1;
+    uint64_t right_len = R - M;
+    pool[Lc].add += v; pool[Lc].mn += v; pool[Lc].mx += v;
+    pool[Lc].sum += v * left_len;
+    pool[Rc].add += v; pool[Rc].mn += v; pool[Rc].mx += v;
+    pool[Rc].sum += v * right_len;
+    pool[idx].add = 0;
+  }
+
+  void range_add(int idx, uint64_t L, uint64_t R, uint64_t ql, uint64_t qr, int64_t val) {
+    if (ql > R || qr < L) return;
+    if (ql <= L && R <= qr) {
+      pool[idx].add += val;
+      pool[idx].mn += val;
+      pool[idx].mx += val;
+      uint64_t len = R - L + 1;
+      pool[idx].sum += val * len;
+      return;
+    }
+    push(idx, L, R);
+    uint64_t M = L + (R - L) / 2;
+    if (ql <= M) {
+      if (pool[idx].l == -1) pool[idx].l = newNode();
+      range_add(pool[idx].l, L, M, ql, qr, val);
+    }
+    if (qr > M) {
+      if (pool[idx].r == -1) pool[idx].r = newNode();
+      range_add(pool[idx].r, M + 1, R, ql, qr, val);
+    }
+
+    bool hasL = pool[idx].l != -1;
+    bool hasR = pool[idx].r != -1;
+    int64_t left_mn = 0, left_mx = 0, right_mn = 0, right_mx = 0;
+    int64_t left_sum = 0, right_sum = 0;
+    if (hasL) { left_mn = pool[pool[idx].l].mn; left_mx = pool[pool[idx].l].mx; left_sum = pool[pool[idx].l].sum; }
+    if (hasR) { right_mn = pool[pool[idx].r].mn; right_mx = pool[pool[idx].r].mx; right_sum = pool[pool[idx].r].sum; }
+
+    if (hasL && hasR) {
+      pool[idx].mn = min(left_mn, right_mn);
+      pool[idx].mx = max(left_mx, right_mx);
+    } else if (hasL) {
+      pool[idx].mn = min(left_mn, (int64_t)0);
+      pool[idx].mx = max(left_mx, (int64_t)0);
+    } else if (hasR) {
+      pool[idx].mn = min((int64_t)0, right_mn);
+      pool[idx].mx = max((int64_t)0, right_mx);
+    } else {
+      pool[idx].mn = pool[idx].mx = 0;
+    }
+
+    pool[idx].sum = left_sum + right_sum;
+  }
+
+  pair<int64_t,int64_t> range_minmax(int idx, uint64_t L, uint64_t R, uint64_t ql, uint64_t qr) {
+    if (ql > R || qr < L) return {INF, -INF};
+    if (idx == -1) {
+      return {0, 0};
+    }
+    if (ql <= L && R <= qr) return {pool[idx].mn, pool[idx].mx};
+    push(idx, L, R);
+    uint64_t M = L + (R - L) / 2;
+    pair<int64_t,int64_t> left = {INF, -INF}, right = {INF, -INF};
+
+    if (ql <= M) {
+      if (pool[idx].l != -1) left = range_minmax(pool[idx].l, L, M, ql, qr);
+      else left = {0, 0};
+    }
+    if (qr > M) {
+      if (pool[idx].r != -1) right = range_minmax(pool[idx].r, M + 1, R, ql, qr);
+      else right = {0, 0};
+    }
+
+    int64_t mn = INF, mx = -INF;
+    if (left.first != INF) { mn = min(mn, left.first); mx = max(mx, left.second); }
+    if (right.first != INF) { mn = min(mn, right.first); mx = max(mx, right.second); }
+    if (mn == INF && mx == -INF) return {0, 0};
+    return {mn, mx};
+  }
+
+  int64_t range_sum(int idx, uint64_t L, uint64_t R, uint64_t ql, uint64_t qr) {
+    if (ql > R || qr < L) return 0;
+    if (idx == -1) return 0;
+    if (ql <= L && R <= qr) return pool[idx].sum;
+    push(idx, L, R);
+    uint64_t M = L + (R - L) / 2;
+    int64_t res = 0;
+    if (ql <= M) {
+      if (pool[idx].l != -1) res += range_sum(pool[idx].l, L, M, ql, qr);
+    }
+    if (qr > M) {
+      if (pool[idx].r != -1) res += range_sum(pool[idx].r, M + 1, R, ql, qr);
+    }
+    return res;
+  }
+
+  void range_add(uint64_t l, uint64_t r, int64_t val) {
+    if (l > r) return;
+    if (l < 1) l = 1;
+    if (r > N) r = N;
+    range_add(0, 1, N, l, r, val);
+  }
+  pair<int64_t,int64_t> range_minmax(uint64_t l, uint64_t r) {
+    if (l > r) return {0,0};
+    if (l < 1) l = 1;
+    if (r > N) r = N;
+    return range_minmax(0, 1, N, l, r);
+  }
+
+  int64_t range_sum(uint64_t l, uint64_t r) {
+    if (l > r) return 0;
+    if (l < 1) l = 1;
+    if (r > N) r = N;
+    return range_sum(0, 1, N, l, r);
+  }
+};
