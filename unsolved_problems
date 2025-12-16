@@ -1,5 +1,3 @@
-- https://toph.co/p/colded-lcm (iterate on possible gcds)
-
 - https://www.hackerearth.com/problem/algorithm/yet-another-sum-problem/
 - https://codeforces.com/contest/1706/problem/D1
 - https://codeforces.com/gym/102803/problem/H
@@ -41,3 +39,8 @@
 
 - https://atcoder.jp/contests/abc435/tasks/abc435_f (dp)
 - https://atcoder.jp/contests/abc435/tasks/abc435_g (dp)
+
+- https://toph.co/p/grid-minimization
+- https://toph.co/p/merge-the-cycles-hard (trie)
+- https://toph.co/p/balanced-array-transformation
+- https://toph.co/p/the-broken-bridge-forest
