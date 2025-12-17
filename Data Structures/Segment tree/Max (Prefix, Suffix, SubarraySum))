@@ -1,20 +1,20 @@
 struct info {
   int64_t sum;
-  int64_t maxPrefix;
-  int64_t maxSuffix;
-  int64_t maxSubarray;
-  info() : sum(0), maxPrefix(-1e17), maxSuffix(-1e17), maxSubarray(-1e17) {}
+  int64_t mxp;
+  int64_t mxs;
+  int64_t mxsub;
+  info() : sum(0), mxp(-1e17), mxs(-1e17), mxsub(-1e17) {}
   info(int v) {
-    sum = maxPrefix = maxSuffix = maxSubarray = v;
+    sum = mxp = mxs = mxsub = v;
   }
 };
 
 info merge(const info &a, const info &b) {
   info res = info();
   res.sum = a.sum + b.sum;
-  res.maxPrefix = max(a.maxPrefix, a.sum + b.maxPrefix);
-  res.maxSuffix = max(b.maxSuffix, b.sum + a.maxSuffix);
-  res.maxSubarray = max({a.maxSubarray, b.maxSubarray, a.maxSuffix + b.maxPrefix});
+  res.mxp = max(a.mxp, a.sum + b.mxp);
+  res.mxs = max(b.mxs, b.sum + a.mxs);
+  res.mxsub = max({a.mxsub, b.mxsub, a.mxs + b.mxp});
   return res;
 }
 
