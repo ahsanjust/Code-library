@@ -1,3 +1,13 @@
+Initialize	Trie T;
+Insert Value	T.add(val, 1);
+Delete Value	T.add(val, -1);
+Count values < K	T.count_xor_less(0, K);
+Rank of val	T.count_xor_less(0, val) + 1;
+Get Median	T.get_kth((T.root->cnt + 1) / 2);
+Min XOR with X	int v = T.get_xor_kth(X, 1); (Result is v^X)
+Max XOR with X	int v = T.get_xor_kth(X, T.root->cnt);
+Problem B Special	T.count_special(X);
+
 struct Trie {
   static const int B = 31;
   struct Node {
