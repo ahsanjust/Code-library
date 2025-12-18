@@ -44,6 +44,16 @@ struct Trie {
     }
     return ans;
   }
+  // Check if x exists in the Trie
+  int count(int x) {
+    Node *u = root;
+    for (int i = B - 1; ~i; --i) {
+      int d = (x >> i) & 1;
+      if (!u->c[d] || u->c[d]->cnt == 0) return 0;
+      u = u->c[d];
+    }
+    return u->cnt;
+  }  
   // Returns value 'v' where (v ^ x) is the K-th smallest XOR sum
   // k=1 -> Min XOR | k=Total -> Max XOR
   int get_xor_kth(int x, int k) {
@@ -75,13 +85,3 @@ struct Trie {
   }
   int64_t count_special(int x) { return go(root, B - 1, x, 1, 1); }
 };
-
-Initialize	Trie T;
-Insert Value	T.add(val, 1);
-Delete Value	T.add(val, -1);
-Count values < K	T.count_xor_less(0, K);
-Rank of val	T.count_xor_less(0, val) + 1;
-Get Median	T.get_kth((T.root->cnt + 1) / 2);
-Min XOR with X	int v = T.get_xor_kth(X, 1); (Result is v^X)
-Max XOR with X	int v = T.get_xor_kth(X, T.root->cnt);
-Problem B Special	T.count_special(X);
