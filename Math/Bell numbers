@@ -1,2 +1,11 @@
 https://chatgpt.com/s/t_694d3cc5248881918e8bb8af565394ff
 
+void compute_bell(int n) {
+    bell[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        bell[i] = 0;
+        for (int k = 0; k <= i - 1; k++) {
+            bell[i] = add(bell[i], mul(C[i - 1][k], bell[i - k - 1]));
+        }
+    }
+}
