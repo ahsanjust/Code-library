@@ -1,0 +1,59 @@
+.stack 100h
+.model small
+
+.data
+    msg1 db "Enter the first number: $"
+    msg2 db "Enter the second number: $"
+    msg3 db "The sum is: $"
+    
+.code
+    proc main
+        mov ax, @data
+        mov ds, ax
+        
+        lea dx, msg1
+        mov ah, 09h
+        int 21h
+                  
+        mov ah, 01h
+        int 21h
+        sub al, 48
+        mov bl, al
+        
+        mov dl, 10
+        mov ah, 02h
+        int 21h
+        mov dl, 13
+        mov ah, 02h
+        int 21h
+        
+        lea dx, msg2
+        mov ah, 09h
+        int 21h
+        
+        mov ah, 01h
+        int 21h
+        sub al, 48
+        add bl, al
+        
+        add bl, 48
+        
+        mov dl, 10
+        mov ah, 02h
+        int 21h
+        mov dl, 13
+        mov ah, 02h
+        int 21h
+        
+        lea dx, msg3
+        mov ah, 09h
+        int 21h
+        
+        mov dl, bl
+        mov ah, 02h
+        int 21h
+        
+        mov ah, 4ch
+        int 21h       
+    endp main
+end main
