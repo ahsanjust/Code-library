@@ -1,0 +1,37 @@
+.model small
+.stack 100h
+
+.data
+    ; 1. declaring a byte (8-bit) variable
+    char_var   db 'a'
+    
+    ; 2. declaring a numeric byte
+    num_var    db 5
+    
+    ; 3. declaring a string (must end with $)
+    string_var db 'hello world$'
+    
+    ; 4. declaring a word (16-bit) variable
+    word_var   dw 1234h    ; 'h' denotes hexadecimal
+
+.code
+main proc
+    ; initialize data segment (important!)
+    mov ax, @data
+    mov ds, ax
+
+    ; display the character 'a' from memory
+    mov dl, char_var
+    mov ah, 02h
+    int 21h
+
+    ; display the string from memory
+    lea dx, string_var
+    mov ah, 09h
+    int 21h
+
+    ; exit
+    mov ah, 4ch
+    int 21h
+main endp
+end main
