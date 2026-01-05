@@ -14,3 +14,23 @@ Highlight key concepts and formulas
 Provide examples
 Give me practice questions with solutions
 Help me remember the important points for the exam.
+
+Q. MCQ question making: 
+You are an expert exam-writer, pedagogue, and subject-matter reviewer. I provided the contents three modules. Using those modules, produce exactly **100 multiple-choice questions (MCQs)** that collectively:
+- Cover every major topic and important subtopic across the three modules (do not skip any important area).
+- Mix difficulty levels: ~40% easy, ~40% medium, ~20% hard.
+- Use clear, unambiguous wording suitable for exam preparation.
+For each question provide:
+1. Question ID and module name (e.g., Q12 — Module 2).
+2. The question stem.
+3. Four answer choices labelled A), B), C), D) — plausible distractors.
+4. The correct answer (single letter).
+5. A concise explanation (1–2 sentences) explaining why that choice is correct and, if helpful, why the others are incorrect.
+Additional instructions:
+- Avoid overly trivial or purely recall-only items; include conceptual and application-style items.
+- Do not repeat content across questions.
+- If a concept is especially important, create one easier and one harder question about it.
+- Output the entire set as a single numbered list grouped by module (Module 1 → Module 2 → Module 3).
+
+
+
