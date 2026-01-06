@@ -1,0 +1,23 @@
+.stack 100h
+.model small
+
+.data
+    
+.code
+    proc main
+    
+    mov ah, 1h
+    int 21h
+    mov bl, 'A'
+    sub bl, 'a'
+    
+    add al, bl
+    
+    mov dl, al
+    mov ah, 2h
+    int 21h
+          
+    mov ah, 4ch
+    int 21h
+    endp main
+ end main
