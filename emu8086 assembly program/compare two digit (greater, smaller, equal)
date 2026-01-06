@@ -1,0 +1,44 @@
+.stack 100h
+.model small
+
+.data
+    msg1 db "First digit is greater.$"
+    msg2 db "Second digit is greater.$"
+    msg3 db "Both are equal.$"
+.code
+    proc main
+    
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 1h
+    int 21h
+    mov bl, al
+    
+    mov ah, 1h
+    int 21h
+    
+    cmp bl, al
+    ja first_is_greater
+    je both_are_equal
+    
+    lea dx, msg2
+    mov ah, 9h
+    int 21h
+    jmp exit
+ 
+    first_is_greater:
+        lea dx, msg1
+        mov ah, 9h
+        int 21h
+        jmp exit
+    both_are_equal:
+        lea dx, msg3
+        mov ah, 9h
+        int 21h
+        
+    exit:          
+    mov ah, 4ch
+    int 21h
+    endp main
+ end main
