@@ -1,0 +1,51 @@
+.stack 100h
+.model small
+
+.data
+    a db ?
+    b db ?
+    sum db ?
+    subtr db ?
+.code
+    proc main
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 1h
+    int 21h
+    sub al, 48
+    mov a, al
+    
+    mov ah, 1h
+    int 21h   
+    sub al, 48
+    mov b, al
+    
+    mov bl, a
+    add bl, b
+    add bl, 48
+    mov sum, bl
+    
+    mov bl, a
+    sub bl, b
+    add bl, 48
+    mov subtr, bl
+    
+    mov dl, 10
+    mov ah, 2h
+    int 21h
+    mov dl, 13
+    mov ah, 2h
+    int 21h
+    
+    mov dl, sum
+    mov ah, 2h
+    int 21h
+    mov dl, subtr
+    mov ah, 2h
+    int 21h
+           
+    mov ah, 4ch
+    int 21h
+    endp main
+ end main
