@@ -33,4 +33,22 @@ Additional instructions:
 - Output the entire set as a single numbered list grouped by module (Module 1 → Module 2 → Module 3).
 
 
+Q. to learn a chapter for an upcoming exam.
+Act as a university professor grading a final exam. I need to study this attached chapter for an upcoming test. My goal is to learn the material as fast as possible while ensuring I can answer complex questions.
+Please analyze the chapter and generate a 'High-Yield Study Guide' that covers the following 3 sections:
+Part 1: The Core Concepts (The 'What' and 'Why')
+Break down the top 5-7 most critical topics. For each topic, provide:
+- Definition: A concise, technical definition I can write on an exam.
+- Intuition: A 1-sentence 'real world' analogy to help me understand it instantly.
+- Keywords: 3-4 specific technical terms I must use in my answer to get full credit.
+Part 2: Strategic Comparisons (The 'Smarter' Prep)
+Professors love asking 'Compare and Contrast' questions. Please identify the 2-3 most likely comparisons in this chapter (e.g., Algorithm A vs. Algorithm B, or Concept X vs. Concept Y) and present them in Comparison Tables highlighting their differences, pros, and cons.
+Part 3: The 'Exam Hacker' Section
+- Likely Questions: List 3 potential short questions and 1 potential broad/essay question based on this text.
+- Common Pitfalls: What is one common mistake students usually make regarding this chapter?
+- Mnemonics: If there are any lists, steps, or formulas to memorize, give me a quick mnemonic or trick to remember them.
+Keep the output structured, bulleted, and strictly focused on exam performance. Do not ask me questions, just generate the study guide.
+
+
+
 
