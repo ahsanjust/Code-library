@@ -4,8 +4,16 @@
     "-o",
      "${file_base_name}.exe",
       "&&" ,
-       "${file_base_name}.exe<Input.txt>Output.txt"],
+       "${file_base_name}.exe<input.txt>output.txt"],
   "shell":true,
   "working_dir":"$file_path",
   "selector":"source.cpp"
+}
+
+with info:
+{
+  "shell": true,
+  "cmd": "g++ -std=c++17 \"${file}\" -o \"${file_path}/${file_base_name}.exe\" && powershell -Command \"$t = Measure-Command { cmd /c '${file_base_name}.exe < input.txt > output.txt' }; 'time taken: ' + $t.TotalSeconds + 's' > info.txt\"",
+  "working_dir": "${file_path}",
+  "selector": "source.cpp"
 }
