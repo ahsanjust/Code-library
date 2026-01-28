@@ -1,0 +1,7 @@
+Desired Value,Exact Initialization (std::fill / loop),Fast/Safe Approximation (memset),Decimal Value of Approx
+Infinity (int),INT_MAX,"memset(arr, 0x3f, ...)",≈1.06×109
+Infinity (long long),LLONG_MAX,"memset(arr, 0x3f, ...)",≈4.55×1018
+Neg Infinity (int),INT_MIN,"memset(arr, 0xc0, ...)",≈−1.06×109
+Neg Infinity (long long),LLONG_MIN,"memset(arr, 0xc0, ...)",≈−4.55×1018
+-1,-1,"memset(arr, -1, ...)",−1 (Exact)
+0,0,"memset(arr, 0, ...)",0 (Exact)
