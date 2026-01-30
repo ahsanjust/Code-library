@@ -1,3 +1,26 @@
+void fwht(vector<int> &a, bool inv, int type) { // type : 0 -> or, 1 -> and, 2 -> xor
+	int n = a.size();
+	for (int len = 1; len < n; len <<= 1) {
+		for (int i = 0; i < n; i += 2 * len) {
+			for (int j = 0; j < len; j++) {
+				int u = a[i + j], v = a[i + len + j];
+				if (type == 2) {
+					a[i + j] = add(u, v);
+					a[i + len + j] = sub(u, v);
+				} else if (type == 1) {
+					a[i + j] = inv ? sub(u, v) : add(u, v);
+				} else {
+					a[i + len + j] = inv ? sub(v, u) : add(u, v);
+				}
+			}
+		}
+	}
+	if (inv && type == 2) {
+		int inv_n = power(n, md - 2);
+		for (auto &x : a) x = mul(x , inv_n);
+	}
+}
+
 void fwht_or(vector<int> &a, bool inv) {
 	int n = a.size();
 	for (int len = 1; len < n; len <<= 1) {
