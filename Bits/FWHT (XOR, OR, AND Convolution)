@@ -1,0 +1,40 @@
+void fwht_or(vector<int> &a, bool inv) {
+	int n = a.size();
+	for (int len = 1; len < n; len <<= 1) {
+		for (int i = 0; i < n; i += 2 * len) {
+			for (int j = 0; j < len; j++) {
+				int u = a[i + j], v = a[i + len + j];
+				a[i + len + j] = inv ? sub(v, u) : add(u, v);
+			}
+		}
+	}
+}
+
+void fwht_and(vector<int> &a, bool inv) {
+	int n = a.size();
+	for (int len = 1; len < n; len <<= 1) {
+		for (int i = 0; i < n; i += 2 * len) {
+			for (int j = 0; j < len; j++) {
+				int u = a[i + j], v = a[i + len + j];
+				a[i + j] = inv ? sub(u, v) : add(u, v);
+			}
+		}
+	}
+}
+
+void fwht_xor(vector<int> &a, bool inv) {
+	int n = a.size();
+	for (int len = 1; len < n; len <<= 1) {
+		for (int i = 0; i < n; i += 2 * len) {
+			for (int j = 0; j < len; j++) {
+				int u = a[i + j], v = a[i + len + j];
+				a[i + j] = add(u, v);
+				a[i + len + j] = sub(u, v);
+			}
+		}
+	}
+	if (inv) {
+		int inv_n = power(n, md - 2);
+		for (auto &x : a) x = mul(x , inv_n);
+	}
+}
