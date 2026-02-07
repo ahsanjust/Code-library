@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
+#define take_graph(m) for (int i = 0, u, v; i < m; i++) {cin >> u >> v; --u, --v; g[u].push_back(v); g[v].push_back(u);}
+
+void FIFO(vector<int> &p, int c) {
+	int n = p.size();
+	set<int> st;
+	queue<int> q;
+	int faults = 0;
+	cout << "FIFO\n";
+	for (int i = 0; i < n; i++) {
+		if (!st.count(p[i])) {
+			++faults;
+			if (st.size() == c) {
+				int val = q.front();
+				q.pop();
+				st.erase(val);
+			}
+			st.insert(p[i]);
+			q.push(p[i]);
+			cout << "Page: " << p[i] << " -> Miss\n";
+		} else {
+			cout << "Page: " << p[i] << " -> Hit\n";
+		}
+	}
+	cout << "Total page fault : " << faults << "\n";
+}
+
+void LRU(vector<int> &p, int c) {
+	int n = p.size();
+	vector<int> st;
+	int faults = 0;
+	cout << "LRU: \n";
+	for (int i = 0; i < n; i++) {
+		auto it = find(all(st), p[i]);
+		if (it != st.end()) {
+			st.erase(it);
+			st.push_back(p[i]);
+			cout << "Page: " << p[i] << " -> Hit\n";
+		} else {
+			++faults;
+			if (st.size() == c) {
+				st.erase(st.begin());
+			}
+			st.push_back(p[i]);
+			cout << "Page: " << p[i] << " -> Miss\n";
+		}
+	}
+	cout << "Total page fault : " << faults << "\n";
+}
+
+int32_t main() {
+        cin.tie(0) -> sync_with_stdio(0);
+	int n;
+	cin >> n;
+	vector<int> p(n);
+	for (int i = 0; i < n; i++) cin >> p[i];
+	int c;
+	cin >> c;
+	FIFO(p, c);
+	cout << "\n";
+	LRU(p, c);
+	return 0;
+}
