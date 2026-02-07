@@ -1,0 +1,177 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
+#define take_graph(m) for (int i = 0, u, v; i < m; i++) {cin >> u >> v; --u, --v; g[u].push_back(v); g[v].push_back(u);}
+
+void SJF_non_preemtive(vector<pair<int, int>> &time) {
+	int n = time.size();
+	vector<int> done(n, 0), ct(n, 0);
+	int completed = 0, timer = 0;
+	while (completed < n) {
+		pair<int, int> who = {-1, 2e9};
+		for (int i = 0; i < n; i++) {
+			if (done[i]) continue;
+			if (time[i].first <= timer && who.second > time[i].second) {
+				who.first = i;
+				who.second = time[i].second;
+			}
+		}
+		if (who.first == -1)  {
+			++timer;
+			continue;
+		}
+		timer += who.second;
+		done[who.first] = 1;
+		ct[who.first] = timer;
+		++completed;
+	}
+	vector<int> tat(n), wt(n);
+	for (int i = 0; i < n; i++) {
+		tat[i] = ct[i] - time[i].first;
+		wt[i] = tat[i] - time[i].second;
+	}
+	int totwt = 0;
+	cout << "Non-preemtive SJF: \n";
+	cout << "Waiting time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << wt[i] << "\n";
+		totwt += wt[i];
+	}
+	cout << "Average waiting time: " << (double)totwt / n << "\n";
+	cout << "Turnaround time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << tat[i] << "\n";
+	}
+}
+
+void SJF_preemtive(vector<pair<int, int>> &time) {
+	int n = time.size();
+	vector<int> ct(n), rem(n), done(n);
+	for (int i = 0; i < n; i++) {
+		rem[i] = time[i].second;
+	}
+	int completed = 0, timer = 0;
+	while (completed < n) {
+		pair<int, int> who = {-1, 2e9};
+		for (int i = 0; i < n; i++) {
+			if (done[i]) continue;
+			if (time[i].first <= timer && rem[i] < who.second) {
+				who.first = i;
+				who.second = rem[i];
+			}
+		}
+		if (who.first == -1) {
+			++timer;
+			continue;
+		}
+		--rem[who.first];
+		++timer;
+		if (rem[who.first] == 0) {
+			ct[who.first] = timer;
+			done[who.first] = 1;
+			++completed;
+		}
+	}
+	vector<int> tat(n), wt(n);
+	for (int i = 0; i < n; i++) {
+		tat[i] = ct[i] - time[i].first;
+		wt[i] = tat[i] - time[i].second;
+	}
+	int totwt = 0;
+	cout << "Preemtive SJF: \n";
+	cout << "Waiting time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << wt[i] << "\n";
+		totwt += wt[i];
+	}
+	cout << "Average waiting time: " << (double)totwt / n << "\n";
+	cout << "Turnaround time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << tat[i] << "\n";
+	}	
+}
+
+void round_robin(vector<pair<int, int>> &time, int tq) {
+	int n = time.size();
+	vector<int> ct(n), rem(n), done(n, 0), inqueue(n, 0);
+	for (int i = 0; i < n; i++) {
+		rem[i] = time[i].second;
+		inqueue[i] = false;
+	}
+	queue<int> q;
+	int timer = 0, completed = 0, curTime = 0;
+	while (completed < n) {
+		for (int i = 0; i < n; i++) {
+			if (done[i] || inqueue[i]) continue;
+			if (time[i].first <= timer) {
+				q.push(i);
+				inqueue[i] = true;
+			} 
+		}
+		if (q.empty()) {
+			++timer;
+			continue;
+		}
+		++curTime;
+		++timer;
+		--rem[q.front()];
+		if (rem[q.front()] == 0) {
+			done[q.front()] = 1;
+			ct[q.front()] = timer;
+			++completed;
+			curTime = 0;
+			q.pop();
+		} else if (curTime == tq) {
+			q.push(q.front());
+			q.pop();
+			curTime = 0;
+		}
+	}
+	vector<int> tat(n), wt(n);
+	for (int i = 0; i < n; i++) {
+		tat[i] = ct[i] - time[i].first;
+		wt[i] = tat[i] - time[i].second;
+	}
+	int totwt = 0;
+	cout << "Round Robin: \n";
+	cout << "Waiting time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << wt[i] << "\n";
+		totwt += wt[i];
+	}
+	cout << "Average waiting time: " << (double)totwt / n << "\n";
+	cout << "Turnaround time: \n";
+	for (int i = 0; i < n; i++) {
+		cout << "P" << i + 1 << " : " << tat[i] << "\n";
+	}	
+}
+
+int32_t main() {
+      cin.tie(0) -> sync_with_stdio(0);
+      int n;
+      cin >> n;
+      vector<pair<int, int>> time(n);
+      for (int i = 0; i < n; i++) {
+      	cin >> time[i].first >> time[i].second;
+      }
+      SJF_non_preemtive(time);
+      cout << "\n";
+      SJF_preemtive(time);
+      cout << "\n";
+
+      int tq;
+      cin >> tq;
+      round_robin(time, tq);
+
+      return 0;
+}
