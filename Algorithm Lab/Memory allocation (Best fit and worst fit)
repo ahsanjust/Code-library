@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
+
+void best_fit(vector<int> blocks, vector<int> &p) {
+      int m = blocks.size();
+      int n = p.size();
+      vector<int> allocation(n, -1);
+
+      for (int i = 0; i < n; i++) {
+            int bestIdx = -1;
+            for (int j = 0; j < m; j++) {
+                  if (blocks[j] >= p[i]) {
+                        if (bestIdx == -1)
+                              bestIdx = j;
+                        else if (blocks[j] < blocks[bestIdx])
+                              bestIdx = j;
+                  }
+            }
+
+            if (bestIdx != -1) {
+                  allocation[i] = bestIdx;
+                  blocks[bestIdx] -= p[i];
+            }
+      }
+
+      cout << "Best-Fit Allocation:\n";
+      cout << "Process No.\tProcess Size\tBlock No.\n";
+      for (int i = 0; i < n; i++) {
+            cout << " " << i + 1 << "\t\t" << p[i] << "\t\t";
+            if (allocation[i] != -1)
+                  cout << allocation[i] + 1;
+            else
+                  cout << "Not Allocated";
+            cout << "\n";
+      }
+}
+
+void worst_fit(vector<int> blocks, vector<int> &p) {
+      int m = blocks.size();
+      int n = p.size();
+      vector<int> allocation(n, -1);
+
+      for (int i = 0; i < n; i++) {
+            int worstIdx = -1;
+            for (int j = 0; j < m; j++) {
+                  if (blocks[j] >= p[i]) {
+                        if (worstIdx == -1)
+                              worstIdx = j;
+                        else if (blocks[j] > blocks[worstIdx])
+                              worstIdx = j;
+                  }
+            }
+
+            if (worstIdx != -1) {
+                  allocation[i] = worstIdx;
+                  blocks[worstIdx] -= p[i];
+            }
+      }
+
+      cout << "Worst-Fit Allocation:\n";
+      cout << "Process No.\tProcess Size\tBlock No.\n";
+      for (int i = 0; i < n; i++) {
+            cout << " " << i + 1 << "\t\t" << p[i] << "\t\t";
+            if (allocation[i] != -1)
+                  cout << allocation[i] + 1;
+            else
+                  cout << "Not Allocated";
+            cout << "\n";
+      }
+}
+
+int32_t main() {
+      cin.tie(0) -> sync_with_stdio(0);
+      
+      int m; 
+      cout << "Enter number of blocks: ";
+      cin >> m;
+      vector<int> blocks(m);
+      cout << "Enter block sizes: ";
+      for (int i = 0; i < m; i++) cin >> blocks[i];
+
+      int n; 
+      cout << "Enter number of processes: ";
+      cin >> n;
+      vector<int> processes(n);
+      cout << "Enter process sizes: ";
+      for (int i = 0; i < n; i++) cin >> processes[i];
+
+      best_fit(blocks, processes);
+      cout << "\n";
+      worst_fit(blocks, processes);
+
+      return 0;
+}
