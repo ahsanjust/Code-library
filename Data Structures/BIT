@@ -1,26 +1,28 @@
-template <class T> class Fenwick {
-  int size;
-  vector<T> bit, arr;
-
-  void _upd(vector<T> &bit, int i, T val) {
-    for (++i; i <= size; i += i & -i) bit[i] += val;
+struct fenwick {
+  vector<int64_t> f, vals;
+  int n;
+  fenwick(int _n) : n(_n), f(_n + 1, 0), vals(_n, 0) {}
+  void add(int i, int64_t v) {
+    assert(i >= 0 && i < n);
+    vals[i] += v;
+    for (++i; i <= n; i += i & -i) {
+      f[i] += v;
+    }
   }
-
-  T _pref_sum(const vector<T> &bit, int i) const {
-    T total = 0;
-    for (++i; i > 0; i -= i & -i) total += bit[i];
-    return total;
+  void set(int i, int64_t v) {
+    assert(i >= 0 && i < n);
+    add(i, v - vals[i]);
   }
-
-public:
-  Fenwick() : size(0) {}
-  Fenwick(int n) : size(n), bit(n + 1, 0), arr(n, 0) {}
-
-  void set(int i, T val) { upd(i, i, val - exchange(arr[i], val)); }
-
-  void upd(int i, T val) { _upd(bit, i, val); }
-
-  T pref_sum(int i) const { return _pref_sum(bit, i); }
-
-  T range_sum(int l, int r) const { return pref_sum(r) - (l ? pref_sum(l - 1) : 0); }
+  int64_t get(int i) {
+    assert(i >= 0 && i < n);
+    int64_t ret = 0;
+    for (++i; i > 0; i -= i & -i) {
+      ret += f[i];
+    }
+    return ret;
+  }
+  int64_t range(int l, int r) {
+    if (l > r) return 0;
+    return get(r) - get(l - 1);
+  }
 };
