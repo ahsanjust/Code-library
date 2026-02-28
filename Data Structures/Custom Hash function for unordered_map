@@ -10,4 +10,9 @@ struct custom_hash {
     static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
     return splitmix64(x + FIXED_RANDOM);
   }
+  size_t operator()(const pair<uint64_t, uint64_t>& p) const noexcept {
+    uint64_t a = splitmix64(p.first + 0x9e3779b97f4a7c15ULL);
+    uint64_t b = splitmix64(p.second + 0x9e3779b97f4a7c15ULL + 0xC6A4A7935BD1E995ULL);
+    return (size_t)(a ^ (b << 1));
+  }
 };
