@@ -1,0 +1,28 @@
+const int md = 1e9 + 7;
+// const int md = 998244353;
+int add(int a, int b) { return a + b >= md ? a + b - md : a + b; }
+int mul(int a, int b) { return 1LL * a * b % md; }
+int sub(int a, int b) { return a - b < 0 ? a - b + md : a - b; }
+void self_add(int &a, int b) { if ((a += b) >= md) a -= md; }
+void self_sub(int &a, int b) { if ((a -= b) < 0) a += md; }
+void self_mul(int &a, int b) { a = 1LL * a * b % md; }
+int power(int a, int b) {
+  int res = 1;
+  for (;b > 0; self_mul(a, a), b >>= 1) if (b & 1) self_mul(res, a);
+  return res;
+}
+int _inv(int a) { return power(a, md - 2); }
+int _div(int a, int b) { return mul(a, _inv(b)); }
+
+const int N = 2e6 + 6;
+int fac[N], invfac[N];
+void init() {
+  fac[0] = 1;
+  for (int i = 1; i < N; i++) fac[i] = mul(fac[i - 1], i);
+  invfac[N - 1] = _inv(fac[N - 1]);
+  for (int i = N - 2; i >= 0; i--) invfac[i] = mul(invfac[i + 1], i + 1);
+}
+int C(int n, int r) {
+  if (r < 0 || r > n) return 0;
+  return mul(fac[n], mul(invfac[r], invfac[n - r]));
+}
