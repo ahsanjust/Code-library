@@ -1,0 +1,72 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifndef ONLINE_JUDGE
+#include "trace.cpp"
+#else
+#define dbg(...)
+#endif
+
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
+#define take_graph(m) for (int i = 0, u, v; i < m; i++) {cin >> u >> v; --u, --v; g[u].push_back(v); g[v].push_back(u);}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+  int n;
+  cin >> n;
+  vector<vector<int>> g(n);
+  take_graph(n - 1);
+
+  int tot = 0;
+  vector<int> sz(n, 1), removed(n, 0), cenpar(n, -1);
+
+  auto dfs_sz = [&](auto &&self, int node, int pr) -> void {
+    tot += 1;
+    sz[node] = 1;
+    for (auto &son : g[node]) {
+      if (son == pr || removed[son]) continue;
+      self(self, son, node);
+      sz[node] += sz[son];
+    }
+  };
+
+  auto find_cen = [&](auto &&self, int node, int pr) -> int {
+    for (auto &son : g[node]) {
+      if (son == pr || removed[son]) continue;
+      if (sz[son] > tot / 2) return self(self, son, node);
+    }
+    return node;
+  };
+
+  auto decompose = [&](auto &&self, int node, int pr) -> void {
+    tot = 0;
+    dfs_sz(dfs_sz, node, pr);
+    int cen = find_cen(find_cen, node, pr);
+    removed[cen] = 1;
+    cenpar[cen] = pr;
+    for (auto &son : g[cen]) {
+      if (son == pr || removed[son]) continue;
+      self(self, son, cen);
+    }
+  };
+
+  decompose(decompose, 0, -1);
+
+  for (int i = 0; i < n; i++) g[i].clear();
+
+  int root = -1;
+  for (int i = 0; i < n; i++) {
+    if (cenpar[i] != -1) {
+      g[cenpar[i]].push_back(i);
+      g[i].push_back(cenpar[i]);
+    } else {
+      root = i;
+    }
+  }
+  // now g is the centroid decomposed tree and root is their root
+
+  return 0;
+}
