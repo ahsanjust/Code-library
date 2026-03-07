@@ -13,6 +13,72 @@ using namespace std;
 #define make_unique(x) sort(all((x))); (x).erase(unique(all((x))), (x).end())
 #define take_graph(m) for (int i = 0, u, v; i < m; i++) {cin >> u >> v; --u, --v; g[u].push_back(v); g[v].push_back(u);}
 
+const int N = 1e5 + 5;
+vector<int> g[N];
+int sz[N];
+bool removed[N];
+int n, q, tot;
+int64_t ans;
+
+void cal_sz(int node, int pr) {
+  tot += 1;
+  sz[node] = 1;
+  for (auto &son : g[node]) {
+    if (pr != son && !removed[son]) {
+      cal_sz(son, node);
+      sz[node] += sz[son];
+    }
+  }
+}
+
+int find_cen(int node, int pr) {
+  for (auto &son : g[node]) {
+    if (son == pr || removed[son]) continue;
+    if (sz[son] > tot / 2) return find_cen(son, node);
+  }
+  return node;
+}
+
+void decompose(int node) {
+  tot = 0;
+  cal_sz(node, -1);
+  int cen = find_cen(node, -1);
+  removed[cen] = 1;
+
+
+  auto dfs = [&](auto &&self, int v, int pr) -> void {
+    
+  };
+
+  for (auto &son : g[cen]) {
+    if (!removed[son]) {
+      dfs(dfs, son, cen);
+    }
+  }
+
+  for (auto &son : g[cen]) {
+    if (!removed[son]) {
+      decompose(son);
+    }
+  }
+}
+
+int32_t main() {
+  cin.tie(0) -> sync_with_stdio(0);
+
+  cin >> n;
+
+  take_graph(n - 1);
+
+  decompose(0);
+
+  cout << ans;
+
+  return 0;
+}
+
+
+// Lamda inside the main function
 int32_t main() {
   cin.tie(0) -> sync_with_stdio(0);
   int n;
