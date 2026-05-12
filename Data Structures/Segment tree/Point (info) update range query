@@ -3,7 +3,7 @@ struct info {
   info() {
     
   }
-  info(int val) {
+  info(...) {
     
   }
 };
@@ -14,10 +14,10 @@ info merge(const info &a, const info &b) {
   return res;
 }
 
-struct segment_tree {
+struct ST {
   int _n;
   vector<info> t;
-  segment_tree(int size) {
+  ST(int size) {
     _n = size;
     t.resize(_n << 2);
   }
@@ -27,7 +27,7 @@ struct segment_tree {
       return;
     }
     int m = (s + e) >> 1;
-    build(n << 1, s, m), build(n << 1 | 1, m + 1, e);
+    build(n << 1, s, m, a), build(n << 1 | 1, m + 1, e, a);
     t[n] = merge(t[n << 1], t[n << 1 | 1]);
   }
   void update(int n, int s, int e, int p, const info &v) {
@@ -47,12 +47,13 @@ struct segment_tree {
     return merge(query(n << 1, s, m, l, r), query(n << 1 | 1, m + 1, e, l, r));
   }
   void build (vector<int> &a) {
-    build(1, 0, n - 1, a);
+    build(1, 0, _n - 1, a);
   }
   info query(int l, int r) {
-    return query(1, 0, n - 1, l, r);
+    if (l > r) return info();
+    return query(1, 0, _n - 1, l, r);
   }
   void update(int p, info v) {
-    update(1, 0, n - 1, p, v);
-  }
-};
+    update(1, 0, _n - 1, p, v);
+  }      
+}; 
