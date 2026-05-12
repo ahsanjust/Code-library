@@ -4,8 +4,9 @@
 =======================================================================================
 
 [1] CORE COMPONENTS:
-    - Info: Stores query data (e.g., sum, max, min). Always initialize `sz = 1` for base elements.
+    - Info: Stores query data (e.g., sum, mx, mn, sz). Always initialize `sz = 1`.
     - Tag: Stores lazy updates (e.g., add, set). `set = INF` means no pending set update.
+           Contains `has_update()` for O(1) fast lazy push check.
     - operator+: Defines how two child nodes merge to form a parent node.
     - apply: Defines how a Tag (update) modifies an Info (node) and its existing Tag.
 
@@ -14,20 +15,27 @@
     for (int i = 0; i < N; i++) init[i] = {val[i], val[i], val[i], 1}; // sz must be 1
     ST_Lazy st(N, init);
 
-[3] UPDATES (0-indexed, inclusive [l, r]):
-    - Range Add (add V): st.update(l, r, {V, INF});
-    - Range Set (set V): st.update(l, r, {0, V});
+[3] UPDATES (0-indexed, inclusive bounds [l, r]):
+    - Range Add: st.update(l, r, {add_val, INF});
+    - Range Set: st.update(l, r, {0, set_val});
+    - Point Add: st.update(idx, {add_val, INF});
 
-[4] QUERIES (0-indexed, inclusive [l, r]):
-    Info res = st.query(l, r);
-    // Access res.sum, res.mx, or res.mn based on your need.
+[4] QUERIES (0-indexed, inclusive bounds [l, r]):
+    - Range Query: Info res = st.query(l, r);
+    - Point Query: Info res = st.query(idx);
+    - Array Flatten: vector<Info> arr = st.get_array(); // O(N) extraction of final array
 
-[5] GENERIC BINARY SEARCH (Segment Tree Descent):
-    - Find the FIRST index in [l, r] where a condition is met:
+[5] GENERIC BINARY SEARCH (Condition checks on single nodes):
+    - First index in [l, r] matching condition:
       int idx = st.find_first(l, r, [&](const Info& node) { return node.mx >= target; });
-
-    - Find the LAST index in [l, r] where a condition is met:
+    - Last index in [l, r] matching condition:
       int idx = st.find_last(l, r, [&](const Info& node) { return node.mn <= target; });
+
+[6] CUMULATIVE BINARY SEARCH (Condition checks on accumulated prefix/suffix):
+    - max_right(L, pred): Returns largest R >= L such that pred(query(L, R - 1)) is true.
+      int r = st.max_right(L, [&](const Info& acc) { return acc.sum <= limit; });
+    - min_left(R, pred): Returns smallest L <= R such that pred(query(L, R)) is true.
+      int l = st.min_left(R, [&](const Info& acc) { return acc.sum <= limit; });
 
 =======================================================================================
 */
@@ -44,6 +52,10 @@ struct Info {
 struct Tag {
   int64_t add = 0;
   int64_t set = INF;
+
+  inline bool has_update() const {
+    return add != 0 || set != INF;
+  }
 };
 
 Info operator+(const Info &a, const Info &b) {
@@ -85,13 +97,15 @@ struct ST_Lazy {
   }
 
   inline void pull(int p) {
-    tree[p] = tree[2 * p] + tree[2 * p + 1];
+    tree[p] = tree[p << 1] + tree[p << 1 | 1];
   }
 
   inline void push(int p) {
-    apply(tree[2 * p], lazy[2 * p], lazy[p]);
-    apply(tree[2 * p + 1], lazy[2 * p + 1], lazy[p]);
-    lazy[p] = Tag();
+    if (lazy[p].has_update()) {
+      apply(tree[p << 1], lazy[p << 1], lazy[p]);
+      apply(tree[p << 1 | 1], lazy[p << 1 | 1], lazy[p]);
+      lazy[p] = Tag();
+    }
   }
 
   void build(int p, int l, int r, const vector<Info> &init) {
@@ -99,9 +113,9 @@ struct ST_Lazy {
       tree[p] = init[l];
       return;
     }
-    int mid = (l + r) / 2;
-    build(2 * p, l, mid, init);
-    build(2 * p + 1, mid + 1, r, init);
+    int mid = (l + r) >> 1;
+    build(p << 1, l, mid, init);
+    build(p << 1 | 1, mid + 1, r, init);
     pull(p);
   }
 
@@ -112,9 +126,9 @@ struct ST_Lazy {
       return;
     }
     push(p);
-    int mid = (l + r) / 2;
-    update(2 * p, l, mid, ql, qr, v);
-    update(2 * p + 1, mid + 1, r, ql, qr, v);
+    int mid = (l + r) >> 1;
+    update(p << 1, l, mid, ql, qr, v);
+    update(p << 1 | 1, mid + 1, r, ql, qr, v);
     pull(p);
   }
 
@@ -122,8 +136,8 @@ struct ST_Lazy {
     if (qr < l || ql > r) return Info();
     if (ql <= l && r <= qr) return tree[p];
     push(p);
-    int mid = (l + r) / 2;
-    return query(2 * p, l, mid, ql, qr) + query(2 * p + 1, mid + 1, r, ql, qr);
+    int mid = (l + r) >> 1;
+    return query(p << 1, l, mid, ql, qr) + query(p << 1 | 1, mid + 1, r, ql, qr);
   }
 
   template<class F>
@@ -131,9 +145,9 @@ struct ST_Lazy {
     if (l > qr || r < ql || !pred(tree[p])) return -1;
     if (l == r) return l;
     push(p);
-    int mid = (l + r) / 2;
-    int res = find_first(2 * p, l, mid, ql, qr, pred);
-    if (res == -1) res = find_first(2 * p + 1, mid + 1, r, ql, qr, pred);
+    int mid = (l + r) >> 1;
+    int res = find_first(p << 1, l, mid, ql, qr, pred);
+    if (res == -1) res = find_first(p << 1 | 1, mid + 1, r, ql, qr, pred);
     return res;
   }
 
@@ -142,27 +156,88 @@ struct ST_Lazy {
     if (l > qr || r < ql || !pred(tree[p])) return -1;
     if (l == r) return l;
     push(p);
-    int mid = (l + r) / 2;
-    int res = find_last(2 * p + 1, mid + 1, r, ql, qr, pred);
-    if (res == -1) res = find_last(2 * p, l, mid, ql, qr, pred);
+    int mid = (l + r) >> 1;
+    int res = find_last(p << 1 | 1, mid + 1, r, ql, qr, pred);
+    if (res == -1) res = find_last(p << 1, l, mid, ql, qr, pred);
     return res;
   }
 
-  void update(int ql, int qr, Tag v) { 
-    update(1, 0, n - 1, ql, qr, v); 
-  }
-  
-  Info query(int ql, int qr) { 
-    return query(1, 0, n - 1, ql, qr); 
-  }
-  
-  template<class F>
-  int find_first(int ql, int qr, F pred) { 
-    return find_first(1, 0, n - 1, ql, qr, pred); 
+  void push_all(int p, int l, int r, vector<Info> &res) {
+    if (l == r) {
+      res[l] = tree[p];
+      return;
+    }
+    push(p);
+    int mid = (l + r) >> 1;
+    push_all(p << 1, l, mid, res);
+    push_all(p << 1 | 1, mid + 1, r, res);
   }
 
+  template <class F>
+  int max_right(int p, int l, int r, int ql, int qr, F pred, Info &acc) {
+    if (qr < l || ql > r) return -1;
+    if (ql <= l && r <= qr) {
+      Info merged = acc + tree[p];
+      if (pred(merged)) {
+        acc = merged;
+        return -1;
+      }
+      if (l == r) return l;
+    }
+    push(p);
+    int mid = (l + r) >> 1;
+    int res = max_right(p << 1, l, mid, ql, qr, pred, acc);
+    if (res != -1) return res;
+    return max_right(p << 1 | 1, mid + 1, r, ql, qr, pred, acc);
+  }
+
+  template <class F>
+  int min_left(int p, int l, int r, int ql, int qr, F pred, Info &acc) {
+    if (qr < l || ql > r) return -1;
+    if (ql <= l && r <= qr) {
+      Info merged = tree[p] + acc;
+      if (pred(merged)) {
+        acc = merged;
+        return -1;
+      }
+      if (l == r) return l;
+    }
+    push(p);
+    int mid = (l + r) >> 1;
+    int res = min_left(p << 1 | 1, mid + 1, r, ql, qr, pred, acc);
+    if (res != -1) return res;
+    return min_left(p << 1, l, mid, ql, qr, pred, acc);
+  }
+
+  void update(int ql, int qr, Tag v) { update(1, 0, n - 1, ql, qr, v); }
+  void update(int idx, Tag v) { update(1, 0, n - 1, idx, idx, v); }
+  
+  Info query(int ql, int qr) { return query(1, 0, n - 1, ql, qr); }
+  Info query(int idx) { return query(1, 0, n - 1, idx, idx); }
+  
   template<class F>
-  int find_last(int ql, int qr, F pred) { 
-    return find_last(1, 0, n - 1, ql, qr, pred); 
+  int find_first(int ql, int qr, F pred) { return find_first(1, 0, n - 1, ql, qr, pred); }
+  
+  template<class F>
+  int find_last(int ql, int qr, F pred) { return find_last(1, 0, n - 1, ql, qr, pred); }
+
+  vector<Info> get_array() {
+    vector<Info> res(n);
+    if (n > 0) push_all(1, 0, n - 1, res);
+    return res;
+  }
+
+  template <class F>
+  int max_right(int ql, F pred) {
+    Info acc = Info();
+    int res = max_right(1, 0, n - 1, ql, n - 1, pred, acc);
+    return res == -1 ? n : res;
+  }
+
+  template <class F>
+  int min_left(int qr, F pred) {
+    Info acc = Info();
+    int res = min_left(1, 0, n - 1, 0, qr, pred, acc);
+    return res == -1 ? 0 : res;
   }
 };
