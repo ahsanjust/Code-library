@@ -1,0 +1,167 @@
+# Binomial Identities — সহজ ব্যাখ্যা (Bangla)
+
+> প্রতিটি identity-কে real-life example এবং logical reasoning-এর মাধ্যমে অত্যন্ত সহজভাবে ব্যাখ্যা করা হলো, যাতে এগুলো মুখস্থ না করে visualize করা যায়।
+
+---
+
+## Table of Contents
+
+1. [Symmetry Rule](#1-symmetry-rule)
+2. [Pascal's Identity (Addition Rule)](#2-pascals-identity-addition-rule)
+3. [Absorption Identity (Committee Selection)](#3-absorption-identity-committee-selection)
+4. [Sum of a Row (Total Subsets)](#4-sum-of-a-row-total-subsets)
+5. [Alternating Sum (Inclusion-Exclusion Base)](#5-alternating-sum-inclusion-exclusion-base)
+6. [Sum of Even & Odd Indices](#6-sum-of-even--odd-indices)
+7. [Hockey-Stick Identity (Diagonal Summation)](#7-hockey-stick-identity-diagonal-summation)
+8. [Sum over Upper Index (Varying n)](#8-sum-over-upper-index-varying-n)
+9. [Vandermonde's Convolution](#9-vandermondes-convolution)
+10. [Sum of Squares (Special Case of Vandermonde)](#10-sum-of-squares-special-case-of-vandermonde)
+
+---
+
+## 1. Symmetry Rule
+
+$$
+\boxed{\binom{n}{k} = \binom{n}{n-k}}
+$$
+
+**ব্যাখ্যা:**  
+Combination-এর সবচেয়ে basic concept। ধরুন, আপনার কাছে $10$ টি ভিন্ন ভিন্ন item আছে। আপনি যদি নিজের জন্য $3$ টি item **choose** করেন, তার মানে আপনি বাকি $7$ টি item **reject** করছেন। সুতরাং, $10$ টি থেকে $3$ টি choose করার যতগুলো combination, ঠিক ততগুলোই combination আছে $7$ টি reject করার।
+
+---
+
+## 2. Pascal's Identity (Addition Rule)
+
+$$
+\boxed{\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}}
+$$
+
+**ব্যাখ্যা:**  
+এটি Pascal's Triangle এবং DP states তৈরি করার মূল ভিত্তি। $n$ জনের একটি গ্রুপ থেকে $k$ জনের team বানাতে হবে। গ্রুপের একজন নির্দিষ্ট ব্যক্তি X-এর কথা চিন্তা করুন। দুটি scenario:
+
+- X team-এ **আছে** → বাকি $n-1$ জন থেকে আর $k-1$ জন choose করতে হবে: $\binom{n-1}{k-1}$
+- X team-এ **নেই** → বাকি $n-1$ জন থেকেই পুরো $k$ জন choose করতে হবে: $\binom{n-1}{k}$
+
+দুটি case-এর যোগফলই মোট combinations।
+
+---
+
+## 3. Absorption Identity (Committee Selection)
+
+$$
+\boxed{k \cdot \binom{n}{k} = n \cdot \binom{n-1}{k-1}}
+$$
+
+**ব্যাখ্যা:**  
+$n$ জন থেকে $k$ জনের committee বানিয়েそこ থেকে একজনকে President select করতে হবে।
+
+- **Approach 1:** প্রথমে $n$ জন থেকে $k$ জনের committee $\binom{n}{k}$, তারপর President $\times k$
+- **Approach 2:** প্রথমে $n$ জন থেকে President $n$, তারপর বাকি $n-1$ জন থেকে committee-র বাকি $k-1$ জন $\binom{n-1}{k-1}$
+
+উভয় approach-ই সমান।
+
+---
+
+## 4. Sum of a Row (Total Subsets)
+
+$$
+\boxed{\sum_{k=0}^{n} \binom{n}{k} = 2^n}
+$$
+
+**ব্যাখ্যা:**  
+একটি $n$ size-এর set-এ total subsets = $0$ টি element নেওয়া + $1$ টি নেওয়া + … + সব $n$ টি নেওয়া।  
+প্রতিটি element-এর জন্য ২টি choice: subset-এ থাকবে বা থাকবে না।  
+সুতরাং total combinations = $2 \times 2 \times \dots = 2^n$।
+
+---
+
+## 5. Alternating Sum (Inclusion-Exclusion Base)
+
+$$
+\boxed{\sum_{k=0}^{n} (-1)^k \binom{n}{k} = 0}
+$$
+
+**ব্যাখ্যা:**  
+Inclusion-Exclusion principle-এর fundamental base।  
+একটি set-এ even size-এর subset-এর সংখ্যা = odd size-এর subset-এর সংখ্যা।  
+Even term (+) এবং odd term (-) একসাথে যোগ করলে result $0$ হয়।
+
+---
+
+## 6. Sum of Even & Odd Indices
+
+$$
+\boxed{\binom{n}{1} + \binom{n}{3} + \binom{n}{5} + \dots = 2^{n-1}}
+$$
+$$
+\boxed{\binom{n}{0} + \binom{n}{2} + \binom{n}{4} + \dots = 2^{n-1}}
+$$
+
+**ব্যাখ্যা:**  
+Even এবং odd size-এর subsets-এর সংখ্যা সমান (Identity 5 থেকে)।  
+Total subsets = $2^n$, সুতরাং প্রতিটি group-এর জন্য = $2^{n-1}$।
+
+---
+
+## 7. Hockey-Stick Identity (Diagonal Summation)
+
+$$
+\boxed{\sum_{i=k}^{n} \binom{i}{k} = \binom{n+1}{k+1}}
+$$
+
+**ব্যাখ্যা:**  
+Pascal's Triangle-এ একটি diagonal বরাবর (উপর থেকে নিচে) element যোগ করলে, শেষ element-টির নিচের উল্টো দিকের element-টি হবে total sum (hockey-stick-এর মতো)।  
+
+**CP Application:** $k$ size-এর group তৈরির জন্য available item $k$ থেকে $n$ পর্যন্ত vary করলে, loop-এর বদলে $O(1)$-এ $C(n+1, k+1)$ ব্যবহার করা যায়।
+
+---
+
+## 8. Sum over Upper Index (Varying n)
+
+$$
+\boxed{\sum_{m=0}^{n} \binom{m}{k} = \binom{n+1}{k+1}}
+$$
+
+**ব্যাখ্যা:**  
+Identity 7-এরই আরেকটি mathematical representation। $m < k$-এর জন্য $\binom{m}{k} = 0$, তাই মূল calculation $m = k$ থেকেই শুরু হয় এবং result identical থাকে।
+
+---
+
+## 9. Vandermonde's Convolution
+
+$$
+\boxed{\sum_{k=0}^{r} \binom{m}{k} \cdot \binom{n}{r-k} = \binom{m+n}{r}}
+$$
+
+**ব্যাখ্যা:**  
+একটি group-এ $m$ জন ছেলে এবং $n$ জন মেয়ে। $r$ জনের team বানাতে হবে।  
+আপনি $0$ ছেলে + $r$ মেয়ে, $1$ ছেলে + $r-1$ মেয়ে, …, $r$ ছেলে + $0$ মেয়ে — সব case যোগ করার পরিবর্তে সরাসরি $(m+n)$ জন থেকে $r$ জন choose করলেই একই result পাওয়া যায়।
+
+---
+
+## 10. Sum of Squares (Special Case of Vandermonde)
+
+$$
+\boxed{\sum_{k=0}^{n} \binom{n}{k}^2 = \binom{2n}{n}}
+$$
+
+**ব্যাখ্যা:**  
+Vandermonde's Convolution-এর special case, যেখানে $m = n$ এবং $r = n$।  
+Derivation: $\binom{n}{k}^2 = \binom{n}{k} \cdot \binom{n}{k}$। Symmetry Rule অনুযায়ী দ্বিতীয় $\binom{n}{k}$-কে $\binom{n}{n-k}$ দিয়ে replace করলে এটি Vandermonde pattern-এ পড়ে যায়। অর্থাৎ, $n$ জনের দুটি গ্রুপ (total $2n$) থেকে মোট $n$ জন choose করার সমান।
+
+---
+
+## Quick Reference (সারসংক্ষেপ)
+
+| # | Identity | নাম |
+|---|----------|------|
+| 1 | $\binom{n}{k} = \binom{n}{n-k}$ | Symmetry Rule |
+| 2 | $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$ | Pascal's Identity |
+| 3 | $k\binom{n}{k} = n\binom{n-1}{k-1}$ | Absorption Identity |
+| 4 | $\sum_{k=0}^n \binom{n}{k} = 2^n$ | Total Subsets |
+| 5 | $\sum_{k=0}^n (-1)^k \binom{n}{k} = 0$ | Alternating Sum |
+| 6 | $\sum_{k\text{ odd}} \binom{n}{k} = 2^{n-1}$ | Even/Odd Sum |
+| 7 | $\sum_{i=k}^n \binom{i}{k} = \binom{n+1}{k+1}$ | Hockey-Stick |
+| 8 | $\sum_{m=0}^n \binom{m}{k} = \binom{n+1}{k+1}$ | Sum over Upper Index |
+| 9 | $\sum_{k=0}^r \binom{m}{k}\binom{n}{r-k} = \binom{m+n}{r}$ | Vandermonde |
+| 10 | $\sum_{k=0}^n \binom{n}{k}^2 = \binom{2n}{n}$ | Sum of Squares |
