@@ -1,0 +1,101 @@
+প্রতিটি identity-কে real-life example এবং logical reasoning দিয়ে নিচে অত্যন্ত সহজভাবে explain করা হলো, যাতে এগুলো মুখস্থ করার বদলে আপনি visualize করতে পারেন:
+
+### 1. Symmetry Rule
+
+$$C(n, k) = C(n, n-k)$$
+
+
+এটি combination-এর সবচেয়ে basic concept। ধরুন, আপনার কাছে $10$ টি ভিন্ন ভিন্ন items আছে। আপনি যদি নিজের জন্য $3$ টি item **choose** করেন, তার মানে আপনি logically বাকি $7$ টি item **reject** করছেন। তাই, $10$ টি থেকে $3$ টি choose করার যতগুলো combinations হতে পারে, ঠিক ততগুলোই combinations আছে $7$ টি reject করার।
+
+---
+
+### 2. Pascal's Identity (Addition Rule)
+
+$$C(n, k) = C(n-1, k-1) + C(n-1, k)$$
+
+
+এই identity-টি **Pascal's Triangle** এবং DP states তৈরি করার মূল ভিত্তি। এটিকে একটি বাস্তব উদাহরণ দিয়ে ভাবুন: $n$ জনের একটি গ্রুপ থেকে $k$ জনের একটি team বানাতে হবে। গ্রুপের একজন নির্দিষ্ট মানুষের কথা চিন্তা করুন (ধরি তার নাম X)। এখন দুটি আলাদা scenario হতে পারে:
+
+* X team-এ **আছে**: যেহেতু X already select হয়ে গেছে, তাই বাকি $n-1$ জন থেকে আপনার আর মাত্র $k-1$ জনকে choose করতে হবে।
+* X team-এ **নেই**: যেহেতু X বাদ, তাই বাকি $n-1$ জন থেকেই আপনার পুরো $k$ জনকে choose করতে হবে।
+এই দুটি cases যোগ করলেই total combinations পাওয়া যায়।
+
+---
+
+### 3. Absorption Identity (Committee Selection)
+
+$$k \times C(n, k) = n \times C(n-1, k-1)$$
+
+
+এটিকে **Committee Selection** rule হিসেবে মনে রাখা সবচেয়ে সহজ। ধরুন, $n$ জন থেকে $k$ জনের একটি committee তৈরি করতে হবে এবং সেই committee থেকে একজনকে President হিসেবে select করতে হবে। এটি দুইভাবে করা যায়:
+
+* **Approach 1:** প্রথমে $n$ জন থেকে $k$ জনের committee তৈরি করুন ($C(n, k)$), তারপর সেই $k$ জনের মধ্য থেকে একজনকে President বানান ($\times k$).
+* **Approach 2:** প্রথমেই পুরো $n$ জনের মধ্য থেকে একজনকে President হিসেবে select করে ফেলুন ($n$), তারপর বাকি $n-1$ জন থেকে committee-র বাকি $k-1$ জনকে choose করুন ($C(n-1, k-1)$).
+উভয় approach-এর mathematical result সবসময় সমান।
+
+---
+
+### 4. Sum of a Row (Total Subsets)
+
+$$\sum_{k=0}^{n} C(n, k) = 2^n$$
+
+
+একটি $n$ size-এর set-এর total subsets কয়টি হতে পারে? আপনি $0$ টি element নিতে পারেন, $1$ টি নিতে পারেন, ... অথবা সবগুলো $n$ টি element-ই নিতে পারেন। প্রতিটা individual element-এর জন্য দুটি choices থাকে: হয় সে subset-এ থাকবে, নয়তো থাকবে না। যেহেতু $n$ টি element-এর প্রতিটির ২ টি করে choice, তাই total possible combinations হলো $2 \times 2 \times \dots = 2^n$.
+
+---
+
+### 5. Alternating Sum (Inclusion-Exclusion base)
+
+$$\sum_{k=0}^{n} (-1)^k C(n, k) = 0$$
+
+
+এটি **Inclusion-Exclusion** principle-এর একটি fundamental base। এর simple অর্থ হলো, একটি set-এ যতগুলো even size-এর subsets তৈরি করা সম্ভব, ঠিক ততগুলোই odd size-এর subsets তৈরি করা সম্ভব। তাই even terms (positive sign) এবং odd terms (negative sign) একসাথে add করলে final result সবসময় cancel out হয়ে $0$ হয়।
+
+---
+
+### 6. Sum of Even & Odd Indices
+
+$$C(n, 1) + C(n, 3) + C(n, 5) \dots = 2^{n-1}$$
+
+$$C(n, 0) + C(n, 2) + C(n, 4) \dots = 2^{n-1}$$
+
+
+আগের rule-টি থেকে আমরা জানলাম যে even এবং odd size-এর subsets-এর সংখ্যা exact সমান। যেহেতু সব subsets-এর total sum $2^n$, তাই শুধুমাত্র odd indices অথবা শুধুমাত্র even indices-এর subsets গুলো আলাদা যোগ করলে total sum-এর ঠিক অর্ধেক পাওয়া যাবে। আর $2^n$-এর অর্ধেক হলো $\frac{2^n}{2} = 2^{n-1}$.
+
+---
+
+### 7. Hockey-stick Identity (Diagonal Summation)
+
+$$\sum_{i=k}^{n} C(i, k) = C(n+1, k+1)$$
+
+
+**Pascal's Triangle**-এ যদি আপনি একটি নির্দিষ্ট diagonal বরাবর (উপর থেকে নিচে) element গুলো যোগ করতে থাকেন, তাহলে শেষ element-টির ঠিক নিচের উল্টো দিকের element-টি হবে আপনার total sum (প্যাটার্নটি দেখতে একটি hockey-stick এর মত)।
+CP-তে এর practical application হলো: $k$ size-এর groups তৈরি করার জন্য যদি আপনার available total items $k$ থেকে শুরু করে $n$ পর্যন্ত vary করে, তবে loop চালিয়ে sum বের করার বদলে total combinations একবারে $O(1)$ time complexity-তে $C(n+1, k+1)$ formula দিয়ে বের করা যায়।
+
+---
+
+### 8. Sum over Upper Index (Varying $n$)
+
+$$\sum_{m=0}^{n} C(m, k) = C(n+1, k+1)$$
+
+
+এটি মূলত **Hockey-stick Identity**-এরই আরেকটি mathematical representation। এখানে iteration $m=0$ থেকে শুরু হলেও, $m < k$ এর জন্য $C(m, k)$ এর value সবসময় $0$ হয়। তাই calculation মূলত $m=k$ থেকেই শুরু হয় এবং final result identical থাকে।
+
+---
+
+### 9. Vandermonde's Convolution
+
+$$\sum_{k=0}^{r} \left[ C(m, k) \times C(n, r-k) \right] = C(m+n, r)$$
+
+
+ধরুন, একটি group-এ $m$ জন ছেলে এবং $n$ জন মেয়ে আছে। আপনাকে total $r$ জনের একটি team বানাতে হবে। আপনি চাইলে $0$ জন ছেলে এবং $r$ জন মেয়ে নিতে পারেন, অথবা $1$ জন ছেলে এবং $r-1$ জন মেয়ে নিতে পারেন, ইত্যাদি। এই সব আলাদা আলাদা individual cases গুলো calculate করে যোগ করার চেয়ে, আপনি সরাসরি চিন্তা করতে পারেন যে total মানুষ হলো $(m+n)$ এবং সেখান থেকে সরাসরি $r$ জনকে choose করতে হবে। দুটো approach-এর result সম্পূর্ণ identical.
+
+---
+
+### 10. Sum of Squares (Special Case of Vandermonde)
+
+$$\sum_{k=0}^{n} C(n, k)^2 = C(2n, n)$$
+
+
+এটি **Vandermonde's Convolution**-এর একটি special case, যেখানে $m$ এবং $n$ উভয়ের value সমান ($n$) এবং total selection $r$-এর value-ও $n$.
+Formula-টি এভাবে derive করা হয়: $C(n, k)^2$-কে আমরা $C(n, k) \times C(n, k)$ লিখতে পারি। **Symmetry Rule** অনুযায়ী দ্বিতীয় $C(n, k)$-কে $C(n, n-k)$ দিয়ে replace করলে এটি হুবহু Vandermonde-এর pattern-এ পড়ে যায়। অর্থাৎ, $n$ জনের দুটি গ্রুপ (total $2n$) থেকে মোট $n$ জনকে choose করার সমান।
