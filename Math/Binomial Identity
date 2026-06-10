@@ -1,140 +1,165 @@
-# Binomial Identities — Complete Reference
+# Binomial Identities — সহজ ব্যাখ্যা (Bangla)
 
-> All identities written in plain text for GitHub readability.
-> Each identity includes formula, explanation, and practical use.
+> প্রতিটি identity-কে real-life example এবং logical reasoning-এর মাধ্যমে অত্যন্ত সহজভাবে ব্যাখ্যা করা হলো, যাতে এগুলো মুখস্থ না করে visualize করা যায়।
 
 ---
 
-## Group 1: Basic Relationships
+## Table of Contents
 
-### 1. Symmetry Rule
+1. [Symmetry Rule](#1-symmetry-rule)
+2. [Pascal's Identity (Addition Rule)](#2-pascals-identity-addition-rule)
+3. [Absorption Identity (Committee Selection)](#3-absorption-identity-committee-selection)
+4. [Sum of a Row (Total Subsets)](#4-sum-of-a-row-total-subsets)
+5. [Alternating Sum (Inclusion-Exclusion Base)](#5-alternating-sum-inclusion-exclusion-base)
+6. [Sum of Even & Odd Indices](#6-sum-of-even--odd-indices)
+7. [Hockey-Stick Identity (Diagonal Summation)](#7-hockey-stick-identity-diagonal-summation)
+8. [Sum over Upper Index (Varying n)](#8-sum-over-upper-index-varying-n)
+9. [Vandermonde's Convolution](#9-vandermondes-convolution)
+10. [Sum of Squares (Special Case of Vandermonde)](#10-sum-of-squares-special-case-of-vandermonde)
+
+---
+
+## 1. Symmetry Rule
 
 ```
 C(n, k) = C(n, n-k)
 ```
 
-Choosing k items from n is the same as rejecting (n-k) items. If you pick 3 from 10, you are also rejecting 7 — both have the same number of combinations.
+**ব্যাখ্যা:**  
+Combination-এর সবচেয়ে basic concept। ধরুন, আপনার কাছে 10 টি ভিন্ন ভিন্ন item আছে। আপনি যদি নিজের জন্য 3 টি item **choose** করেন, তার মানে আপনি বাকি 7 টি item **reject** করছেন। সুতরাং, 10 টি থেকে 3 টি choose করার যতগুলো combination, ঠিক ততগুলোই combination আছে 7 টি reject করার।
 
 ---
 
-### 2. Pascal's Identity (Addition Rule)
+## 2. Pascal's Identity (Addition Rule)
 
 ```
 C(n, k) = C(n-1, k-1) + C(n-1, k)
 ```
 
-Pick one person X from the group:
-- **X is selected:** Pick k-1 more from remaining n-1 → C(n-1, k-1)
-- **X is not selected:** Pick all k from remaining n-1 → C(n-1, k)
+**ব্যাখ্যা:**  
+এটি Pascal's Triangle এবং DP states তৈরি করার মূল ভিত্তি। n জনের একটি গ্রুপ থেকে k জনের team বানাতে হবে। গ্রুপের একজন নির্দিষ্ট ব্যক্তি X-এর কথা চিন্তা করুন। দুটি scenario:
 
-Add both cases to get total. This is the foundation of Pascal's Triangle and DP.
+- X team-এ **আছে** → বাকি n-1 জন থেকে আর k-1 জন choose করতে হবে: C(n-1, k-1)
+- X team-এ **নেই** → বাকি n-1 জন থেকেই পুরো k জন choose করতে হবে: C(n-1, k)
+
+দুটি case-এর যোগফলই মোট combinations।
 
 ---
 
-### 3. Absorption Identity (Committee Selection)
+## 3. Absorption Identity (Committee Selection)
 
 ```
 k * C(n, k) = n * C(n-1, k-1)
 ```
 
-Form a k-sized committee from n people, then pick a President from the committee:
-- **Way 1:** Form committee first C(n, k), then pick President (k ways)
-- **Way 2:** Pick President first (n ways), then fill rest of committee C(n-1, k-1)
+**ব্যাখ্যা:**  
+n জন থেকে k জনের committee বানিয়েそこ থেকে একজনকে President select করতে হবে।
 
-Both approaches give the same result.
+- **Approach 1:** প্রথমে n জন থেকে k জনের committee C(n, k), তারপর President * k
+- **Approach 2:** প্রথমে n জন থেকে President n, তারপর বাকি n-1 জন থেকে committee-র বাকি k-1 জন C(n-1, k-1)
+
+উভয় approach-ই সমান।
 
 ---
 
-## Group 2: Summation Patterns
-
-### 4. Sum of a Row (Total Subsets)
+## 4. Sum of a Row (Total Subsets)
 
 ```
 Sum of C(n, k) for k = 0 to n = 2^n
 ```
 
-Each of the n elements has 2 choices: in the subset or out. So total subsets = 2 * 2 * ... (n times) = 2^n.
+**ব্যাখ্যা:**  
+একটি n size-এর set-এ total subsets = 0 টি element নেওয়া + 1 টি নেওয়া + … + সব n টি নেওয়া।  
+প্রতিটি element-এর জন্য ২টি choice: subset-এ থাকবে বা থাকবে না।  
+সুতরাং total combinations = 2 * 2 * ... = 2^n.
 
 ---
 
-### 5. Alternating Sum (Inclusion-Exclusion Base)
+## 5. Alternating Sum (Inclusion-Exclusion Base)
 
 ```
 Sum of (-1)^k * C(n, k) for k = 0 to n = 0
 ```
 
-Number of even-sized subsets = number of odd-sized subsets. They cancel out when added with alternating signs.
+**ব্যাখ্যা:**  
+Inclusion-Exclusion principle-এর fundamental base।  
+একটি set-এ even size-এর subset-এর সংখ্যা = odd size-এর subset-এর সংখ্যা।  
+Even term (+) এবং odd term (-) একসাথে যোগ করলে result 0 হয়।
 
 ---
 
-### 6. Sum of Even & Odd Indices
+## 6. Sum of Even & Odd Indices
 
 ```
 C(n, 1) + C(n, 3) + C(n, 5) + ... = 2^(n-1)
 C(n, 0) + C(n, 2) + C(n, 4) + ... = 2^(n-1)
 ```
 
-From identity 5, even and odd subsets are equal in count. Total is 2^n, so each half is 2^(n-1).
+**ব্যাখ্যা:**  
+Even এবং odd size-এর subsets-এর সংখ্যা সমান (Identity 5 থেকে)।  
+Total subsets = 2^n, সুতরাং প্রতিটি group-এর জন্য = 2^(n-1).
 
 ---
 
-## Group 3: Advanced Summations
-
-### 7. Hockey-stick Identity (Diagonal Summation)
+## 7. Hockey-Stick Identity (Diagonal Summation)
 
 ```
 Sum of C(i, k) for i = k to n = C(n+1, k+1)
 ```
 
-In Pascal's Triangle, summing diagonal elements gives the element below and to the opposite side — forming a hockey-stick shape.
+**ব্যাখ্যা:**  
+Pascal's Triangle-এ একটি diagonal বরাবর (উপর থেকে নিচে) element যোগ করলে, শেষ element-টির নিচের উল্টো দিকের element-টি হবে total sum (hockey-stick-এর মতো)।  
 
-**Use in CP:** Instead of looping k..n to sum combinations, compute C(n+1, k+1) in O(1) time.
+**CP Application:** k size-এর group তৈরির জন্য available item k থেকে n পর্যন্ত vary করলে, loop-এর বদলে O(1)-এ C(n+1, k+1) ব্যবহার করা যায়।
 
 ---
 
-### 8. Sum over Upper Index (Varying n)
+## 8. Sum over Upper Index (Varying n)
 
 ```
 Sum of C(m, k) for m = 0 to n = C(n+1, k+1)
 ```
 
-Same as Hockey-stick identity. Terms where m < k are zero, so effective summation starts from m = k.
+**ব্যাখ্যা:**  
+Identity 7-এরই আরেকটি mathematical representation। m < k-এর জন্য C(m, k) = 0, তাই মূল calculation m = k থেকেই শুরু হয় এবং result identical থাকে।
 
 ---
 
-## Group 4: Convolution Identities
-
-### 9. Vandermonde's Convolution
+## 9. Vandermonde's Convolution
 
 ```
 Sum of C(m, k) * C(n, r-k) for k = 0 to r = C(m+n, r)
 ```
 
-From m boys and n girls, pick a team of r people. Instead of summing over all possible splits (0 boys + r girls, 1 boy + r-1 girls, ...), directly pick r from total (m+n) people.
+**ব্যাখ্যা:**  
+একটি group-এ m জন ছেলে এবং n জন মেয়ে। r জনের team বানাতে হবে।  
+আপনি 0 ছেলে + r মেয়ে, 1 ছেলে + r-1 মেয়ে, …, r ছেলে + 0 মেয়ে — সব case যোগ করার পরিবর্তে সরাসরি (m+n) জন থেকে r জন choose করলেই একই result পাওয়া যায়।
 
 ---
 
-### 10. Sum of Squares (Special Case of Vandermonde)
+## 10. Sum of Squares (Special Case of Vandermonde)
 
 ```
 Sum of C(n, k)^2 for k = 0 to n = C(2n, n)
 ```
 
-Set m = n and r = n in Vandermonde's Convolution. Replace C(n, k)^2 with C(n, k) * C(n, n-k) (using Symmetry Rule) to match the Vandermonde pattern exactly.
+**ব্যাখ্যা:**  
+Vandermonde's Convolution-এর special case, যেখানে m = n এবং r = n।  
+Derivation: C(n, k)^2 = C(n, k) * C(n, k)। Symmetry Rule অনুযায়ী দ্বিতীয় C(n, k)-কে C(n, n-k) দিয়ে replace করলে এটি Vandermonde pattern-এ পড়ে যায়। অর্থাৎ, n জনের দুটি গ্রুপ (total 2n) থেকে মোট n জন choose করার সমান।
 
 ---
 
-## Quick Reference
+## Quick Reference (সারসংক্ষেপ)
 
-| # | Formula | Name | Key Insight |
-|---|---------|------|-------------|
-| 1 | C(n,k) = C(n,n-k) | Symmetry | Choose = Reject |
-| 2 | C(n,k) = C(n-1,k-1) + C(n-1,k) | Pascal | Include or exclude one element |
-| 3 | k*C(n,k) = n*C(n-1,k-1) | Absorption | Committee + President |
-| 4 | Sum C(n,k) = 2^n | Subsets | Each element: in/out |
-| 5 | Sum (-1)^k C(n,k) = 0 | Alternating | Even = Odd count |
-| 6 | Sum C(n,odd) = 2^(n-1) | Even/Odd | Half of total subsets |
-| 7 | Sum C(i,k) = C(n+1,k+1) | Hockey-stick | Diagonal sum in Pascal |
-| 8 | Sum C(m,k) = C(n+1,k+1) | Upper Index | Same as Hockey-stick |
-| 9 | Sum C(m,k)C(n,r-k) = C(m+n,r) | Vandermonde | Two groups, one team |
-| 10 | Sum C(n,k)^2 = C(2n,n) | Squares | Vandermonde with m=n |
+| # | Identity | নাম |
+|---|----------|------|
+| 1 | C(n,k) = C(n,n-k) | Symmetry Rule |
+| 2 | C(n,k) = C(n-1,k-1) + C(n-1,k) | Pascal's Identity |
+| 3 | k*C(n,k) = n*C(n-1,k-1) | Absorption Identity |
+| 4 | Sum C(n,k) (k=0..n) = 2^n | Total Subsets |
+| 5 | Sum (-1)^k * C(n,k) (k=0..n) = 0 | Alternating Sum |
+| 6 | Sum C(n,odd) = 2^(n-1) | Even/Odd Sum |
+| 7 | Sum C(i,k) (i=k..n) = C(n+1,k+1) | Hockey-Stick |
+| 8 | Sum C(m,k) (m=0..n) = C(n+1,k+1) | Sum over Upper Index |
+| 9 | Sum C(m,k)*C(n,r-k) (k=0..r) = C(m+n,r) | Vandermonde |
+| 10 | Sum C(n,k)^2 (k=0..n) = C(2n,n) | Sum of Squares |
