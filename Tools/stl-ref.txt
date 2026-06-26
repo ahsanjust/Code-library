@@ -1,0 +1,29 @@
+// S4i0 - C++ STL Quick Reference [hash: s4i0]
+// Algorithms:
+  sort(all(v)) / sort(all(v),greater<T>())
+  reverse(all(v))
+  unique(all(v)) - returns iterator to new end, v.erase(...,v.end())
+  lower_bound(all(v),x) - first >= x
+  upper_bound(all(v),x) - first > x
+  binary_search(all(v),x) - bool
+  next_permutation(all(v))
+  min_element(all(v)), max_element(all(v))
+  accumulate(all(v),0LL) - sum
+  iota(all(v),0) - fill 0,1,2,...
+  fill(all(v),val), memset(v,0,sizeof v)
+  __builtin_popcount(x) / __builtin_popcountll(x)
+  __builtin_clz(x) / __builtin_ctz(x) // leading/trailing zeros
+  31-__builtin_clz(x) = floor(log2(x))
+// Containers:
+  vector<T> v(n,val) / v.pb(x) / v.pop_back()
+  set<T> s / s.insert(x) / s.count(x) / s.erase(x)
+  unordered_set<T> (faster but O(1) avg)
+  map<K,V> m / m[key]=val / m.count(key)
+  queue<T>, stack<T>, deque<T>, priority_queue<T>
+  pair<T1,T2> p = {a,b} / p.fi, p.se
+  tuple<T1,T2,T3> t = {a,b,c} / get<0>(t)
+// String: to_string(x), stoi(s), stoll(s), s.substr(pos,len), s.find(p)
+// Bitset: bitset<N> b(val) / b.set(pos) / b.reset(pos) / b.test(pos) / b.count()
+// Math: gcd(a,b) (C++17), __gcd(a,b) (GCC), lcm(a,b)=a/__gcd(a,b)*b
+// Random: mt19937 rng(chrono::steady_clock::now().time_since_epoch().count())
+//   uniform_int_distribution<int>(l,r)(rng)
