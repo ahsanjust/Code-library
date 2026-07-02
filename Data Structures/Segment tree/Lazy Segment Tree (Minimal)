@@ -1,0 +1,58 @@
+const int64_t INF = 1e18, NO_SET = 2e18;
+struct SegTree {
+  int n;
+  vector<int64_t> sum, mn, mx, lz_add, lz_set;
+  SegTree(int n) : n(n), sum(n<<2, 0), mn(n<<2, 0), mx(n<<2, 0), lz_add(n<<2, 0), lz_set(n<<2, NO_SET) {}
+  inline void apply_set(int u, int l, int r, int64_t v) {
+    sum[u] = v * (r - l + 1);
+    mn[u] = mx[u] = v;
+    lz_set[u] = v, lz_add[u] = 0;
+  }
+  inline void apply_add(int u, int l, int r, int64_t v) {
+    sum[u] += v * (r - l + 1);
+    mn[u] += v, mx[u] += v;
+    if (lz_set[u] != NO_SET) lz_set[u] += v;
+    else lz_add[u] += v;
+  }
+  inline void push(int u, int l, int r) {
+    if (l == r) return;
+    int m = (l + r) >> 1;
+    if (lz_set[u] != NO_SET) {
+      apply_set(u<<1, l, m, lz_set[u]);
+      apply_set(u<<1|1, m+1, r, lz_set[u]);
+      lz_set[u] = NO_SET;
+    }
+    if (lz_add[u]) {
+      apply_add(u<<1, l, m, lz_add[u]);
+      apply_add(u<<1|1, m+1, r, lz_add[u]);
+      lz_add[u] = 0;
+    }
+  }
+  void upd(int u, int l, int r, int ql, int qr, int64_t v, bool is_set) {
+    if (l > qr || r < ql) return;
+    if (ql <= l && r <= qr) {
+      if (is_set) apply_set(u, l, r, v);
+      else apply_add(u, l, r, v);
+      return;
+    }
+    push(u, l, r);
+    int m = (l + r) >> 1;
+    upd(u<<1, l, m, ql, qr, v, is_set);
+    upd(u<<1|1, m+1, r, ql, qr, v, is_set);
+    sum[u] = sum[u<<1] + sum[u<<1|1];
+    mn[u] = min(mn[u<<1], mn[u<<1|1]);
+    mx[u] = max(mx[u<<1], mx[u<<1|1]);
+  }
+  struct Res { int64_t s, mn, mx; };
+  Res qry(int u, int l, int r, int ql, int qr) {
+    if (l > qr || r < ql) return {0, INF, -INF};
+    if (ql <= l && r <= qr) return {sum[u], mn[u], mx[u]};
+    push(u, l, r);
+    int m = (l + r) >> 1;
+    Res L = qry(u<<1, l, m, ql, qr), R = qry(u<<1|1, m+1, r, ql, qr);
+    return {L.s + R.s, min(L.mn, R.mn), max(L.mx, R.mx)};
+  }
+  inline void add(int l, int r, int64_t v) { l = max(0, l), r = min(n-1, r); if (l <= r) upd(1, 0, n-1, l, r, v, 0); }
+  inline void set(int l, int r, int64_t v) { l = max(0, l), r = min(n-1, r); if (l <= r) upd(1, 0, n-1, l, r, v, 1); }
+  inline Res get(int l, int r) { l = max(0, l), r = min(n-1, r); if (l > r) return {0, INF, -INF}; return qry(1, 0, n-1, l, r); }
+};
