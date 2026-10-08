@@ -1,0 +1,65 @@
+first start with root[0] = build(0, n - 1, init_values)
+then upd : root[i] = upd(root[earlier_root_index], ..... )
+
+const int N = 3e5 + 5;
+const int inf = 1e9 + 7;
+const int ID = -inf; 
+
+inline int merge(int a, int b) {
+  return max(a, b);
+}
+
+struct node {
+  int l, r, val;
+} t[20 * N];
+
+int tot = 0;
+
+#define lc t[cur].l
+#define rc t[cur].r
+
+void reset() {
+  tot = 0;
+  t[0] = {0, 0, ID};
+}
+
+int build(int b, int e, vector<int> &a) {
+  int cur = ++tot;
+  if (b == e) {
+    t[cur].val = a[b];
+    t[cur].l = t[cur].r = 0;
+    return cur;
+  }
+  int mid = b + (e - b) / 2;
+  lc = build(b, mid, a);
+  rc = build(mid + 1, e, a);
+  t[cur].val = merge(t[lc].val, t[rc].val);
+  return cur;
+}
+
+int upd(int pre, int b, int e, int i, int v) {
+  int cur = ++tot;
+  t[cur] = t[pre];
+
+  if (b == e) {
+    t[cur].val = min(v, t[cur].val);
+    return cur;
+  }
+
+  int mid = b + (e - b) / 2;
+  if (i <= mid) {
+    lc = upd(t[pre].l, b, mid, i, v);
+  } else {
+    rc = upd(t[pre].r, mid + 1, e, i, v);
+  }
+
+  t[cur].val = merge(t[lc].val, t[rc].val);
+  return cur;
+}
+
+int query(int cur, int b, int e, int l, int r) {
+  if (!cur || l > e || b > r) return ID;
+  if (l <= b && r >= e) return t[cur].val;
+  int mid = b + (e - b) / 2;
+  return merge(query(lc, b, mid, l, r), query(rc, mid + 1, e, l, r));
+}
